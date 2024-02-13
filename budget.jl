@@ -59,6 +59,46 @@ function KineticEnergyImmersedBoundaryTerm(model; location = (Center, Center, Ce
                     model_fields)
     return KernelFunctionOperation{Center, Center, Center}(immersed_uᵢ∂ⱼ_τᵢⱼᶜᶜᶜ, model.grid, dependencies...)
 end
+
+
+
+
+
+@inline function immersed_∂ⱼ_τᵢⱼᶜᶜᶜ(i, j, k, grid,
+                                            velocities,
+                                            immersed_bcs,
+                                            closure,
+                                            diffusivity_fields,
+                                            clock,
+                                            model_fields)
+
+    u∂ⱼ_τ₁ⱼ = ℑxᶜᵃᵃ(i, j, k, grid, immersed_∂ⱼ_τ₁ⱼ, velocities, immersed_bcs.u, closure, diffusivity_fields, clock, model_fields)
+    v∂ⱼ_τ₂ⱼ = ℑyᵃᶜᵃ(i, j, k, grid, immersed_∂ⱼ_τ₂ⱼ, velocities, immersed_bcs.v, closure, diffusivity_fields, clock, model_fields)
+    w∂ⱼ_τ₃ⱼ = ℑzᵃᵃᶜ(i, j, k, grid, immersed_∂ⱼ_τ₃ⱼ, velocities, immersed_bcs.w, closure, diffusivity_fields, clock, model_fields)
+
+    return u∂ⱼ_τ₁ⱼ+ v∂ⱼ_τ₂ⱼ + w∂ⱼ_τ₃ⱼ
+end
+
+function MomentumImmersedStressTerm(model)
+    model_fields = fields(model)
+    if model isa HydrostaticFreeSurfaceModel
+        model_fields = (; model_fields..., w=ZeroField())
+    end
+    immersed_bcs = (u = model.velocities.u.boundary_conditions.immersed,
+                    v = model.velocities.v.boundary_conditions.immersed,
+                    w = model.velocities.w.boundary_conditions.immersed)
+
+    grid = model.grid
+    velocities = model.velocities
+    closure = model.closure
+    diffusivity_fields = model.diffusivity_fields
+    clock = model.clock
+    outputs = Dict{Symbol, Any}()
+    outputs[:∂ⱼτᵇ₁ⱼ] = KernelFunctionOperation{Face, Center, Center}(immersed_∂ⱼ_τ₁ⱼ, grid, velocities, immersed_bcs.u, closure, diffusivity_fields, clock, model_fields)
+    outputs[:∂ⱼτᵇ₂ⱼ] = KernelFunctionOperation{Center, Face, Center}(immersed_∂ⱼ_τ₂ⱼ, grid, velocities, immersed_bcs.v, closure, diffusivity_fields, clock, model_fields)
+    outputs[:∂ⱼτᵇ₃ⱼ] = KernelFunctionOperation{Center, Center, Face}(immersed_∂ⱼ_τ₃ⱼ, grid, velocities, immersed_bcs.v, closure, diffusivity_fields, clock, model_fields)
+    return outputs
+end
 #---
 
 #+++ Pressure transport term

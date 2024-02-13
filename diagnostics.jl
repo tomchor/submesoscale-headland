@@ -350,23 +350,22 @@ function construct_outputs(simulation;
     #+++ ttt (Time averages)
     if write_ttt
         @info "Setting up ttt writer"
+        outputs_momentum_immersed_stress = MomentumImmersedStressTerm(model)
         outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip)
         outputs_ttt[:uᵢGᵢ] = outputs_budget[:uᵢGᵢ]
 
-        outputs_ttt[:∂₁p] = ∂x(sum(model.pressures))
-        outputs_ttt[:∂₂p] = ∂y(sum(model.pressures))
-        outputs_ttt[:∂₃p] = ∂z(sum(model.pressures))
-        outputs_ttt[:u_c] = model.velocities.u
-        outputs_ttt[:v_c] = model.velocities.v
-        outputs_ttt[:w_c] = model.velocities.w
+        outputs_ttt[:∂₁p] = @at CellCenter ∂x(sum(model.pressures))
+        outputs_ttt[:∂₂p] = @at CellCenter ∂y(sum(model.pressures))
+        outputs_ttt[:∂₃p] = @at CellCenter ∂z(sum(model.pressures))
+        outputs_ttt[:∂ⱼτᵇ₁ⱼ] = @at CellCenter outputs_momentum_immersed_stress[:∂ⱼτᵇ₁ⱼ]
+        outputs_ttt[:∂ⱼτᵇ₂ⱼ] = @at CellCenter outputs_momentum_immersed_stress[:∂ⱼτᵇ₂ⱼ]
+        outputs_ttt[:∂ⱼτᵇ₃ⱼ] = @at CellCenter outputs_momentum_immersed_stress[:∂ⱼτᵇ₃ⱼ]
 
-        indices = (:, :, round(Int, 2*(k_half/3)):round(Int, 4*(k_half/3)))
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
                                                                      filename = "$rundir/data/ttt.$(simname).nc",
                                                                      schedule = AveragedTimeInterval(interval_time_avg, stride=10),
                                                                      array_type = Array{Float32},
                                                                      with_halos = false,
-                                                                     indices = indices,
                                                                      verbose = debug,
                                                                      kwargs...
                                                                      )
