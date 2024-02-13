@@ -352,6 +352,14 @@ function construct_outputs(simulation;
         @info "Setting up ttt writer"
         outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip)
         outputs_ttt[:uᵢGᵢ] = outputs_budget[:uᵢGᵢ]
+
+        outputs_ttt[:∂₁p] = ∂x(sum(model.pressures))
+        outputs_ttt[:∂₂p] = ∂y(sum(model.pressures))
+        outputs_ttt[:∂₃p] = ∂z(sum(model.pressures))
+        outputs_ttt[:u_c] = model.velocities.u
+        outputs_ttt[:v_c] = model.velocities.v
+        outputs_ttt[:w_c] = model.velocities.w
+
         indices = (:, :, round(Int, 2*(k_half/3)):round(Int, 4*(k_half/3)))
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
                                                                      filename = "$rundir/data/ttt.$(simname).nc",
