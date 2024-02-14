@@ -8,7 +8,7 @@ from matplotlib.colors import LogNorm
 from cmocean import cm
 from scipy.optimize import curve_fit
 
-modifier = "-f2"
+modifier = ""
 
 tafields = xr.open_dataset(f"data_post/tafields_snaps{modifier}.nc", decode_times=False)
 
@@ -37,7 +37,7 @@ bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
 #---
 
 for buffer in bulk.buffer.values:
-    print(f"Calculating buffer = {buffer} m")
+    print(f"Plotting with buffer = {buffer} m")
     bulk_buff = bulk.sel(buffer=buffer)
 
     #+++ Create figure
