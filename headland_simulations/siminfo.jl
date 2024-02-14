@@ -34,7 +34,6 @@ end
                 Ly_ratio = 10, # Ly / headland_width
 
                 Rz = 2.5e-3,
-                Re_eddy = 10^6,
                 runway_length_fraction_L = 2, # runway_length / L
                 sponge_fraction_Ly = 0.1,
                 T_advective_spinup = 20, # Should be a multiple of 10
@@ -203,7 +202,6 @@ function expand_headland_parameters(params)
     N²∞ = N2_inf = (V∞ / (Fr_h * params.H))^2
     R1 = √N²∞ * params.H / f₀
     z₀ = z_0 = params.Rz * params.H
-    ν_eddy = V∞ * L / params.Re_eddy
     sponge_rate = 50 * V∞ / sponge_length_y
     #---
 

@@ -352,7 +352,8 @@ function construct_outputs(simulation;
         @info "Setting up ttt writer"
         outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip)
         outputs_ttt[:uᵢGᵢ] = outputs_budget[:uᵢGᵢ]
-        indices = (:, :, round(Int, 2*(k_half/3)):round(Int, 4*(k_half/3)))
+        #indices = (:, :, round(Int, 2*(k_half/3)):round(Int, 4*(k_half/3)))
+        indices = (:, :, :)
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
                                                                      filename = "$rundir/data/ttt.$(simname).nc",
                                                                      schedule = AveragedTimeInterval(interval_time_avg, stride=10),
