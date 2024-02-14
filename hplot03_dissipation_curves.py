@@ -8,19 +8,19 @@ from matplotlib.colors import LogNorm
 from cmocean import cm
 from scipy.optimize import curve_fit
 
-use_xyz = True
-modifier = "-f2"
-if use_xyz:
-    print("Using bulk stats calculated with xyz")
-    bulk = xr.open_dataset(f"data_post/bulkstats_xyz_snaps{modifier}.nc", chunks={})
-else:
-    print("Using bulk stats calculated with xyi")
-    bulk = xr.open_dataset(f"data_post/bulkstats_snaps{modifier}.nc", chunks={})
+use_xyz = False
+modifier = ""
+bulk = xr.open_dataset(f"data_post/bulkstats_snaps{modifier}.nc", chunks={})
 bulk = bulk.reindex(Ro_h = list(reversed(bulk.Ro_h)))
-bulk = bulk.sel(buffer=5)
+bulk = bulk.sel(buffer=0)
 
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
 bulk["⟨εₖ⟩ˣᶻ"] = bulk["∫∫ʷεₖdxdz"] / bulk["∫∫ʷdxdz"]
+
+#+++ Bathymetry intrusion exponential
+def η(z): return bulk.Lx/2 + (0 - bulk.Lx/2) * z / (2*bulk.H) # headland intrusion size
+def headland_x_of_yz(y, z=40): return η(z) * np.exp(-(2*y / η(z))**2)
+#---
 
 #+++ Create figure
 ncols = 1
@@ -52,8 +52,13 @@ plt.colorbar(sm, ax=ax, label = "Slope Burger number")
 for ax in axesf:
     #ax.legend()
     #ax.grid(True)
-    ax.axvline(x=0, color="k", ls="--", lw=1, zorder=0)
+    ax.axvline(x=0, color="lightgray", ls="--", lw=1, zorder=0)
     ax.set_title(f"x,z average of KE dissipation rate excluding {bulk.buffer.item()} m closest to the boundary")
+
+    ax2 = ax.twinx()
+    ax2.fill_between(bulk.yC, headland_x_of_yz(bulk.yC), color="lightgray", zorder=0)
+    ax2.set_ylim(0, 2e3)
+    ax2.tick_params(left=False, right=False, bottom=False, labelleft=False, labelright=False, labelbottom=False)
 
 if modifier:
     fig.savefig(f"figures/dissipation_curves{modifier}.pdf")

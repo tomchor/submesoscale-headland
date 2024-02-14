@@ -63,7 +63,7 @@ def manual_facetgrid(da, fig, tt=None,
                 ax2 = ax.twinx()
                 ax2.set_ylabel(f"$Ro_h =$ {Ro_h:.3g}", fontsize=9)
                 ax2.tick_params(left=False, right=False, bottom=False, labelleft=False, labelright=False, labelbottom=False)
-                ax2.spines['top'].set_visible(False)
+                ax2.spines["top"].set_visible(False)
             if j_Fr != 0:
                 ax.set_ylabel("")
 
