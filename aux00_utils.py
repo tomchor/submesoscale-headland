@@ -2,6 +2,26 @@ import xarray as xr
 import pynanigans as pn
 import numpy as np
 
+#+++ All simulation names
+simnames = ["NPN-R008F008",
+            "NPN-R008F02",
+            "NPN-R008F05",
+            "NPN-R008F1",
+            "NPN-R02F008",
+            "NPN-R02F02",
+            "NPN-R02F05",
+            "NPN-R02F1",
+            "NPN-R05F008",
+            "NPN-R05F02",
+            "NPN-R05F05",
+            "NPN-R05F1",
+            "NPN-R1F008",
+            "NPN-R1F02",
+            "NPN-R1F05",
+            "NPN-R1F1",
+            ]
+#---
+
 #+++ Open simulation following the standard way
 def open_simulation(fname, 
                     use_inertial_periods=False,

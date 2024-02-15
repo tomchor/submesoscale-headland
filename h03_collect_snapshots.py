@@ -47,7 +47,7 @@ def collect_and_save_datasets():
 
                 if slice_name == "xyi":
                     ds = ds.drop_vars(["zC", "zF"])
-                    variables = ["u", "v", "w", "Ek", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ",
+                    variables = ["u", "v", "w", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ",
                                  "∂u∂x", "∂v∂x", "∂w∂x",
                                  "∂u∂y", "∂v∂y", "∂w∂y",
                                  "∂u∂z", "∂v∂z", "∂w∂z",
@@ -55,10 +55,10 @@ def collect_and_save_datasets():
                                  "∂Uᵍ∂z", "∂Vᵍ∂z", "PV_z", "Re_b"]
                 elif slice_name == "xiz":
                     ds = ds.drop_vars(["yC", "yF"])
-                    variables = ["u", "v", "w", "dbdz", "Ek", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b", "dbdx",]
+                    variables = ["u", "v", "w", "dbdz", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
                 elif slice_name == "iyz":
                     ds = ds.drop_vars(["xC", "xF"])
-                    variables = ["u", "v", "w", "dbdz", "Ek", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
+                    variables = ["u", "v", "w", "dbdz", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
                 ds = ds[variables]
 
                 #+++ Get rid of slight misalignment in times
@@ -66,7 +66,7 @@ def collect_and_save_datasets():
                 #---
 
                 #+++ Get specific times and create new variables
-                t_slice = slice(ds.T_advective_spinup+0.01, np.inf, 1)
+                t_slice = slice(ds.T_advective_spinup+10, np.inf, 1)
                 ds = ds.sel(time=t_slice)
                 ds = ds.assign_coords(time=ds.time-ds.time[0])
 
