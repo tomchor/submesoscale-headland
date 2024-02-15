@@ -12,7 +12,7 @@ print("Starting snapshot-collecting script")
 
 #+++ Options
 slice_names = ["xyi", "xiz", "iyz", "tafields"]
-#slice_names = ["tafields"]
+#slice_names = ["xyi"]
 #---
 
 #+++ Define collect_snapshots() function
@@ -30,7 +30,6 @@ def collect_snapshots():
                 fname = f"tafields_{simname}.nc"
                 print(f"\nOpening {fname}")
                 ds = xr.open_dataset(f"data_post/{fname}", chunks=dict(time="auto", L="auto"))
-                PV = ds["q̄"]
             #---
 
             #+++ Deal with snapshots
@@ -60,25 +59,24 @@ def collect_snapshots():
                     ds = ds.drop_vars(["xC", "xF"])
                     variables = ["u", "v", "w", "dbdz", "Ek", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
                 ds = ds[variables]
-                PV = ds.PV
 
-                #+++ Get rid of slight misalignment in times
-                ds = adjust_times(ds, round_times=True)
-                #---
+            #+++ Get rid of slight misalignment in times
+            ds = adjust_times(ds, round_times=True)
+            #---
 
-                #+++ Get specific times and create new variables
-                t_slice = slice(ds.T_advective_spinup+0.01, np.inf, 50)
-                ds = ds.sel(time=t_slice)
-                ds = ds.assign_coords(time=ds.time-ds.time[0])
+            #+++ Get specific times and create new variables
+            t_slice = slice(ds.T_advective_spinup+0.01, np.inf, 1)
+            ds = ds.sel(time=t_slice)
+            ds = ds.assign_coords(time=ds.time-ds.time[0])
 
-                #+++ Get a unique list of time (make it as long as the longest ds
-                if not dslist:
-                    time_values = np.array(ds.time)
-                else:
-                    if len(np.array(ds.time)) > len(time_values):
-                        time_values = np.array(ds.time)
-                #---
-                #---
+            #+++ Get a unique list of time (make it as long as the longest ds
+            if not dslist:
+                time_values = np.array(ds.time)
+            else:
+                if len(np.array(ds.time)) > len(time_values):
+                       time_values = np.array(ds.time)
+            #---
+            #---
             #---
             #---
 
@@ -89,7 +87,8 @@ def collect_snapshots():
             #---
 
             #+++ Create auxiliary variables and organize them into a Dataset
-            ds["PV_norm"] = PV / (ds.N2_inf * ds.f_0)
+            if "PV" in ds.variables.keys():
+                ds["PV_norm"] = ds.PV / (ds.N2_inf * ds.f_0)
             ds["simulation"] = simname
             ds["sim_number"] = sim_number
             ds["f₀"] = ds.f_0
@@ -119,9 +118,11 @@ def collect_snapshots():
             dslist[i]["time"] = time_values # Prevent double time, e.g. [0, 0.2, 0.2, 0.4, 0.4, 0.6, 0.8] etc. (not sure why this is needed)
         dsout = xr.combine_by_coords(dslist, combine_attrs="drop_conflicts")
 
+        dsout["Δxᶜᶜᶜ"] = dsout["Δxᶜᶜᶜ"].isel(Ro_h=0, Fr_h=0)
+        dsout["Δyᶜᶜᶜ"] = dsout["Δyᶜᶜᶜ"].isel(Ro_h=0, Fr_h=0)
+        dsout["Δzᶜᶜᶜ"] = dsout["Δzᶜᶜᶜ"].isel(Ro_h=0, Fr_h=0)
         dsout["land_mask"]  = (dsout["Δxᶜᶜᶜ"] == 0)
         dsout["water_mask"] = np.logical_not(dsout.land_mask)
-        print(dsout)
         #---
 
         #+++ Save to disk

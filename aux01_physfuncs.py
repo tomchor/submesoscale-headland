@@ -39,8 +39,9 @@ def coarsen(da, filter_size, dims=["xC", "yC"], kernel="gaussian",
 #---
 
 #+++ Calculate filtered PV
-def calculate_filtered_PV(ds, scale_meters = 5, condense=False, indices = [1,2,3], cleanup=False):
-    if condense:
+def calculate_filtered_PV(ds, scale_meters = 5, condense_tensors=False, indices = [1,2,3], cleanup=False):
+    from aux00_utils import condense
+    if condense_tensors:
         ds = condense(ds, ["∂u∂x", "∂v∂x", "∂w∂x"], "∂₁uᵢ", dimname="i", indices=indices)
         ds = condense(ds, ["∂u∂y", "∂v∂y", "∂w∂y"], "∂₂uᵢ", dimname="i", indices=indices)
         ds = condense(ds, ["∂u∂z", "∂v∂z", "∂w∂z"], "∂₃uᵢ", dimname="i", indices=indices)
