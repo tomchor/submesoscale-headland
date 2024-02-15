@@ -6,6 +6,7 @@ import pynanigans as pn
 import xarray as xr
 from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
+from aux01_physfuncs import calculate_filtered_PV
 from aux02_plotting import manual_facetgrid, get_orientation, BuRd
 from cmocean import cm
 plt.rcParams["figure.constrained_layout.use"] = True
@@ -20,7 +21,7 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       "PVᵍ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "q̃_norm"    : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "Ri"        : dict(vmin=-2, vmax=2, cmap=cm.balance),
-                      "Ro"        : dict(vmin=-3, vmax=3, cmap="bwr"),
+                      "Ro"        : dict(vmin=-3, vmax=3, cmap=BuRd),
                       "εₖ"        : dict(norm=LogNorm(vmin=1e-10,   vmax=1e-8,   clip=True), cmap="inferno"),
                       "εₚ"        : dict(norm=LogNorm(vmin=1e-10/5, vmax=1e-8/5, clip=True), cmap="inferno"),
                       "ε̄ₖ"        : dict(norm=LogNorm(vmin=2e-11,   vmax=2e-9,   clip=True), cmap="inferno"),
@@ -51,22 +52,25 @@ except NameError:
     shell = None
 #---
 
-if shell is not None: # Running from IPython
+if shell is not None:
+    #+++ Running from IPython
     animate = False
     test = False
     time_avg = False
-    summarize = False
+    summarize = True
+    plotting_time = 19
 
     slice_names = ["tafields",]
     slice_names = ["xyi",]
     modifiers = ["-f2", "-S-f2", "", "-S"]
-    modifiers = ["-f2",]
+    modifiers = ["-f4",]
 
-    varnames = ["PV_norm", "Ro"]
+    varnames = ["q̃_norm"]
     contour_variable_name = None #"water_mask_buffered"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
-
-else: # Running from python (probably from run_postproc.sh)
+    #---
+else:
+    #+++ Running from python (probably from run_postproc.sh)
     animate = False
     test = False
     time_avg = False
@@ -80,6 +84,7 @@ else: # Running from python (probably from run_postproc.sh)
     varnames = ["ε̄ₖ"]
     contour_variable_name = None #"q̃_norm"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
+    #---
 
 plot_kwargs_by_var = { k : plot_kwargs_by_var[k] for k in plot_kwargs_by_var if k in varnames}
 #---
@@ -91,6 +96,8 @@ for modifier in modifiers:
         ncname = f"data_post/{slice_name}_snaps{modifier}.nc"
         if __name__ == "__main__": print(f"\nOpening {ncname}")
         snaps = xr.open_dataset(ncname)
+        if not animate:
+            snaps = snaps.sel(time=[plotting_time], method="nearest")
 
         if summarize:
             summary_values = [0.2, 1.25]
@@ -101,6 +108,7 @@ for modifier in modifiers:
 
         snaps = snaps.reindex(Ro_h = list(reversed(snaps.Ro_h)))
         snaps = snaps.chunk(time=1)
+        snaps["land_mask"] = snaps.land_mask.isel(Ro_h=0, Fr_h=0)
         snaps.PV_norm.attrs = dict(long_name=r"Normalized Ertel PV")
         #---
 
