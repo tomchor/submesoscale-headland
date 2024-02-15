@@ -35,9 +35,12 @@ modifiers = ["-f4", "-f2",]
 #---
 
 for modifier in modifiers:
-    print("\nStarting full post-processing of results using modifier", modifier)
+    print("\nStarting h01 and h02 post-processing of results using modifier", modifier)
     simnames = [ simname_base + modifier for simname_base in simnames_base ]
-
     exec(open("h01_energy_transfer.py").read())
     exec(open("h02_bulkstats.py").read())
+
+for modifier in modifiers:
+    print("\nStarting h03 post-processing of results using modifier", modifier)
+    simnames = [ simname_base + modifier for simname_base in simnames_base ]
     exec(open("h03_collect_snapshots.py").read())
