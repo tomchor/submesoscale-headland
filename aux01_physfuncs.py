@@ -38,6 +38,35 @@ def coarsen(da, filter_size, dims=["xC", "yC"], kernel="gaussian",
     return result
 #---
 
+#+++ Calculate filtered PV
+def calculate_filtered_PV(ds, scale_meters = 5, condense=False, indices = [1,2,3], cleanup=False):
+    if condense:
+        ds = condense(ds, ["∂u∂x", "∂v∂x", "∂w∂x"], "∂₁uᵢ", dimname="i", indices=indices)
+        ds = condense(ds, ["∂u∂y", "∂v∂y", "∂w∂y"], "∂₂uᵢ", dimname="i", indices=indices)
+        ds = condense(ds, ["∂u∂z", "∂v∂z", "∂w∂z"], "∂₃uᵢ", dimname="i", indices=indices)
+        ds = condense(ds, ["∂₁uᵢ", "∂₂uᵢ", "∂₃uᵢ"], "∂ⱼuᵢ", dimname="j", indices=indices)
+        ds = condense(ds, ["dbdx", "dbdy", "dbdz"], "∂ⱼb",  dimname="j", indices=indices)
+
+    ds["∂ⱼũᵢ"] = coarsen(ds["∂ⱼuᵢ"], scale_meters, dims=["xC", "yC"], spacings=[ds["Δxᶜᶜᶜ"], ds["Δyᶜᶜᶜ"]], optimize=True)
+    ds["∂ⱼb̃"]  = coarsen(ds["∂ⱼb"],  scale_meters, dims=["xC", "yC"], spacings=[ds["Δxᶜᶜᶜ"], ds["Δyᶜᶜᶜ"]], optimize=True)
+
+    ω_x = ds["∂ⱼũᵢ"].sel(i=3, j=2) - ds["∂ⱼũᵢ"].sel(i=2, j=3)
+    ω_y = ds["∂ⱼũᵢ"].sel(i=1, j=3) - ds["∂ⱼũᵢ"].sel(i=3, j=1)
+    ω_z = ds["∂ⱼũᵢ"].sel(i=2, j=1) - ds["∂ⱼũᵢ"].sel(i=1, j=2)
+
+    ds["q̃x"] = ω_x * ds["∂ⱼb̃"].sel(j=1)
+    ds["q̃y"] = ω_y * ds["∂ⱼb̃"].sel(j=2)
+    ds["q̃z"] = ω_z * ds["∂ⱼb̃"].sel(j=3) + ds["f₀"] * ds["∂ⱼb̃"].sel(j=3)
+
+    ds = condense(ds, ["q̃x", "q̃y", "q̃z"], "q̃ᵢ", dimname="i", indices=indices)
+    ds["q̃"] = ds["q̃ᵢ"].sum("i")
+
+    if cleanup:
+        ds = ds.drop_vars(["∂ⱼũᵢ", "∂ⱼb̃", "q̃ᵢ",])
+    return ds
+#---
+
+
 #+++ Get important masks
 def get_topography_masks(ds, buffers_in_meters=[0, 5, 10, 30], get_buffered_volumes=True, load=False):
     """ Get some important masks for the headland set-up"""
