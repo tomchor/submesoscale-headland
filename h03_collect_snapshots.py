@@ -47,7 +47,12 @@ def collect_snapshots():
 
                 if slice_name == "xyi":
                     ds = ds.drop_vars(["zC", "zF"])
-                    variables = ["u", "v", "w", "dbdz", "Ek", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "∂u∂z", "∂v∂z", "∂Uᵍ∂z", "∂Vᵍ∂z", "PV_z", "Re_b"]
+                    variables = ["u", "v", "w", "Ek", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ",
+                                 "∂u∂x", "∂v∂x", "∂w∂x",
+                                 "∂u∂y", "∂v∂y", "∂w∂y",
+                                 "∂u∂z", "∂v∂z", "∂w∂z",
+                                 "dbdx", "dbdy", "dbdz",
+                                 "∂Uᵍ∂z", "∂Vᵍ∂z", "PV_z", "Re_b"]
                 elif slice_name == "xiz":
                     ds = ds.drop_vars(["yC", "yF"])
                     variables = ["u", "v", "w", "dbdz", "Ek", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b", "dbdx",]
