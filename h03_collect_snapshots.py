@@ -4,7 +4,7 @@ from os.path import basename
 import numpy as np
 import xarray as xr
 import pynanigans as pn
-from aux00_utils import open_simulation, adjust_times
+from aux00_utils import collect_datasets, open_simulation, adjust_times
 from colorama import Fore, Back, Style
 from dask.diagnostics import ProgressBar
 
@@ -12,11 +12,11 @@ print("Starting snapshot-collecting script")
 
 #+++ Options
 slice_names = ["xyi", "xiz", "iyz", "tafields"]
-#slice_names = ["xyi"]
+slice_names = ["xyi"]
 #---
 
-#+++ Define collect_snapshots() function
-def collect_snapshots():
+#+++ Define collect_and_save_datasets() function
+def collect_and_save_datasets():
 
     #+++ Collect 2D slices
     for slice_name in slice_names:
@@ -36,13 +36,14 @@ def collect_snapshots():
             else:
                 fname = f"{slice_name}.{simname}.nc"
                 print(f"\nOpening {fname}")
-                grid, ds = open_simulation(path + fname,
-                                           use_advective_periods=True,
-                                           topology=simname[:3],
-                                           squeeze=True,
-                                           load=False,
-                                           open_dataset_kwargs=dict(chunks=dict(time=1)),
-                                           )
+                ds = open_simulation(path + fname,
+                                     use_advective_periods=True,
+                                     topology=simname[:3],
+                                     squeeze=True,
+                                     load=False,
+                                     get_grid = False,
+                                     open_dataset_kwargs=dict(chunks=dict(time=1)),
+                                     )
 
                 if slice_name == "xyi":
                     ds = ds.drop_vars(["zC", "zF"])
@@ -60,23 +61,23 @@ def collect_snapshots():
                     variables = ["u", "v", "w", "dbdz", "Ek", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
                 ds = ds[variables]
 
-            #+++ Get rid of slight misalignment in times
-            ds = adjust_times(ds, round_times=True)
-            #---
+                #+++ Get rid of slight misalignment in times
+                ds = adjust_times(ds, round_times=True)
+                #---
 
-            #+++ Get specific times and create new variables
-            t_slice = slice(ds.T_advective_spinup+0.01, np.inf, 1)
-            ds = ds.sel(time=t_slice)
-            ds = ds.assign_coords(time=ds.time-ds.time[0])
+                #+++ Get specific times and create new variables
+                t_slice = slice(ds.T_advective_spinup+0.01, np.inf, 1)
+                ds = ds.sel(time=t_slice)
+                ds = ds.assign_coords(time=ds.time-ds.time[0])
 
-            #+++ Get a unique list of time (make it as long as the longest ds
-            if not dslist:
-                time_values = np.array(ds.time)
-            else:
-                if len(np.array(ds.time)) > len(time_values):
-                       time_values = np.array(ds.time)
-            #---
-            #---
+                #+++ Get a unique list of time (make it as long as the longest ds
+                if not dslist:
+                    time_values = np.array(ds.time)
+                else:
+                    if len(np.array(ds.time)) > len(time_values):
+                           time_values = np.array(ds.time)
+                #---
+                #---
             #---
             #---
 
@@ -114,8 +115,9 @@ def collect_snapshots():
                 assert np.allclose(dslist[0].time.values, ds.time.values), "Time coordinates don't match in all datasets"
 
         print("Starting to concatenate everything into one dataset")
-        for i in range(len(dslist)):
-            dslist[i]["time"] = time_values # Prevent double time, e.g. [0, 0.2, 0.2, 0.4, 0.4, 0.6, 0.8] etc. (not sure why this is needed)
+        if slice_name != "tafields":
+            for i in range(len(dslist)):
+                dslist[i]["time"] = time_values # Prevent double time, e.g. [0, 0.2, 0.2, 0.4, 0.4, 0.6, 0.8] etc. (not sure why this is needed)
         dsout = xr.combine_by_coords(dslist, combine_attrs="drop_conflicts")
 
         dsout["Δxᶜᶜᶜ"] = dsout["Δxᶜᶜᶜ"].isel(Ro_h=0, Fr_h=0)
@@ -186,8 +188,8 @@ if basename(__file__) != "h00_runall.py":
 
     for modifier in modifiers:
         simnames_filtered = [ f"{simname}{modifier}" for simname in simnames ]
-        collect_snapshots()
+        collect_and_save_datasets()
 else:
     simnames_filtered = simnames
-    collect_snapshots()
+    collect_and_save_datasets()
 #---

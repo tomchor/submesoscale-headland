@@ -108,7 +108,6 @@ for modifier in modifiers:
 
         snaps = snaps.reindex(Ro_h = list(reversed(snaps.Ro_h)))
         snaps = snaps.chunk(time=1)
-        snaps["land_mask"] = snaps.land_mask.isel(Ro_h=0, Fr_h=0)
         snaps.PV_norm.attrs = dict(long_name=r"Normalized Ertel PV")
         #---
 
@@ -137,7 +136,9 @@ for modifier in modifiers:
 
             snaps["Rᵍ_PVvs"] = (-snaps.Ri**(-1) / (1 + snaps.Ro - 1/snaps.Ri))#.where(snaps.CSI_mask)
 
-        if "q̃" in snaps.variables.keys():
+        if "q̃_norm" in varnames:
+            if "q̃" not in snaps.variables.keys():
+                snaps = calculate_filtered_PV(snaps, scale_meters = 5, condense_tensors=True, indices = [1,2,3], cleanup=False)
             snaps["q̃_norm"] = snaps["q̃"]  / (snaps["N²∞"] * snaps["f₀"])
             snaps["q̃_norm"].attrs = dict(long_name=r"Normalized filtered Ertel PV")
 
