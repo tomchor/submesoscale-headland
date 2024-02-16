@@ -45,6 +45,10 @@ def open_simulation(fname,
         ds = xr.open_dataset(fname, decode_times=False, **open_dataset_kwargs)
     #---
 
+    #+++ Get grid
+    if get_grid: grid_ds = pn.get_grid(ds, topology=topology, **kwargs)
+    #---
+
     #+++ Squeeze?
     if squeeze: ds = ds.squeeze()
     #---
@@ -68,9 +72,8 @@ def open_simulation(fname,
         ds = ds.isel(time=index)
     #---
 
-    #+++ Get grid
+    #+++ Return
     if get_grid:
-        grid_ds = pn.get_grid(ds, topology=topology, **kwargs)
         return grid_ds, ds
     else:
         return ds

@@ -12,7 +12,6 @@ print("Starting snapshot-collecting script")
 
 #+++ Options
 slice_names = ["xyi", "xiz", "iyz", "tafields"]
-slice_names = ["xyi"]
 #---
 
 #+++ Define collect_and_save_datasets() function
