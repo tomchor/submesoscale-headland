@@ -29,7 +29,7 @@ for buffer in bulk.buffer.values:
     nrows = 1
     size = 3.5
     fig, axes = plt.subplots(ncols=ncols, nrows=nrows,
-                             figsize = (1.8*ncols*size, nrows*size),
+                             figsize = (1.5*ncols*size, nrows*size),
                              sharex=False, sharey=False,
                              squeeze = False,
                              constrained_layout=True)
@@ -53,8 +53,9 @@ for buffer in bulk.buffer.values:
     #+++ Prettify and save
     for ax in axesf:
         ax.axvline(x=0, color="lightgray", ls="--", lw=1, zorder=0)
+        ax.set_xlim(-250, 1250)
         ax.set_ylim(0, None)
-        ax.set_title(f"Average of KE dissipation rate excluding {bulkb.buffer.item()} m closest to the boundary")
+        ax.set_title(f"Average of KE dissipation rate\nexcluding {bulkb.buffer.item()} m closest to the boundary")
 
         ax2 = ax.twinx()
         ax2.fill_between(bulkb.yC, headland_x_of_yz(bulkb.yC), color="lightgray", alpha=.8)

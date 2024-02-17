@@ -61,7 +61,7 @@ ds_xz["εₖ"].attrs = dict(long_name=r"KE dissipation rate [m²/s³]")
 
 size = 2.5
 nrows=2; ncols=len(ds_xz.yC)
-fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(5*size*ncols, size*nrows),
+fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(2*size*ncols, size*nrows),
                          squeeze=False,
                          sharex=True, sharey=True)
 
