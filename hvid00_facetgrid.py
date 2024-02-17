@@ -58,14 +58,14 @@ if shell is not None:
     test = False
     time_avg = False
     summarize = True
-    plotting_time = 19
+    plotting_time = 4
 
     slice_names = ["tafields",]
     slice_names = ["xyi",]
     modifiers = ["-f2", "-S-f2", "", "-S"]
-    modifiers = ["-f2",]
+    modifiers = ["",]
 
-    varnames = ["PV_norm", "q̃_norm"]
+    varnames = ["q̃_norm"]
     contour_variable_name = None #"water_mask_buffered"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
@@ -122,6 +122,12 @@ for modifier in modifiers:
             snaps = snaps.isel(λ=0)
         except ValueError:
             pass
+
+        try:
+            snaps.xC.attrs["long_name"] = r"$x$"
+            snaps.yC.attrs["long_name"] = r"$y$"
+        except ValueError:
+            pass
         #---
 
         #+++ Adjust/create variables
@@ -138,7 +144,6 @@ for modifier in modifiers:
 
         if "q̃_norm" in varnames:
             if "q̃" not in snaps.variables.keys():
-                from aux00_utils import simnames, collect_datasets
                 snaps = calculate_filtered_PV(snaps, scale_meters = 10, condense_tensors=True, indices = [1,2,3], cleanup=False)
             snaps["q̃_norm"] = snaps["q̃"]  / (snaps["N²∞"] * snaps["f₀"])
             snaps["q̃_norm"].attrs = dict(long_name=r"Normalized filtered Ertel PV")
