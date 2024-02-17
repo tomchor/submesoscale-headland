@@ -8,7 +8,7 @@ from matplotlib.colors import LogNorm
 from cmocean import cm
 from scipy.optimize import curve_fit
 
-modifier = "-f2"
+modifier = ""
 bulk = xr.open_dataset(f"data_post/bulkstats_snaps{modifier}.nc", chunks={})
 bulk = bulk.reindex(Ro_h = list(reversed(bulk.Ro_h)))
 
@@ -29,7 +29,7 @@ for buffer in bulk.buffer.values:
     nrows = 1
     size = 3.5
     fig, axes = plt.subplots(ncols=ncols, nrows=nrows,
-                             figsize = (1.5*ncols*size, nrows*size),
+                             figsize = (1.4*ncols*size, nrows*size),
                              sharex=False, sharey=False,
                              squeeze = False,
                              constrained_layout=True)

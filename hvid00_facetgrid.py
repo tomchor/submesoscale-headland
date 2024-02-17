@@ -75,6 +75,7 @@ else:
     test = False
     time_avg = False
     summarize = True
+    plotting_time = 4
 
     slice_names = ["xyi", "xiz", "iyz", "tafields"]
     slice_names = ["tafields",]

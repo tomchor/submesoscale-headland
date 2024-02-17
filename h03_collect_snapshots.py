@@ -12,6 +12,7 @@ print("Starting snapshot-collecting script")
 
 #+++ Options
 slice_names = ["xyi", "xiz", "iyz", "tafields"]
+slice_names = ["xiz",]
 #---
 
 #+++ Define collect_and_save_datasets() function
@@ -44,17 +45,22 @@ def collect_and_save_datasets():
                                      open_dataset_kwargs=dict(chunks=dict(time=1)),
                                      )
 
+                velocity_gradient_tensor = ["∂u∂x", "∂v∂x", "∂w∂x",
+                                            "∂u∂y", "∂v∂y", "∂w∂y",
+                                            "∂u∂z", "∂v∂z", "∂w∂z",]
+                buoyancy_gradient_tensor = ["dbdx", "dbdy", "dbdz",]
+
                 if slice_name == "xyi":
                     ds = ds.drop_vars(["zC", "zF"])
                     variables = ["u", "v", "w", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ",
-                                 "∂u∂x", "∂v∂x", "∂w∂x",
-                                 "∂u∂y", "∂v∂y", "∂w∂y",
-                                 "∂u∂z", "∂v∂z", "∂w∂z",
-                                 "dbdx", "dbdy", "dbdz",
                                  "∂Uᵍ∂z", "∂Vᵍ∂z", "PV_z", "Re_b"]
+                    variables = np.concatenate([variables, velocity_gradient_tensor, buoyancy_gradient_tensor])
+
                 elif slice_name == "xiz":
                     ds = ds.drop_vars(["yC", "yF"])
-                    variables = ["u", "v", "w", "dbdz", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
+                    variables = ["u", "v", "w", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
+                    variables = np.concatenate([variables, velocity_gradient_tensor, buoyancy_gradient_tensor])
+
                 elif slice_name == "iyz":
                     ds = ds.drop_vars(["xC", "xF"])
                     variables = ["u", "v", "w", "dbdz", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
@@ -183,7 +189,7 @@ if basename(__file__) != "h00_runall.py":
 
     modifiers = ["-f4", "-S-f4", "-f2", "-S-f2", "", "-S"]
     modifiers = ["-f4", "-f2",]
-    modifiers = ["-f4",]
+    modifiers = ["",]
 
     for modifier in modifiers:
         simnames_filtered = [ f"{simname}{modifier}" for simname in simnames ]

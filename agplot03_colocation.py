@@ -5,13 +5,12 @@ from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
 from cmocean import cm
 from aux00_utils import open_simulation
+from aux01_physfuncs import calculate_filtered_PV
 from aux02_plotting import letterize
 
 plt.rcParams['figure.constrained_layout.use'] = True
 
-modifier = "-f2"
-variable = "PV_norm"
-#variable = "εₖ"
+modifier = ""
 Fr_h = 0.2
 Ro_h = 1
 
@@ -48,15 +47,18 @@ plot_kwargs_by_var = {"PV_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
 import matplotlib.pyplot as plt
 import numpy as np
 
-
+xyz["f₀"] = xyz.f_0
+xyz = calculate_filtered_PV(xyz, scale_meters = 5, condense_tensors=True, indices = [1,2,3], cleanup=False)
 xyz["land_mask"] = xyz["Δxᶜᶜᶜ"].where(xyz["Δxᶜᶜᶜ"] == 0)
 xyz["PV_norm"] = xyz.PV / (xyz.N2_inf * xyz.f_0)
+xyz["q̃_norm"] = xyz.q̃ / (xyz.N2_inf * xyz.f_0)
 
 xyz = xyz.sel(time=np.inf, method="nearest").sel(xC=slice(-50, None), yC=slice(-250, 750))
 ds_xz = xyz.sel(yC=[100, 200, 250, 500], method="nearest")
 ds_xz = xyz.sel(yC=[500,], method="nearest")
 
 ds_xz.PV_norm.attrs = dict(long_name=r"Ertel PV / $N^2_\infty f_0$")
+ds_xz.q̃_norm.attrs = dict(long_name=r"Filtered Ertel PV / $N^2_\infty f_0$")
 ds_xz["εₖ"].attrs = dict(long_name=r"KE dissipation rate [m²/s³]")
 
 size = 2.5
@@ -69,7 +71,7 @@ opts_land = dict(cmap="Set2_r", vmin=0, vmax=1, alpha=1.0, zorder=10)
 cbar_kwargs = dict(shrink=0.9, fraction=0.03, pad=0, aspect=30, location="right",)
 for i, yC in enumerate(ds_xz.yC):
     ax = axes[0,i]
-    ds_xz.sel(yC=yC).PV_norm.pnplot(ax=ax, x="x", rasterized=True, cbar_kwargs=cbar_kwargs, **plot_kwargs_by_var["PV_norm"])
+    ds_xz.sel(yC=yC)["q̃_norm"].pnplot(ax=ax, x="x", rasterized=True, cbar_kwargs=cbar_kwargs, **plot_kwargs_by_var["PV_norm"])
     ax.pcolormesh(ds_xz.xC, ds_xz.zC, ds_xz.land_mask.pnisel(y=i), rasterized=True, **opts_land)
     ax.set_xlabel("")
     ax.set_ylabel("z [m]")
