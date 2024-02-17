@@ -107,7 +107,7 @@ for buffer in bulk.buffer.values:
 
     print("Plotting axes 3")
     ax = axesf[3]
-    xvarname = "RoFr"
+    xvarname = "Slope_Bu"
     yvarname = "γᵇ"
     for cond, label, color, marker in zip(conditions, labels, colors, markers):
         ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
@@ -224,5 +224,5 @@ for buffer in bulk.buffer.values:
         ax.grid(True)
         ax.set_title("")
     
-    fig.savefig(f"figures_check/scalings_buffer={buffer}m.pdf")
+    fig.savefig(f"figures_check/scalings_buffer={buffer}m{modifier}.pdf")
     #---

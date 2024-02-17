@@ -8,7 +8,7 @@ from matplotlib.colors import LogNorm
 from cmocean import cm
 from scipy.optimize import curve_fit
 
-modifier = "-f2"
+modifier = ""
 
 tafields = xr.open_dataset(f"data_post/tafields_snaps{modifier}.nc", decode_times=False)
 
@@ -90,6 +90,6 @@ for buffer in bulk.buffer.values:
         ax.grid(True)
         ax.set_title("")
     
-    fig.savefig(f"figures/scalings_buffer={buffer}m.pdf")
+    fig.savefig(f"figures/scalings_buffer={buffer}m{modifier}.pdf")
     #---
 
