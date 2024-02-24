@@ -2,6 +2,26 @@ import xarray as xr
 import pynanigans as pn
 import numpy as np
 
+#+++ All simulation names
+simnames = ["NPN-R008F008",
+            "NPN-R008F02",
+            "NPN-R008F05",
+            "NPN-R008F1",
+            "NPN-R02F008",
+            "NPN-R02F02",
+            "NPN-R02F05",
+            "NPN-R02F1",
+            "NPN-R05F008",
+            "NPN-R05F02",
+            "NPN-R05F05",
+            "NPN-R05F1",
+            "NPN-R1F008",
+            "NPN-R1F02",
+            "NPN-R1F05",
+            "NPN-R1F1",
+            ]
+#---
+
 #+++ Open simulation following the standard way
 def open_simulation(fname, 
                     use_inertial_periods=False,
@@ -14,22 +34,26 @@ def open_simulation(fname,
                     squeeze=True,
                     unique=True,
                     verbose=False,
+                    get_grid = True,
                     topology="PPN", **kwargs):
     if verbose: print(sname, "\n")
     
-    #++++ Open dataset and create grid before squeezing
+    #+++ Open dataset and create grid before squeezing
     if load:
         ds = xr.load_dataset(fname, decode_times=False, **open_dataset_kwargs)
     else:
         ds = xr.open_dataset(fname, decode_times=False, **open_dataset_kwargs)
-    grid_ds = pn.get_grid(ds, topology=topology, **kwargs)
-    #----
+    #---
 
-    #++++ Squeeze?
+    #+++ Get grid
+    if get_grid: grid_ds = pn.get_grid(ds, topology=topology, **kwargs)
+    #---
+
+    #+++ Squeeze?
     if squeeze: ds = ds.squeeze()
-    #----
+    #---
 
-    #++++ Normalize units and regularize
+    #+++ Normalize units and regularize
     if use_inertial_periods:
         ds = pn.normalize_time_by(ds, seconds=ds.T_inertial, new_units="Inertial period")
     elif use_advective_periods:
@@ -38,17 +62,22 @@ def open_simulation(fname,
         ds = pn.normalize_time_by(ds, seconds=ds.T_cycle, new_units="Cycle period")
     elif use_strouhal_periods:
         ds = pn.normalize_time_by(ds, seconds=ds.T_strouhal, new_units="Strouhal period")
-    #----
+    #---
 
-    #++++ Returning only unique times:
+    #+++ Returning only unique times:
     if unique:
         import numpy as np
         _, index = np.unique(ds['time'], return_index=True)
         if verbose and (len(index)!=len(ds.time)): print("Cleaning non-unique indices")
         ds = ds.isel(time=index)
-    #----
+    #---
 
-    return grid_ds, ds
+    #+++ Return
+    if get_grid:
+        return grid_ds, ds
+    else:
+        return ds
+    #---
 #---
 
 #+++ Condense variables into one (in datasets)
@@ -75,6 +104,43 @@ def adjust_times(ds, round_times=True, decimals=4):
     if round_times:
         ds = ds.assign_coords(time = list( map(lambda x: np.round(x, decimals=decimals), ds.time.values) ))
     return ds
+#---
+
+#+++ Define collect datasets function
+def collect_datasets(filenames, attribute_variables = ["N2_inf", "f_0"],
+                     use_advective_periods = True,
+                     verbose = False,
+                     round_time = True,
+                     open_dataset_kwargs = dict(chunks="auto"),
+                     **kwargs):
+    dslist = []
+    for sim_number, filename in enumerate(filenames):
+        #+++ Open datasets
+        if verbose: print(f"\nOpening {filename}")
+        ds = open_simulation(filename, get_grid=False,
+                             use_advective_periods=use_advective_periods,
+                             open_dataset_kwargs=open_dataset_kwargs, **kwargs)
+
+        #+++ Get rid of slight misalignment in times
+        if round_time:
+            ds = adjust_times(ds, round_times=True)
+        #---
+
+        #+++ Create auxiliary variables and organize them into a Dataset
+        for var in attribute_variables:
+            if verbose: print(f"Creating {var} variable from attributes")
+            ds[var] = ds.attrs[var]
+            ds["sim_number"] = sim_number
+        if verbose: print("Expanding dimensions Ro_h and Fr_h")
+        ds = ds.expand_dims(("Ro_h", "Fr_h")).assign_coords(Ro_h=[np.round(ds.Ro_h, decimals=4)],
+                                                            Fr_h=[np.round(ds.Fr_h, decimals=4)])
+        dslist.append(ds)
+        #---
+    if verbose: print("Combining datasets into one")
+    dsout = xr.combine_by_coords(dslist, combine_attrs="drop_conflicts")
+    #---
+
+    return dsout
 #---
 
 #+++ Downsample / chunk

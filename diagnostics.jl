@@ -82,28 +82,8 @@ import Oceananigans.Fields: Field
 ccc_scratch = Field{Center, Center, Center}(model.grid)
 ScratchedField(op::AbstractOperation{Center, Center, Center}) = Field(op, data=ccc_scratch.data)
 
-fcc_scratch = Field{Face, Center, Center}(model.grid)
-ScratchedField(op::AbstractOperation{Face,   Center, Center}) = Field(op, data=fcc_scratch.data)
-
-cfc_scratch = Field{Center, Face, Center}(model.grid)
-ScratchedField(op::AbstractOperation{Center, Face,   Center}) = Field(op, data=cfc_scratch.data)
-
-ccf_scratch = Field{Center, Center, Face}(model.grid)
-ScratchedField(op::AbstractOperation{Center, Center, Face})   = Field(op, data=ccf_scratch.data)
-
-cff_scratch = Field{Center, Face, Face}(model.grid)
-ScratchedField(op::AbstractOperation{Center, Face,   Face})   = Field(op, data=cff_scratch.data)
-
-fcf_scratch = Field{Face, Center, Face}(model.grid)
-ScratchedField(op::AbstractOperation{Face,   Center, Face})   = Field(op, data=fcf_scratch.data)
-
-ffc_scratch = Field{Face, Face, Center}(model.grid)
-ScratchedField(op::AbstractOperation{Face,   Face, Center})   = Field(op, data=ffc_scratch.data)
-
-fff_scratch = Field{Face, Face, Face}(model.grid)
-ScratchedField(op::AbstractOperation{Face,   Face,   Face})   = Field(op, data=fff_scratch.data)
-
 ScratchedField(f::Field) = f
+ScratchedField(d::Dict) = Dict( k => ScratchedField(v) for (k, v) in d )
 #---
 
 #++++ Unpack model variables
@@ -134,9 +114,9 @@ PV_z = @at CellCenter DirectionalErtelPotentialVorticity(model, (0, 0, 1))
 
 Re_b = KernelFunctionOperation{Center, Center, Center}(buoyancy_reynolds_number_ccc, model.grid, u, v, w, params.N²∞)
 
-Ri = @at CellCenter RichardsonNumber(model, u, v, w, Field(b))
+Ri = @at CellCenter RichardsonNumber(model, u, v, w, b)
 Ro = @at CellCenter RossbyNumber(model)
-PV = @at CellCenter ErtelPotentialVorticity(model, u, v, w, Field(b), model.coriolis)
+PV = @at CellCenter ErtelPotentialVorticity(model, u, v, w, b, model.coriolis)
 
 outputs_dissip = Dict(pairs((;εₖ, εₚ,)))
 
@@ -245,7 +225,7 @@ function construct_outputs(simulation;
     #+++ xyz SNAPSHOTS
     if write_xyz
         @info "Setting up xyz writer"
-        simulation.output_writers[:nc_xyz] = ow = NetCDFOutputWriter(model, outputs_full;
+        simulation.output_writers[:nc_xyz] = ow = NetCDFOutputWriter(model, ScratchedField(outputs_full);
                                                                      filename = "$rundir/data/xyz.$(simname).nc",
                                                                      schedule = TimeInterval(interval_3d),
                                                                      array_type = Array{Float64},
@@ -352,7 +332,8 @@ function construct_outputs(simulation;
         @info "Setting up ttt writer"
         outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip)
         outputs_ttt[:uᵢGᵢ] = outputs_budget[:uᵢGᵢ]
-        indices = (:, :, round(Int, 2*(k_half/3)):round(Int, 4*(k_half/3)))
+        #indices = (:, :, round(Int, 2*(k_half/3)):round(Int, 4*(k_half/3)))
+        indices = (:, :, :)
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
                                                                      filename = "$rundir/data/ttt.$(simname).nc",
                                                                      schedule = AveragedTimeInterval(interval_time_avg, stride=10),

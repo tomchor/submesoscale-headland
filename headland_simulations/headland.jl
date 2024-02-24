@@ -310,7 +310,7 @@ function change_cfl(sim, p)
         sim.callbacks[:wizard].func.cfl = p.cfl
     end
 end
-simulation.callbacks[:cfl_changer] = Callback(change_cfl, SpecifiedTimes([12params.T_advective]), parameters=(; cfl=0.8))
+simulation.callbacks[:cfl_changer] = Callback(change_cfl, SpecifiedTimes([15params.T_advective]), parameters=(; cfl=0.8))
 #---
 
 @info "" simulation

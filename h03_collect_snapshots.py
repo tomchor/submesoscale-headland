@@ -4,7 +4,7 @@ from os.path import basename
 import numpy as np
 import xarray as xr
 import pynanigans as pn
-from aux00_utils import open_simulation, adjust_times
+from aux00_utils import collect_datasets, open_simulation, adjust_times
 from colorama import Fore, Back, Style
 from dask.diagnostics import ProgressBar
 
@@ -12,11 +12,11 @@ print("Starting snapshot-collecting script")
 
 #+++ Options
 slice_names = ["xyi", "xiz", "iyz", "tafields"]
-#slice_names = ["tafields"]
+slice_names = ["xiz",]
 #---
 
-#+++ Define collect_snapshots() function
-def collect_snapshots():
+#+++ Define collect_and_save_datasets() function
+def collect_and_save_datasets():
 
     #+++ Collect 2D slices
     for slice_name in slice_names:
@@ -30,39 +30,48 @@ def collect_snapshots():
                 fname = f"tafields_{simname}.nc"
                 print(f"\nOpening {fname}")
                 ds = xr.open_dataset(f"data_post/{fname}", chunks=dict(time="auto", L="auto"))
-                PV = ds["q̄"]
             #---
 
             #+++ Deal with snapshots
             else:
                 fname = f"{slice_name}.{simname}.nc"
                 print(f"\nOpening {fname}")
-                grid, ds = open_simulation(path + fname,
-                                           use_advective_periods=True,
-                                           topology=simname[:3],
-                                           squeeze=True,
-                                           load=False,
-                                           open_dataset_kwargs=dict(chunks=dict(time=1)),
-                                           )
+                ds = open_simulation(path + fname,
+                                     use_advective_periods=True,
+                                     topology=simname[:3],
+                                     squeeze=True,
+                                     load=False,
+                                     get_grid = False,
+                                     open_dataset_kwargs=dict(chunks=dict(time=1)),
+                                     )
+
+                velocity_gradient_tensor = ["∂u∂x", "∂v∂x", "∂w∂x",
+                                            "∂u∂y", "∂v∂y", "∂w∂y",
+                                            "∂u∂z", "∂v∂z", "∂w∂z",]
+                buoyancy_gradient_tensor = ["dbdx", "dbdy", "dbdz",]
 
                 if slice_name == "xyi":
                     ds = ds.drop_vars(["zC", "zF"])
-                    variables = ["u", "v", "w", "dbdz", "Ek", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "∂u∂z", "∂v∂z", "∂Uᵍ∂z", "∂Vᵍ∂z", "PV_z", "Re_b"]
+                    variables = ["u", "v", "w", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ",
+                                 "∂Uᵍ∂z", "∂Vᵍ∂z", "PV_z", "Re_b"]
+                    variables = np.concatenate([variables, velocity_gradient_tensor, buoyancy_gradient_tensor])
+
                 elif slice_name == "xiz":
                     ds = ds.drop_vars(["yC", "yF"])
-                    variables = ["u", "v", "w", "dbdz", "Ek", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b", "dbdx",]
+                    variables = ["u", "v", "w", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
+                    variables = np.concatenate([variables, velocity_gradient_tensor, buoyancy_gradient_tensor])
+
                 elif slice_name == "iyz":
                     ds = ds.drop_vars(["xC", "xF"])
-                    variables = ["u", "v", "w", "dbdz", "Ek", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
+                    variables = ["u", "v", "w", "dbdz", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
                 ds = ds[variables]
-                PV = ds.PV
 
                 #+++ Get rid of slight misalignment in times
                 ds = adjust_times(ds, round_times=True)
                 #---
 
                 #+++ Get specific times and create new variables
-                t_slice = slice(ds.T_advective_spinup+0.01, np.inf, 50)
+                t_slice = slice(ds.T_advective_spinup+10, np.inf, 1)
                 ds = ds.sel(time=t_slice)
                 ds = ds.assign_coords(time=ds.time-ds.time[0])
 
@@ -71,7 +80,7 @@ def collect_snapshots():
                     time_values = np.array(ds.time)
                 else:
                     if len(np.array(ds.time)) > len(time_values):
-                        time_values = np.array(ds.time)
+                           time_values = np.array(ds.time)
                 #---
                 #---
             #---
@@ -84,7 +93,8 @@ def collect_snapshots():
             #---
 
             #+++ Create auxiliary variables and organize them into a Dataset
-            ds["PV_norm"] = PV / (ds.N2_inf * ds.f_0)
+            if "PV" in ds.variables.keys():
+                ds["PV_norm"] = ds.PV / (ds.N2_inf * ds.f_0)
             ds["simulation"] = simname
             ds["sim_number"] = sim_number
             ds["f₀"] = ds.f_0
@@ -110,13 +120,16 @@ def collect_snapshots():
                 assert np.allclose(dslist[0].time.values, ds.time.values), "Time coordinates don't match in all datasets"
 
         print("Starting to concatenate everything into one dataset")
-        for i in range(len(dslist)):
-            dslist[i]["time"] = time_values # Prevent double time, e.g. [0, 0.2, 0.2, 0.4, 0.4, 0.6, 0.8] etc. (not sure why this is needed)
+        if slice_name != "tafields":
+            for i in range(len(dslist)):
+                dslist[i]["time"] = time_values # Prevent double time, e.g. [0, 0.2, 0.2, 0.4, 0.4, 0.6, 0.8] etc. (not sure why this is needed)
         dsout = xr.combine_by_coords(dslist, combine_attrs="drop_conflicts")
 
+        dsout["Δxᶜᶜᶜ"] = dsout["Δxᶜᶜᶜ"].isel(Ro_h=0, Fr_h=0)
+        dsout["Δyᶜᶜᶜ"] = dsout["Δyᶜᶜᶜ"].isel(Ro_h=0, Fr_h=0)
+        dsout["Δzᶜᶜᶜ"] = dsout["Δzᶜᶜᶜ"].isel(Ro_h=0, Fr_h=0)
         dsout["land_mask"]  = (dsout["Δxᶜᶜᶜ"] == 0)
         dsout["water_mask"] = np.logical_not(dsout.land_mask)
-        print(dsout)
         #---
 
         #+++ Save to disk
@@ -176,12 +189,12 @@ if basename(__file__) != "h00_runall.py":
 
     modifiers = ["-f4", "-S-f4", "-f2", "-S-f2", "", "-S"]
     modifiers = ["-f4", "-f2",]
-    modifiers = ["-f4",]
+    modifiers = ["",]
 
     for modifier in modifiers:
         simnames_filtered = [ f"{simname}{modifier}" for simname in simnames ]
-        collect_snapshots()
+        collect_and_save_datasets()
 else:
     simnames_filtered = simnames
-    collect_snapshots()
+    collect_and_save_datasets()
 #---

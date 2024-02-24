@@ -2,9 +2,6 @@ from os import system
 
 #+++ Define simnames
 simnames = [#"NPN-TEST",
-            #"NPN-PropA",
-            #"NPN-PropB",
-            #"NPN-PropD",
             "NPN-R008F008",
             "NPN-R008F02",
             "NPN-R008F05",
@@ -26,7 +23,6 @@ simnames = [#"NPN-TEST",
 from cycler import cycler
 names = cycler(name=simnames)
 resolutions = cycler(resolution = ["-f4", "-f2", ""])
-resolutions = cycler(resolution = ["-f4", "-f2",])
 rotations = cycler(rotation = ["", "-S",])
 rotations = cycler(rotation = ["",])
 simnames = [ nr["name"] + nr["rotation"] + nr["resolution"] for nr in rotations * resolutions * names ]

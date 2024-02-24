@@ -41,8 +41,6 @@ if basename(__file__) != "h00_runall.py":
     simnames = [ nr["name"] + nr["modifier"] for nr in modifiers * names ]
 #---
 
-use_xyz = False
-
 outnames = []
 for simname in simnames:
     #+++ Open datasets
@@ -92,62 +90,19 @@ for simname in simnames:
     xyz = xyz.reindex_like(tafields).sel(time=t_slice).drop_dims(("xF", "yF", "zF"))
     #---
 
-    #+++ Choose dataset to use and get masks
-    print("Getting masked dVs")
-
-    if use_xyz:
-        print("Using xyz for calculations")
-        ds = xyz
-    else:
-        print("Using xyi for calculations")
-        ds = xyi
-    #---
-
-    #+++ Define averaging procedure
-    if ds is xyz:
-        default_dims = ("x", "y", "z")
-    else:
-        default_dims = ("x", "y")
-
-    def xymean(da, dV=None, dims=default_dims, only_positive_y=False, time_avg = True):
-        if only_positive_y:
-            da = da.sel(yC=slice(0, None))
-        result = ((da * dV).pnsum(dims) / dV.pnsum(dims))
-        if time_avg:
-            return result.mean("time")
-        else:
-            return result
-
-    def xyintegral(da, dV=None, dims=default_dims, only_positive_y=False, time_avg = True):
-        if only_positive_y:
-            da = da.sel(yC=slice(0, None))
-        result = (da * dV).pnsum(dims)
-        if time_avg:
-            return result.mean("time")
-        else:
-            return result
-    #---
-
-    #+++ Estimate time-averages from snapshots
-    bulk = xr.Dataset()
-
-    xyi = condense(xyi, ["∫∫⁰εₖdxdz",   "∫∫⁵εₖdxdz",],   "∫∫ʷεₖdxdz",   dimname="buffer", indices=xyi.buffers)
-    xyi = condense(xyi, ["∫∫⁰εₚdxdz",   "∫∫⁵εₚdxdz",],   "∫∫ʷεₚdxdz",   dimname="buffer", indices=xyi.buffers)
-    xyi = condense(xyi, ["∫∫⁰dxdz",     "∫∫⁵dxdz",  ],     "∫∫ʷdxdz",   dimname="buffer", indices=xyi.buffers)
-
-    #+++ Get x,z integrals
-    for var in ["∫∫ʷεₖdxdz", "∫∫ʷεₚdxdz",]:
-        bulk[var] = xyi[var].mean("time")
-    bulk["∫∫ʷdxdz"] = xyi["∫∫ʷdxdz"]
-    #---
-    #---
-
     #+++ Get means from tafields integrals
+    bulk = xr.Dataset()
     bulk["∫∫∫ᵇ1dxdydz"] = tafields["∫∫∫ᵇ1dxdydz"]
     for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨wb⟩ₜ", "⟨Ek′⟩ₜ"]:
         int_var = f"∫∫∫ᵇ{var}dxdydz"
         bulk[int_var] = tafields[int_var]
         bulk[f"⟨{var}⟩ᵇ"] = bulk[int_var] / bulk["∫∫∫ᵇ1dxdydz"]
+
+    bulk["∫∫ᵇ1dxdz"] = tafields["∫∫ᵇ1dxdz"]
+    for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "⟨Ek′⟩ₜ"]:
+        int_var = f"∫∫ᵇ{var}dxdz"
+        bulk[int_var] = tafields[int_var]
+        bulk[f"⟨{var}⟩ˣᶻ"] = bulk[int_var] / bulk["∫∫ᵇ1dxdz"]
 
     bulk["∫∫∫ᵋ1dxdydz"] = tafields["∫∫∫ᵋ1dxdydz"]
     for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "⟨wb⟩ₜ"]:
@@ -162,11 +117,12 @@ for simname in simnames:
         bulk[f"⟨{var}⟩ᶜˢⁱ"] = bulk[int_var] / bulk["∫∫ᶜˢⁱ1dxdy"]
 
     bulk["⟨Π⟩ᵇ"] = bulk["⟨SPR⟩ᵇ"].sum("j")
+    bulk["⟨Π⟩ˣᶻ"] = bulk["⟨SPR⟩ˣᶻ"].sum("j")
     bulk["⟨Π⟩ᵋ"] = bulk["⟨SPR⟩ᵋ"].sum("j")
     #---
 
     #+++ Create auxiliaty variables and organize them into a Dataset
-    bulk.attrs = ds.attrs
+    bulk.attrs = tafields.attrs
 
     bulk["Slope_Bu"] = bulk.Slope_Bu
     bulk["Ro_h"] = bulk.Ro_h
@@ -182,9 +138,9 @@ for simname in simnames:
     bulk["V∞"] = bulk.V_inf
     bulk["L"] = bulk.L
     bulk["headland_intrusion_size"] = bulk.headland_intrusion_size_max
-    bulk["Δx_min"] = ds["Δxᶜᶜᶜ"].where(ds["Δxᶜᶜᶜ"] > 0).min().values
-    bulk["Δy_min"] = ds["Δyᶜᶜᶜ"].where(ds["Δyᶜᶜᶜ"] > 0).min().values
-    bulk["Δz_min"] = ds["Δzᶜᶜᶜ"].where(ds["Δzᶜᶜᶜ"] > 0).min().values
+    bulk["Δx_min"] = tafields["Δxᶜᶜᶜ"].where(tafields["Δxᶜᶜᶜ"] > 0).min().values
+    bulk["Δy_min"] = tafields["Δyᶜᶜᶜ"].where(tafields["Δyᶜᶜᶜ"] > 0).min().values
+    bulk["Δz_min"] = tafields["Δzᶜᶜᶜ"].where(tafields["Δzᶜᶜᶜ"] > 0).min().values
 
     bulk["RoFr"] = bulk.Ro_h * bulk.Fr_h
     bulk["V∞³÷L"] = bulk.V_inf**3 / bulk.L
@@ -202,10 +158,7 @@ for simname in simnames:
     #+++ Final touches and save
     bulk = bulk.reset_coords()
 
-    if use_xyz:
-        outname = f"data_post/bulkstats_xyz_{simname}.nc"
-    else:
-        outname = f"data_post/bulkstats_{simname}.nc"
+    outname = f"data_post/bulkstats_{simname}.nc"
     outnames.append(outname)
 
     with ProgressBar(minimum=2, dt=5):
@@ -231,11 +184,8 @@ if basename(__file__) == "h00_runall.py":
     print("Combining outputs...", end="")
     dsout = xr.combine_by_coords(dslist, combine_attrs="drop_conflicts")
     print("done")
-    if use_xyz:
-        outname_snaps = f"data_post/bulkstats_xyz_snaps{modifier}.nc"
-    else:
-        outname_snaps = f"data_post/bulkstats_snaps{modifier}.nc"
 
+    outname_snaps = f"data_post/bulkstats_snaps{modifier}.nc"
     with ProgressBar():
         print(f"Saving results to {outname_snaps}")
         dsout.to_netcdf(outname_snaps)

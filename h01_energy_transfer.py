@@ -193,11 +193,13 @@ for simname in simnames:
 
     #+++ Volume-average/integrate results so far
     tafields["ΔxΔyΔz"] = tafields["Δxᶜᶜᶜ"] * tafields["Δyᶜᶜᶜ"] * tafields["Δzᶜᶜᶜ"]
+    tafields["ΔxΔz"]   = tafields["Δxᶜᶜᶜ"] * tafields["Δzᶜᶜᶜ"]
     def integrate(da, dV=tafields["ΔxΔyΔz"], dims=("x", "y", "z")):
         return (da*dV).pnsum(dims)
 
     tafields["1"] = xr.ones_like(tafields["Δxᶜᶜᶜ"])
     buffer = 5 # meters
+
     distance_mask = tafields.altitude > buffer
     for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨wb⟩ₜ", "⟨Ek′⟩ₜ", "1"]:
         int_all = f"∫∫∫⁰{var}dxdydz"
@@ -205,6 +207,13 @@ for simname in simnames:
         tafields[int_all] = integrate(tafields[var])
         tafields[int_buf] = integrate(tafields[var], dV=tafields.ΔxΔyΔz.where(distance_mask))
         tafields = condense(tafields, [int_all, int_buf], f"∫∫∫ᵇ{var}dxdydz", dimname="buffer", indices=[0, buffer])
+
+    for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "⟨Ek′⟩ₜ", "1"]:
+        int_all = f"∫∫⁰{var}dxdz"
+        int_buf = f"∫∫⁵{var}dxdz"
+        tafields[int_all] = integrate(tafields[var], dV=tafields.ΔxΔz, dims=("x", "z"))
+        tafields[int_buf] = integrate(tafields[var], dV=tafields.ΔxΔz.where(distance_mask), dims=("x", "z"))
+        tafields = condense(tafields, [int_all, int_buf], f"∫∫ᵇ{var}dxdz", dimname="buffer", indices=[0, buffer])
 
     tafields["average_turbulence_mask"] = tafields["ε̄ₖ"] > 1e-11
     for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "⟨wb⟩ₜ", "1"]:
