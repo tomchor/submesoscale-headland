@@ -44,7 +44,7 @@ def params_background(ax, add_lines=True, cmap="Blues"):
     Bu_h.name = r"$Bu_h = \left( Ro_h / Fr_h \right)^2$"
     S_h.name = r"$S_h = Ro_h / Fr_h = H N_\infty / L f_0$"
 
-    S_h.plot.contourf(ax=ax, x="Ro_h", levels=np.logspace(-2, 2, 9), norm=LogNorm(),
+    S_h.plot.contourf(ax=ax, x="Fr_h", levels=np.logspace(-2, 2, 9), norm=LogNorm(),
                       xscale="log", yscale="log", cmap=cmap, extend="both",
                       cbar_kwargs = dict(location="bottom",
                                          fraction=0.05,
@@ -67,29 +67,29 @@ for modifier in modifiers:
         print(f"Opening {simname}")
         xyi = xr.open_dataset(path+f"/xyi.{simname}.nc", decode_times=False)
         if (np.round(xyi.Ro_h, decimals=2) in [0.2, 1.25]) and (np.round(xyi.Fr_h, decimals=2) in [0.2, 1.25]):
-            ax.scatter(xyi.Ro_h, xyi.Fr_h, label=simname[4:], s=300, edgecolor="red", color=[0,0,0,0], zorder=10, linewidths=3)
-        ax.scatter(xyi.Ro_h, xyi.Fr_h, label=simname[4:], s=120, color="black", zorder=10)
+            ax.scatter(xyi.Fr_h, xyi.Ro_h, label=simname[4:], s=300, edgecolor="red", color=[0,0,0,0], zorder=10, linewidths=3)
+        ax.scatter(xyi.Fr_h, xyi.Ro_h, label=simname[4:], s=120, color="black", zorder=10)
 
     #+++ Include secondary x axis (f₀)
     Ro2f = lambda x: x * (xyi.V_inf/(xyi.Lx/4))
     f2Ro = lambda x: (xyi.V_inf/(xyi.Lx/4)) / x
-    secxax = ax.secondary_xaxis("top", functions=(Ro2f, f2Ro))
-    secxax.set_xlabel(r"$f_0$")
+    secyax = ax.secondary_yaxis("right", functions=(Ro2f, f2Ro))
+    secyax.set_ylabel(r"$f_0$")
     #---
 
     #+++ Include secondary y axis (N∞)
     Fr2N = lambda x: x * (xyi.V_inf/xyi.H)
     N2Fr = lambda x: (xyi.V_inf/xyi.H) / x
-    secyax = ax.secondary_yaxis("right", functions=(Fr2N, N2Fr))
-    secyax.set_ylabel(r"$N_\infty$")
+    secxax = ax.secondary_xaxis("top", functions=(Fr2N, N2Fr))
+    secxax.set_xlabel(r"$N_\infty$")
     #---
 
     #+++ Adjust panel
     ax.grid(True, zorder=0)
     #ax.set_title("Large-Eddy Simulations")
 
-    ax.set_xlabel(r"$Ro_h = V_\infty / L f_0$")
-    ax.set_ylabel(r"$Fr_h = V_\infty / H N_\infty$")
+    ax.set_xlabel(r"$Fr_h = V_\infty / H N_\infty$")
+    ax.set_ylabel(r"$Ro_h = V_\infty / L f_0$")
     #---
 
     #+++ Save
