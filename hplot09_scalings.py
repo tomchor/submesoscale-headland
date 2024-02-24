@@ -25,6 +25,8 @@ bulk["∫∫∫ᵇΠdxdydz"] = bulk["⟨Π⟩ᵇ"] * bulk["∫∫∫ᵇ1dxdydz"]
 bulk["⟨ε̄ₖ⟩ᴮᴸ"] = bulk["⟨ε̄ₖ⟩ᵇ"].sel(buffer=0) - bulk["⟨ε̄ₖ⟩ᵇ"]
 bulk["εₖ_ratio_bl_to_rest"] = bulk["⟨ε̄ₖ⟩ᴮᴸ"] / bulk["⟨ε̄ₖ⟩ᵇ"]
 
+bulk["⟨⟨w′b′⟩ₜ⟩ᵇ + ⟨Π⟩ᵇ"] = bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"] + bulk["⟨Π⟩ᵇ"]
+
 bulk["⟨Πᶻ⟩"] = bulk["⟨SPR⟩ᵇ"].sel(j=3)
 bulk["SP_ratio1"] = bulk["⟨SPR⟩ᵇ"].sel(j=[1,2]).sum("j") / bulk["⟨SPR⟩ᵇ"].sel(j=3)
 bulk["SP_ratio3"] = bulk["∫∫ᶜˢⁱSPRdxdy"].sel(j=[1,2]).sum("j") / bulk["∫∫ᶜˢⁱSPRdxdy"].sel(j=3)
@@ -132,8 +134,8 @@ for buffer in bulk.buffer.values:
     print("Plotting axes 5")
     ax = axesf[5]
     bulk_buff["Fr"] = bulk_buff.Fr_h + 0*bulk_buff.Ro_h
-    xvarname = "Fr"
-    yvarname = "SP_ratio1"
+    xvarname = "Slope_Bu"
+    yvarname = "⟨⟨w′b′⟩ₜ⟩ᵇ + ⟨Π⟩ᵇ"
     for cond, label, color, marker in zip(conditions, labels, colors, markers):
         ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
     ax.set_xlabel(xvarname); ax.set_ylabel(yvarname)
