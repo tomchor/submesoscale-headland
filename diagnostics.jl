@@ -211,15 +211,6 @@ function construct_outputs(simulation;
     k_half = @allowscalar Int(ceil(params.H / minimum_zspacing(grid))) # Approximately half the headland height
     kwargs = (overwrite_existing = overwrite_existing,
               global_attributes = merge(params, (; buffers)))
-    if interval_2d == nothing
-        interval_2d = 0.015params.T_strouhal
-    end
-    if interval_3d == nothing
-        interval_3d = 0.3params.T_strouhal
-    end
-    if interval_checkpointer == nothing
-        interval_checkpointer = 10interval_3d
-    end
     #---
 
     #+++ xyz SNAPSHOTS
