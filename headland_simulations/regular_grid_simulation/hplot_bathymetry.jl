@@ -2,7 +2,7 @@ using Rasters
 import NCDatasets
 
 simname = "NPN-R05F008-f2"
-xyz = RasterStack("regular_grid_simulation/data/xyz.$simname.nc", name=(:PV,), lazy=true)
+xyz = RasterStack("data/xyz.$simname.nc", name=(:PV,), lazy=true)
 
 md = metadata(xyz)
 params = (; (Symbol(k) => v for (k, v) in md)...)
@@ -61,12 +61,12 @@ text!(Point3f(-200, -100 + params.Ly/2, 40),
 #---
 
 n[] = length(dims(PV, :Ti))
-save(string(@__DIR__) * "/../figures/bathymetry_3d_PV.png", fig, px_per_unit=2);
-#save(string(@__DIR__) * "/../figures/bathymetry_3d_PV.pdf", fig, pt_per_unit=300)
+save(string(@__DIR__) * "/../../figures/bathymetry_3d_PV.png", fig, px_per_unit=2);
+#save(string(@__DIR__) * "/../../figures/bathymetry_3d_PV.pdf", fig, pt_per_unit=300)
 
 n[] = 1
 frames = 1:length(dims(PV, :Ti))
-GLMakie.record(fig, string(@__DIR__) * "/../anims/bathymetry_3d_PV.mp4", frames, framerate=10) do frame
+GLMakie.record(fig, string(@__DIR__) * "/../../anims/bathymetry_3d_PV_$simname.mp4", frames, framerate=14) do frame
     @info "Plotting time step $frame"
     n[] = frame
 end
