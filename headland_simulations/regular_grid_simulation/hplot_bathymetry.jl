@@ -2,7 +2,7 @@ using Rasters
 import NCDatasets
 
 simname = "NPN-R05F008-f2"
-xyz = RasterStack("regular_grid_simulation/data/xyz.$simname.nc", name=(:PV,), lazy=true)
+xyz = RasterStack("data/xyz.$simname.nc", name=(:PV,), lazy=true)
 
 md = metadata(xyz)
 params = (; (Symbol(k) => v for (k, v) in md)...)
@@ -21,28 +21,32 @@ yC = Array(dims(xyz, :yC))
 zC = Array(dims(xyz, :zC))
 
 PV_lims = Tuple(md["N2_inf"] * abs(md["f_0"]) * [-2, +2]);
-PV = Array(xyz.PV[Ti=Near(Inf)])
 H = [ bathymetry(x, y, z) < 5 ? 1 : 0 for x=xC, y=yC, z=zC ]
 
 using GLMakie
 fig = Figure(resolution = (1200, 900))
+n = Observable(1)
+
+PV = xyz.PV[Ti=Between(params.T_advective_spinup * params.T_advective, Inf)]
+PVₙ = @lift Array(PV)[:,:,:,$n]
+
 colormap = to_colormap(:balance)
 colormap[110:end] .= RGBAf(0,0,0,0)
 
-settings_axis3 = (azimuth = -0.75π, elevation = 0.2π, perspectiveness=0.8, viewmode=:fitzoom, xlabel="x [m]", ylabel="y [m]", zlabel="z [m]")
+settings_axis3 = (aspect = (md["Lx"], md["Ly"], 4*md["Lz"]), azimuth = -0.80π, elevation = 0.2π,
+                  perspectiveness=0.8, viewmode=:fitzoom, xlabel="x [m]", ylabel="y [m]", zlabel="z [m]")
 
-ax = Axis3(fig[1, 1]; aspect = (md["Lx"], md["Ly"], 4*md["Lz"]), settings_axis3...)
+ax = Axis3(fig[1, 1]; settings_axis3...)
 volume!(ax, xC, yC, zC, H, algorithm = :absorption, absorption=50f0, colormap = [:papayawhip, RGBAf(0,0,0,0), :papayawhip], colorrange=(-1, 1)) # turn on anti-aliasing
 
-vol = volume!(ax, xC, yC, zC, PV, algorithm = :absorption, absorption=20f0, colormap=colormap, colorrange=PV_lims)
+vol = volume!(ax, xC, yC, zC, PVₙ, algorithm = :absorption, absorption=20f0, colormap=colormap, colorrange=PV_lims)
 Colorbar(fig, colormap=colormap[1:128], bbox=ax.scene.px_area,
-         limits = (PV_lims[1], 0), label="PV [1/s³]", height=30, width=Relative(0.4), vertical=false,
-         alignmode = Outside(10), halign = :left, valign = 0.08)
+         limits = (PV_lims[1], 0), label="PV [1/s³]", height=25, width=Relative(0.35), vertical=false,
+         alignmode = Outside(10), halign = 0.15, valign = 0.02)
 
 
 #+++ Inset axis
-inset_ax = Axis3(fig[1, 1]; aspect = (md["Lx"], md["Ly"], 6*md["Lz"]), width=Relative(0.5), height=Relative(0.45), halign=1.1, valign=1.1, settings_axis3...)
-
+inset_ax = Axis3(fig[1, 1]; width=Relative(0.4), height=Relative(0.4), halign=1, valign=1.1, zticks=[0, 40, 80], settings_axis3...)
 contour!(inset_ax, xC, yC, zC, bathymetry, levels = [0], specular = Vec3f(0), diffuse = Vec3f(1), colormap = [:gray50], fxaa = true,) # turn on anti-aliasing
 
 ps = [Point3f(0, -400, 40)]
@@ -53,8 +57,16 @@ arrows!(inset_ax, ps, ns,
 
 text!(Point3f(-200, -100 + params.Ly/2, 40),
       text = "V∞ = 1 cm/s", rotation = 1.5π, align = (:left, :baseline),
-      fontsize = 200,markerspace = :data, color = :brown2)
+      fontsize = 200, markerspace = :data, color = :brown2)
 #---
 
-save(string(@__DIR__) * "/../figures/bathymetry_3d.png", fig, px_per_unit=2);
-#save(string(@__DIR__) * "/../figures/bathymetry_3d.pdf", fig, pt_per_unit=300)
+n[] = length(dims(PV, :Ti))
+save(string(@__DIR__) * "/../../figures/bathymetry_3d_PV.png", fig, px_per_unit=2);
+#save(string(@__DIR__) * "/../../figures/bathymetry_3d_PV.pdf", fig, pt_per_unit=300)
+
+n[] = 1
+frames = 1:length(dims(PV, :Ti))
+GLMakie.record(fig, string(@__DIR__) * "/../../anims/bathymetry_3d_PV_$simname.mp4", frames, framerate=14) do frame
+    @info "Plotting time step $frame"
+    n[] = frame
+end

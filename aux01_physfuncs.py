@@ -4,7 +4,8 @@ import xarray as xr
 
 
 #+++ Define filtering functions
-def filter_1d(da, filter_size, dim="xC", kernel="gaussian", spacing=None, min_distance=0, optimize=True, verbose=False):
+def filter_1d(da, filter_size, dim="xC", kernel="gaussian", spacing=None, min_distance=0,
+              optimize=True, verbose=False, keep_dim_attrs=True):
     x2 = da[dim].rename({ dim : "x2"}).chunk()
 
     if spacing is None:
@@ -28,6 +29,10 @@ def filter_1d(da, filter_size, dim="xC", kernel="gaussian", spacing=None, min_di
     if min_distance: # Exclude edges (easier to do it after the convolution I think)
         da_f = da_f.where((da_f[dim]     - da_f[dim][0] >= min_distance) & \
                           (da_f[dim][-1] - da_f[dim]    >= min_distance), other=np.nan)
+    if keep_dim_attrs:
+        for dimname in da_f.dims:
+            da_f[dimname].attrs = da[dimname].attrs
+
     return da_f
 
 def coarsen(da, filter_size, dims=["xC", "yC"], kernel="gaussian",
@@ -36,6 +41,35 @@ def coarsen(da, filter_size, dims=["xC", "yC"], kernel="gaussian",
     for dim, spacing in zip(dims, spacings):
         result = filter_1d(result, filter_size, dim=dim, kernel=kernel, spacing=spacing, min_distance=min_distance, optimize=optimize, verbose=verbose)
     return result
+#---
+
+#+++ Calculate filtered PV
+def calculate_filtered_PV(ds, scale_meters = 5, condense_tensors=False, indices = [1,2,3], cleanup=False):
+    from aux00_utils import condense
+    if condense_tensors:
+        ds = condense(ds, ["∂u∂x", "∂v∂x", "∂w∂x"], "∂₁uᵢ", dimname="i", indices=indices)
+        ds = condense(ds, ["∂u∂y", "∂v∂y", "∂w∂y"], "∂₂uᵢ", dimname="i", indices=indices)
+        ds = condense(ds, ["∂u∂z", "∂v∂z", "∂w∂z"], "∂₃uᵢ", dimname="i", indices=indices)
+        ds = condense(ds, ["∂₁uᵢ", "∂₂uᵢ", "∂₃uᵢ"], "∂ⱼuᵢ", dimname="j", indices=indices)
+        ds = condense(ds, ["dbdx", "dbdy", "dbdz"], "∂ⱼb",  dimname="j", indices=indices)
+
+    ds["∂ⱼũᵢ"] = coarsen(ds["∂ⱼuᵢ"], scale_meters, dims=["xC", "yC"], spacings=[ds["Δxᶜᶜᶜ"], ds["Δyᶜᶜᶜ"]], optimize=True)
+    ds["∂ⱼb̃"]  = coarsen(ds["∂ⱼb"],  scale_meters, dims=["xC", "yC"], spacings=[ds["Δxᶜᶜᶜ"], ds["Δyᶜᶜᶜ"]], optimize=True)
+
+    ω_x = ds["∂ⱼũᵢ"].sel(i=3, j=2) - ds["∂ⱼũᵢ"].sel(i=2, j=3)
+    ω_y = ds["∂ⱼũᵢ"].sel(i=1, j=3) - ds["∂ⱼũᵢ"].sel(i=3, j=1)
+    ω_z = ds["∂ⱼũᵢ"].sel(i=2, j=1) - ds["∂ⱼũᵢ"].sel(i=1, j=2)
+
+    ds["q̃x"] = ω_x * ds["∂ⱼb̃"].sel(j=1)
+    ds["q̃y"] = ω_y * ds["∂ⱼb̃"].sel(j=2)
+    ds["q̃z"] = ω_z * ds["∂ⱼb̃"].sel(j=3) + ds["f₀"] * ds["∂ⱼb̃"].sel(j=3)
+
+    ds = condense(ds, ["q̃x", "q̃y", "q̃z"], "q̃ᵢ", dimname="i", indices=indices)
+    ds["q̃"] = ds["q̃ᵢ"].sum("i")
+
+    if cleanup:
+        ds = ds.drop_vars(["∂ⱼũᵢ", "∂ⱼb̃", "q̃ᵢ",])
+    return ds
 #---
 
 #+++ Get important masks

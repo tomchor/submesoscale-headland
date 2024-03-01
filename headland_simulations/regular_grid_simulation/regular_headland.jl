@@ -25,7 +25,7 @@ function parse_command_line_arguments()
 end
 args = parse_command_line_arguments()
 simname = args["simname"]
-rundir = "$(DrWatson.findproject())/headland_simulations"
+rundir = @__DIR__
 #---
 
 #+++ Figure out name, dimensions, modifier, etc
@@ -70,7 +70,7 @@ end
 #---
 
 #+++ Get primary simulation parameters
-include("$(@__DIR__)/siminfo.jl")
+include("$(@__DIR__)/../siminfo.jl")
 params = getproperty(Headland(), Symbol(configname))
 #---
 
@@ -122,7 +122,7 @@ params = (; params..., Δz_min = minimum_zspacing(grid_base))
 #---
 
 #+++ Immersed boundary
-include("bathymetry.jl")
+include("../bathymetry.jl")
 @inline headland(x, y, z) = x > headland_x_of_yz(y, z, params)
 
 #+++ Bathymetry visualization
@@ -315,28 +315,24 @@ else
 end
 #---
 
-include("$rundir/../diagnostics.jl")
+include("$rundir/../../diagnostics.jl")
 tick()
 checkpointer = construct_outputs(simulation,
-                                 LES=LES,
+                                 LES = true,
                                  simname = simname,
-                                 rundir = "$rundir/regular_grid_simulation/",
+                                 rundir = rundir,
                                  params = params,
-                                 rotated = false,
                                  overwrite_existing = overwrite_existing,
                                  interval_2d = 0.2*params.T_advective,
-                                 interval_3d = 1.0*params.T_advective,
+                                 interval_3d = 0.2*params.T_advective,
+                                 interval_time_avg = 10*params.T_advective,
                                  write_xyz = true,
-                                 write_xiz = true,
-                                 write_xyi = true,
-                                 write_iyz = true,
-                                 write_ayz = false,
-                                 write_xya = false,
-                                 write_aaz = false,
-                                 write_aaa = false,
-                                 write_conditional_aya = true,
-                                 write_ke_budget_terms = true,
-                                 include_derivatives = true,
+                                 write_xiz = false,
+                                 write_xyi = false,
+                                 write_iyz = false,
+                                 write_ttt = false,
+                                 write_tti = false,
+                                 write_conditional_aya = false,
                                  debug = false,
                                  )
 tock()
