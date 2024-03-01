@@ -330,7 +330,6 @@ end
 include("$rundir/../diagnostics.jl")
 tick()
 checkpointer = construct_outputs(simulation,
-                                 LES=true,
                                  simname = simname,
                                  rundir = rundir,
                                  params = params,
@@ -354,9 +353,6 @@ tock()
 if has_cuda_gpu() run(`nvidia-smi`) end
 @info "Starting simulation"
 run!(simulation, pickup=true)
-
-using Oceananigans.OutputWriters: write_output!
-write_output!(checkpointer, model)
 #---
 
 #+++ Plot video

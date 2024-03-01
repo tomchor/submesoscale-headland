@@ -179,15 +179,13 @@ outputs_full = merge(outputs_state_vars, outputs_dissip, outputs_misc, outputs_g
 
 #+++ Construct outputs into simulation
 function construct_outputs(simulation; 
-                           LES = false,
                            simname = "TEST",
-                           rundir = rundir,
+                           rundir = @__DIR__,
                            params = params,
                            overwrite_existing = overwrite_existing,
                            interval_2d = 0.2*params.T_advective,
                            interval_3d = params.T_advective,
                            interval_time_avg = 10*params.T_advective,
-                           interval_checkpointer = 10*params.T_advective,
                            write_xyz = false,
                            write_xiz = true,
                            write_xyi = false,
@@ -363,7 +361,7 @@ function construct_outputs(simulation;
                                              Checkpointer(model;
                                              dir="$rundir/data/",
                                              prefix = "chk.$(simname)",
-                                             schedule = TimeInterval(interval_checkpointer),
+                                             schedule = TimeInterval(interval_time_avg),
                                              overwrite_existing = true,
                                              cleanup = true,
                                              verbose = debug,
