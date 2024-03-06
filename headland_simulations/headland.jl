@@ -286,7 +286,7 @@ set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
 params = (; params..., T_advective_max = params.T_advective_spinup + params.T_advective_statistics)
 simulation = Simulation(model, Δt=0.2*minimum_zspacing(grid.underlying_grid)/params.V_inf,
                         stop_time=params.T_advective_max * params.T_advective,
-                        wall_time_limit=23.3hours,
+                        wall_time_limit=23.2hours,
                         )
 
 using Oceanostics.ProgressMessengers
@@ -310,7 +310,7 @@ function change_cfl(sim, p)
         sim.callbacks[:wizard].func.cfl = p.cfl
     end
 end
-simulation.callbacks[:cfl_changer] = Callback(change_cfl, SpecifiedTimes([15params.T_advective]), parameters=(; cfl=0.8))
+simulation.callbacks[:cfl_changer] = Callback(change_cfl, SpecifiedTimes([15params.T_advective]), parameters=(; cfl=0.85))
 #---
 
 @info "" simulation
