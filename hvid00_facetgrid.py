@@ -65,7 +65,7 @@ if shell is not None:
     modifiers = ["-f2", "-S-f2", "", "-S"]
     modifiers = ["",]
 
-    varnames = ["q̃_norm"]
+    varnames = ["PV_norm", "PVᵍ_norm"]
     contour_variable_name = None #"water_mask_buffered"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---

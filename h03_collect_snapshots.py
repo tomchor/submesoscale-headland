@@ -12,7 +12,7 @@ print("Starting snapshot-collecting script")
 
 #+++ Options
 slice_names = ["xyi", "xiz", "iyz", "tafields"]
-slice_names = ["xiz",]
+slice_names = ["xyi",]
 #---
 
 #+++ Define collect_and_save_datasets() function
@@ -52,18 +52,18 @@ def collect_and_save_datasets():
 
                 if slice_name == "xyi":
                     ds = ds.drop_vars(["zC", "zF"])
-                    variables = ["u", "v", "w", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ",
+                    variables = ["u", "v", "w", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ",
                                  "∂Uᵍ∂z", "∂Vᵍ∂z", "PV_z", "Re_b"]
                     variables = np.concatenate([variables, velocity_gradient_tensor, buoyancy_gradient_tensor])
 
                 elif slice_name == "xiz":
                     ds = ds.drop_vars(["yC", "yF"])
-                    variables = ["u", "v", "w", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
+                    variables = ["u", "v", "w", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
                     variables = np.concatenate([variables, velocity_gradient_tensor, buoyancy_gradient_tensor])
 
                 elif slice_name == "iyz":
                     ds = ds.drop_vars(["xC", "xF"])
-                    variables = ["u", "v", "w", "dbdz", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
+                    variables = ["u", "v", "w", "dbdz", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
                 ds = ds[variables]
 
                 #+++ Get rid of slight misalignment in times
