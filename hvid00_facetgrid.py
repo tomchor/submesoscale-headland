@@ -69,8 +69,7 @@ if shell is not None:
     modifiers = ["-f2", "-S-f2", "", "-S"]
     modifiers = ["",]
 
-    varnames = ["PV_norm", "PVᶻ_norm", "PVʰ_norm"]
-    varnames = ["q̃_norm", "q̃ᶻ_norm", "q̃ʰ_norm"]
+    varnames = ["Ro",]
     contour_variable_name = None #"water_mask_buffered"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
@@ -131,8 +130,15 @@ for modifier in modifiers:
 
         try:
             snaps.xC.attrs["long_name"] = r"$x$"
+        except AttributeError:
+            pass
+        try:
             snaps.yC.attrs["long_name"] = r"$y$"
-        except ValueError:
+        except AttributeError:
+            pass
+        try:
+            snaps.zC.attrs["long_name"] = r"$z$"
+        except AttributeError:
             pass
         #---
 
@@ -199,7 +205,7 @@ for modifier in modifiers:
             figsize = (8, 8)
             cbar_kwargs = dict(location="right") | cbar_kwargs
         else:
-            figsize = (9, 6)
+            figsize = (9, 5)
             cbar_kwargs = dict(location="bottom") | cbar_kwargs
 
         opts_orientation = get_orientation(snaps)
@@ -223,6 +229,7 @@ for modifier in modifiers:
                           contour_variable = contour_variable,
                           contour_kwargs = (contour_kwargs | opts_orientation),
                           add_abc = True,
+                          cbar_kwargs = cbar_kwargs,
                           label_Slope_Bu = True,)
 
             if animate:
