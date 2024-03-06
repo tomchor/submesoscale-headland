@@ -284,7 +284,7 @@ set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
 
 #+++ Create simulation
 params = (; params..., T_advective_max = params.T_advective_spinup + params.T_advective_statistics)
-simulation = Simulation(model, Δt=0.1*minimum_zspacing(grid.underlying_grid)/params.V_inf,
+simulation = Simulation(model, Δt=0.2*minimum_zspacing(grid.underlying_grid)/params.V_inf,
                         stop_time=params.T_advective_max * params.T_advective,
                         wall_time_limit=23.2hours,
                         )
@@ -310,7 +310,7 @@ function change_cfl(sim, p)
         sim.callbacks[:wizard].func.cfl = p.cfl
     end
 end
-simulation.callbacks[:cfl_changer] = Callback(change_cfl, SpecifiedTimes([15params.T_advective]), parameters=(; cfl=0.8))
+simulation.callbacks[:cfl_changer] = Callback(change_cfl, SpecifiedTimes([15params.T_advective]), parameters=(; cfl=0.85))
 #---
 
 @info "" simulation
@@ -330,7 +330,6 @@ end
 include("$rundir/../diagnostics.jl")
 tick()
 checkpointer = construct_outputs(simulation,
-                                 LES=true,
                                  simname = simname,
                                  rundir = rundir,
                                  params = params,
@@ -354,9 +353,6 @@ tock()
 if has_cuda_gpu() run(`nvidia-smi`) end
 @info "Starting simulation"
 run!(simulation, pickup=true)
-
-using Oceananigans.OutputWriters: write_output!
-write_output!(checkpointer, model)
 #---
 
 #+++ Plot video
