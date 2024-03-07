@@ -31,7 +31,7 @@ end
                 Ro_h = 0.1,
 
                 β = 1, # headland_intrusion_size / headland_width = "bumpiness" of feature (β=1 for an x-y symmetric seamount, e.g.)
-                Ly_ratio = 10, # Ly / headland_width
+                Ly_ratio = 15, # Ly / headland_width
 
                 Rz = 2.5e-3,
                 runway_length_fraction_L = 2, # runway_length / L
@@ -202,7 +202,7 @@ function expand_headland_parameters(params)
     N²∞ = N2_inf = (V∞ / (Fr_h * params.H))^2
     R1 = √N²∞ * params.H / f₀
     z₀ = z_0 = params.Rz * params.H
-    sponge_rate = 50 * V∞ / sponge_length_y
+    sponge_rate = 10 * V∞ / sponge_length_y
     #---
 
     #+++ Diagnostic parameters
