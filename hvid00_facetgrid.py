@@ -65,24 +65,24 @@ if shell is not None:
     modifiers = ["-f2", "-S-f2", "", "-S"]
     modifiers = ["",]
 
-    varnames = ["PV_norm", "PVᵍ_norm"]
+    varnames = ["PV_norm", "Ro"]
     contour_variable_name = None #"water_mask_buffered"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
 else:
     #+++ Running from python (probably from run_postproc.sh)
-    animate = False
+    animate = True
     test = False
     time_avg = False
     summarize = True
     plotting_time = 4
 
     slice_names = ["xyi", "xiz", "iyz", "tafields"]
-    slice_names = ["tafields",]
-    modifiers = ["",]
+    slice_names = ["xyi",]
+    modifiers = ["-f2",]
 
     varnames = ["εₖ", "PV_norm", "Ro"]
-    varnames = ["ε̄ₖ"]
+    varnames = ["PV_norm", "Ro"]
     contour_variable_name = None #"q̃_norm"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
