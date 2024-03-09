@@ -2,22 +2,22 @@ from os import system
 
 #+++ Define simnames
 simnames = [#"NPN-TEST",
-            #"NPN-R008F008",
-            #"NPN-R008F02",
-            #"NPN-R008F05",
-            #"NPN-R008F1",
-            #"NPN-R02F008",
-            #"NPN-R02F02",
-            #"NPN-R02F05",
-            #"NPN-R02F1",
-            #"NPN-R05F008",
-            #"NPN-R05F02",
-            #"NPN-R05F05",
-            #"NPN-R05F1",
-            #"NPN-R1F008",
-            #"NPN-R1F02",
+            "NPN-R008F008",
+            "NPN-R008F02",
+            "NPN-R008F05",
+            "NPN-R008F1",
+            "NPN-R02F008",
+            "NPN-R02F02",
+            "NPN-R02F05",
+            "NPN-R02F1",
+            "NPN-R05F008",
+            "NPN-R05F02",
+            "NPN-R05F05",
+            "NPN-R05F1",
+            "NPN-R1F008",
+            "NPN-R1F02",
             "NPN-R1F05",
-            #"NPN-R1F1",
+            "NPN-R1F1",
             ]
 
 from cycler import cycler
@@ -36,7 +36,7 @@ omit_topology = True
 topology_string = "NPN-"
 verbose = 1
 aux_filename = "aux_pbs_twake.sh"
-julia_file = "headland.jl"
+julia_file = "regular_headland.jl"
 #---
 
 pbs_script = \
