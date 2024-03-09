@@ -1,7 +1,10 @@
 using Rasters
 import NCDatasets
 
-simname = "NPN-R05F008-f2"
+if !(@isdefined simname)
+    simname = "NPN-R05F008-f2"
+end
+
 xyz = RasterStack("data/xyz.$simname.nc", name=(:PV,), lazy=true)
 
 md = metadata(xyz)

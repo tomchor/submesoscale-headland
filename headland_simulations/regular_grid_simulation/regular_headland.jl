@@ -336,9 +336,6 @@ tock()
 if has_cuda_gpu() run(`nvidia-smi`) end
 @info "Starting simulation"
 run!(simulation, pickup=true)
-
-using Oceananigans.OutputWriters: write_output!
-write_output!(checkpointer, model)
 #---
 
-include(string(@__DIR__) * "hplot_bathymetry.jl")
+include(string(@__DIR__) * "/hplot_bathymetry.jl")
