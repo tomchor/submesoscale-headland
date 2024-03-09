@@ -91,7 +91,6 @@ pprintln(params)
 #+++ Base grid
 #+++ Figure out topology and domain
 if topology == "NPN"
-    LES = true
     topo = (Bounded, Periodic, Bounded)
 else
     throw(AssertionError("Topology must be NPN"))
@@ -242,14 +241,10 @@ Fb = Forcing(forc_b, field_dependencies = :b, parameters = merge(mask_y_params, 
 #---
 
 #+++ Turbulence closure
-if LES
-    if AMD
-        closure = AnisotropicMinimumDissipation()
-    else
-        closure = SmagorinskyLilly(C=0.13, Pr=1)
-    end
+if AMD
+    closure = AnisotropicMinimumDissipation()
 else
-    closure = ScalarDiffusivity(ν=params.ν_eddy, κ=params.ν_eddy)
+    closure = SmagorinskyLilly(C=0.13, Pr=1)
 end
 #---
 
@@ -318,7 +313,6 @@ end
 include("$rundir/../../diagnostics.jl")
 tick()
 checkpointer = construct_outputs(simulation,
-                                 LES = true,
                                  simname = simname,
                                  rundir = rundir,
                                  params = params,
@@ -346,3 +340,5 @@ run!(simulation, pickup=true)
 using Oceananigans.OutputWriters: write_output!
 write_output!(checkpointer, model)
 #---
+
+include(string(@__DIR__) * "hplot_bathymetry.jl")
