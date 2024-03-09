@@ -1,10 +1,11 @@
 using Rasters
 import NCDatasets
 
-if !(@isdefined simname)
-    simname = "NPN-R05F008-f2"
+if !(@isdefined simname) | (typeof(simname) !== String)
+    simname = "NPN-R05F02-f2"
 end
 
+@show "Reading NetCDF"
 xyz = RasterStack("data/xyz.$simname.nc", name=(:PV,), lazy=true)
 
 md = metadata(xyz)
@@ -18,18 +19,21 @@ params = (; (Symbol(k) => v for (k, v) in md)...)
 @inline bathymetry(x, y, z) = z > 0 ? headland_continuous(x, y, z) : 0
 #---
 
+@show "Slicing xyz"
 xyz = xyz[yC=Between(-md["runway_length"], Inf), xC=Between(-390, Inf)]
 xC = Array(dims(xyz, :xC))
 yC = Array(dims(xyz, :yC))
 zC = Array(dims(xyz, :zC))
 
-PV_lims = Tuple(md["N2_inf"] * abs(md["f_0"]) * [-2, +2]);
+mult = 1.5 + params.Ro_h
+PV_lims = Tuple(md["N2_inf"] * abs(md["f_0"]) * [-mult, +mult]);
 H = [ bathymetry(x, y, z) < 5 ? 1 : 0 for x=xC, y=yC, z=zC ]
 
 using GLMakie
-fig = Figure(resolution = (1200, 900))
+fig = Figure(resolution = (1200, 900));
 n = Observable(1)
 
+@show "Slicing PV"
 PV = xyz.PV[Ti=Between(params.T_advective_spinup * params.T_advective, Inf)]
 PVₙ = @lift Array(PV)[:,:,:,$n]
 
