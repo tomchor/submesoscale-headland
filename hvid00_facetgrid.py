@@ -18,8 +18,12 @@ if __name__ == "__main__": print("Starting hvid00 script")
 #+++ MASTER DICTIONARY OF OPTIONS
 plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdBu_r),
                       "PV_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
+                      "PVᶻ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
+                      "PVʰ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "PVᵍ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "q̃_norm"    : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
+                      "q̃ᶻ_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
+                      "q̃ʰ_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "Ri"        : dict(vmin=-2, vmax=2, cmap=cm.balance),
                       "Ro"        : dict(vmin=-3, vmax=3, cmap=BuRd),
                       "εₖ"        : dict(norm=LogNorm(vmin=1e-10,   vmax=1e-8,   clip=True), cmap="inferno"),
@@ -126,8 +130,15 @@ for modifier in modifiers:
 
         try:
             snaps.xC.attrs["long_name"] = r"$x$"
+        except AttributeError:
+            pass
+        try:
             snaps.yC.attrs["long_name"] = r"$y$"
-        except ValueError:
+        except AttributeError:
+            pass
+        try:
+            snaps.zC.attrs["long_name"] = r"$z$"
+        except AttributeError:
             pass
         #---
 
@@ -138,6 +149,10 @@ for modifier in modifiers:
         snaps["Δz_norm"] = snaps.Δz_min / snaps["Lo"]
         snaps["Δz_norm"].attrs = dict(long_name="Δz / Ozmidov scale")
 
+        if "PV_z" in snaps.variables.keys():
+            snaps["PVᶻ_norm"] = snaps["PV_z"]  / (snaps["N²∞"] * snaps["f₀"])
+            snaps["PVʰ_norm"] = snaps.PV_norm - snaps["PVᶻ_norm"]
+
         if ("Ro" in snaps.variables.keys()) and ("Ri" in snaps.variables.keys()):
             snaps["PVᵍ_norm"] = (1 + snaps.Ro - 1/snaps.Ri)
 
@@ -145,9 +160,14 @@ for modifier in modifiers:
 
         if "q̃_norm" in varnames:
             if "q̃" not in snaps.variables.keys():
-                snaps = calculate_filtered_PV(snaps, scale_meters = 10, condense_tensors=True, indices = [1,2,3], cleanup=False)
+                snaps = calculate_filtered_PV(snaps, scale_meters = 20, condense_tensors=True, indices = [1,2,3], cleanup=False)
+
             snaps["q̃_norm"] = snaps["q̃"]  / (snaps["N²∞"] * snaps["f₀"])
             snaps["q̃_norm"].attrs = dict(long_name=r"Normalized filtered Ertel PV")
+
+            if "q̃ᵢ" in snaps.variables.keys():
+                snaps["q̃ᶻ_norm"] = snaps["q̃ᵢ"].sel(i=3)  / (snaps["N²∞"] * snaps["f₀"])
+                snaps["q̃ʰ_norm"] = snaps["q̃_norm"] - snaps["q̃ᶻ_norm"]
 
         if "wb" in snaps.variables.keys():
             snaps["Kb"] = -snaps.wb / snaps["N²∞"]
@@ -185,7 +205,7 @@ for modifier in modifiers:
             figsize = (8, 8)
             cbar_kwargs = dict(location="right") | cbar_kwargs
         else:
-            figsize = (9, 6)
+            figsize = (9, 5)
             cbar_kwargs = dict(location="bottom") | cbar_kwargs
 
         opts_orientation = get_orientation(snaps)
@@ -194,6 +214,7 @@ for modifier in modifiers:
         #+++ Begin plotting
         varlist = list(plot_kwargs_by_var.keys())
         for var in varlist:
+            print(f"Starting variable {var}")
             if var not in snaps.variables.keys():
                 if __name__ == '__main__': print(f"Skipping {slice_name} slices of {var} since they don't seem to be in the file.")
                 continue
@@ -208,6 +229,7 @@ for modifier in modifiers:
                           contour_variable = contour_variable,
                           contour_kwargs = (contour_kwargs | opts_orientation),
                           add_abc = True,
+                          cbar_kwargs = cbar_kwargs,
                           label_Slope_Bu = True,)
 
             if animate:
