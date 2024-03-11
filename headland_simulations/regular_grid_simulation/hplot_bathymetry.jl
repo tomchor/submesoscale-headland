@@ -49,7 +49,7 @@ volume!(ax, xC, yC, zC, H, algorithm = :absorption, absorption=50f0, colormap = 
 
 vol = volume!(ax, xC, yC, zC, PVₙ, algorithm = :absorption, absorption=20f0, colormap=colormap, colorrange=PV_lims)
 Colorbar(fig, vol, bbox=ax.scene.px_area,
-         limits = PV_lims, label="PV [1/s³]", height=25, width=Relative(0.35), vertical=false,
+         label="PV [1/s³]", height=25, width=Relative(0.35), vertical=false,
          alignmode = Outside(10), halign = 0.15, valign = 0.02)
 Colorbar(fig, colormap=colormap, bbox=ax.scene.px_area,
          limits = PV_lims, label="PV [1/s³]", height=25, width=Relative(0.35), vertical=false,
