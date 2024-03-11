@@ -106,6 +106,23 @@ def adjust_times(ds, round_times=True, decimals=4):
     return ds
 #---
 
+#+++ Check if all simulations are complete
+def check_simulation_completion(simnames, slice_name="ttt", path="./headland_simulations/data/"):
+    from colorama import Fore, Back, Style
+    times = []
+    for simname in simnames:
+        with open_simulation(path+f"{slice_name}.{simname}.nc", use_advective_periods = True, get_grid = False) as ds:
+            ds = adjust_times(ds, round_times=True)
+            times.append(ds.time.values)
+            print(simname, ds.time.values)
+    message = "All times equal"
+    for time in times[1:]:
+        if time != times[0]:
+            message = "Not all times are equal!"
+    print(Fore.RED + message, Style.RESET_ALL)
+    return
+#---
+
 #+++ Define collect datasets function
 def collect_datasets(filenames, attribute_variables = ["N2_inf", "f_0"],
                      use_advective_periods = True,

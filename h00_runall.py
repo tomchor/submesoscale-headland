@@ -3,7 +3,7 @@ sys.path.append("/glade/u/home/tomasc/repos/pynanigans")
 import numpy as np
 import xarray as xr
 import pynanigans as pn
-from aux00_utils import open_simulation, condense, adjust_times
+from aux00_utils import open_simulation, condense, check_simulation_completion
 from aux01_physfuncs import get_topography_masks
 from colorama import Fore, Back, Style
 from dask.diagnostics import ProgressBar
@@ -37,6 +37,8 @@ modifiers = ["-f4", "-f2", ""]
 for modifier in modifiers:
     print("\nStarting h01 and h02 post-processing of results using modifier", modifier)
     simnames = [ simname_base + modifier for simname_base in simnames_base ]
+    check_simulation_completion(simnames, slice_name="ttt", path=path)
+
     exec(open("h01_energy_transfer.py").read())
     exec(open("h02_bulkstats.py").read())
 
