@@ -1,7 +1,7 @@
 using Rasters
 import NCDatasets
 
-if !(@isdefined simname) | (typeof(simname) !== String)
+if !(@isdefined simname) || (typeof(simname) !== String)
     simname = "NPN-R05F02-f2"
 end
 
@@ -38,7 +38,8 @@ PV = xyz.PV[Ti=Between(params.T_advective_spinup * params.T_advective, Inf)]
 PVₙ = @lift Array(PV)[:,:,:,$n]
 
 colormap = to_colormap(:balance)
-colormap[110:end] .= RGBAf(0,0,0,0)
+middle_chunk = 80
+colormap[128-middle_chunk:128+middle_chunk] .= RGBAf(0,0,0,0)
 
 settings_axis3 = (aspect = (md["Lx"], md["Ly"], 4*md["Lz"]), azimuth = -0.80π, elevation = 0.2π,
                   perspectiveness=0.8, viewmode=:fitzoom, xlabel="x [m]", ylabel="y [m]", zlabel="z [m]")
@@ -47,9 +48,12 @@ ax = Axis3(fig[1, 1]; settings_axis3...)
 volume!(ax, xC, yC, zC, H, algorithm = :absorption, absorption=50f0, colormap = [:papayawhip, RGBAf(0,0,0,0), :papayawhip], colorrange=(-1, 1)) # turn on anti-aliasing
 
 vol = volume!(ax, xC, yC, zC, PVₙ, algorithm = :absorption, absorption=20f0, colormap=colormap, colorrange=PV_lims)
-Colorbar(fig, colormap=colormap[1:128], bbox=ax.scene.px_area,
-         limits = (PV_lims[1], 0), label="PV [1/s³]", height=25, width=Relative(0.35), vertical=false,
+Colorbar(fig, vol, bbox=ax.scene.px_area,
+         limits = PV_lims, label="PV [1/s³]", height=25, width=Relative(0.35), vertical=false,
          alignmode = Outside(10), halign = 0.15, valign = 0.02)
+Colorbar(fig, colormap=colormap, bbox=ax.scene.px_area,
+         limits = PV_lims, label="PV [1/s³]", height=25, width=Relative(0.35), vertical=false,
+         alignmode = Outside(10), halign = 0.15, valign = 0.2)
 
 
 #+++ Inset axis
@@ -69,6 +73,7 @@ text!(Point3f(-200, -100 + params.Ly/2, 40),
 
 n[] = length(dims(PV, :Ti))
 save(string(@__DIR__) * "/../../figures/bathymetry_3d_PV.png", fig, px_per_unit=2);
+pause
 #save(string(@__DIR__) * "/../../figures/bathymetry_3d_PV.pdf", fig, pt_per_unit=300)
 
 n[] = 1
