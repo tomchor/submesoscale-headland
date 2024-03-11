@@ -218,7 +218,7 @@ function construct_outputs(simulation;
                                                                      filename = "$rundir/data/xyz.$(simname).nc",
                                                                      schedule = TimeInterval(interval_3d),
                                                                      array_type = Array{Float64},
-                                                                     verbose = true,
+                                                                     verbose = debug,
                                                                      dimensions = Dict("b_sorted" => ("xC", "yC", "zC",),),
                                                                      kwargs...
                                                                      )
@@ -329,7 +329,7 @@ function construct_outputs(simulation;
                                                                      array_type = Array{Float32},
                                                                      with_halos = false,
                                                                      indices = indices,
-                                                                     verbose = debug,
+                                                                     verbose = true,
                                                                      kwargs...
                                                                      )
         add_grid_metrics_to!(ow, user_indices=indices)
