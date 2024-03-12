@@ -20,7 +20,7 @@ params = (; (Symbol(k) => v for (k, v) in md)...)
 #---
 
 @show "Slicing xyz"
-xyz = xyz[yC=Between(-md["runway_length"], Inf), xC=Between(-390, Inf)]
+xyz = xyz[yC=Between(-md["runway_length"], Inf)]
 xC = Array(dims(xyz, :xC))
 yC = Array(dims(xyz, :yC))
 zC = Array(dims(xyz, :zC))
@@ -51,9 +51,6 @@ vol = volume!(ax, xC, yC, zC, PVₙ, algorithm = :absorption, absorption=20f0, c
 Colorbar(fig, vol, bbox=ax.scene.px_area,
          label="PV [1/s³]", height=25, width=Relative(0.35), vertical=false,
          alignmode = Outside(10), halign = 0.15, valign = 0.02)
-Colorbar(fig, colormap=colormap, bbox=ax.scene.px_area,
-         limits = PV_lims, label="PV [1/s³]", height=25, width=Relative(0.35), vertical=false,
-         alignmode = Outside(10), halign = 0.15, valign = 0.2)
 
 
 #+++ Inset axis
@@ -73,8 +70,6 @@ text!(Point3f(-200, -100 + params.Ly/2, 40),
 
 n[] = length(dims(PV, :Ti))
 save(string(@__DIR__) * "/../../figures/bathymetry_3d_PV.png", fig, px_per_unit=2);
-pause
-#save(string(@__DIR__) * "/../../figures/bathymetry_3d_PV.pdf", fig, pt_per_unit=300)
 
 n[] = 1
 frames = 1:length(dims(PV, :Ti))
