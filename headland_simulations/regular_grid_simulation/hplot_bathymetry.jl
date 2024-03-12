@@ -26,7 +26,7 @@ yC = Array(dims(xyz, :yC))
 zC = Array(dims(xyz, :zC))
 
 mult = 1.5 + params.Ro_h
-PV_lims = Tuple(md["N2_inf"] * abs(md["f_0"]) * [-mult, +mult]);
+PV_lims = (-mult, +mult)
 H = [ bathymetry(x, y, z) < 5 ? 1 : 0 for x=xC, y=yC, z=zC ]
 
 using GLMakie
@@ -34,11 +34,11 @@ fig = Figure(resolution = (1200, 900));
 n = Observable(1)
 
 @show "Slicing PV"
-PV = xyz.PV[Ti=Between(params.T_advective_spinup * params.T_advective, Inf)]
+PV = xyz.PV[Ti=Between(params.T_advective_spinup * params.T_advective, Inf)] ./ (md["N2_inf"] * md["f_0"])
 PVₙ = @lift Array(PV)[:,:,:,$n]
 
 colormap = to_colormap(:balance)
-middle_chunk = 80
+middle_chunk = Int(1.25 * 128 / mult) # Needs to be *at least* larger than 128 / mult
 colormap[128-middle_chunk:128+middle_chunk] .= RGBAf(0,0,0,0)
 
 settings_axis3 = (aspect = (md["Lx"], md["Ly"], 4*md["Lz"]), azimuth = -0.80π, elevation = 0.2π,
@@ -49,7 +49,7 @@ volume!(ax, xC, yC, zC, H, algorithm = :absorption, absorption=50f0, colormap = 
 
 vol = volume!(ax, xC, yC, zC, PVₙ, algorithm = :absorption, absorption=20f0, colormap=colormap, colorrange=PV_lims)
 Colorbar(fig, vol, bbox=ax.scene.px_area,
-         label="PV [1/s³]", height=25, width=Relative(0.35), vertical=false,
+         label="PV / N²∞ f₀", height=25, width=Relative(0.35), vertical=false,
          alignmode = Outside(10), halign = 0.15, valign = 0.02)
 
 
