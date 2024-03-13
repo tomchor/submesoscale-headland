@@ -5,12 +5,7 @@ from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
 from cmocean import cm
 
-modifier = "-f2"
-slice_name = "xyi"
-n_cycles = 1/2
-
-#snaps = xr.open_dataset(f"data_post/{slice_name}_snaps{modifier}.nc")
-#snaps = snaps.reindex(Ro_h = list(reversed(snaps.Ro_h)))
+modifier = ""
 
 tafields = xr.open_dataset(f"data_post/tafields_snaps{modifier}.nc")
 tafields = tafields.reindex(Ro_h = list(reversed(tafields.Ro_h)))
@@ -18,8 +13,8 @@ tafields = tafields.reindex(Ro_h = list(reversed(tafields.Ro_h)))
 #+++ Energy transfer variables
 tafields["q̄_norm"] = tafields["q̄"] / (tafields["N²∞"] * tafields["f₀"])
 tafields["ω̄²"]     = -tafields["f₀"]**2 * tafields.q̄_norm
-tafields["q̂_norm"] = tafields["q̂"] / (tafields["N²∞"] * tafields["f₀"])
-tafields["ω̂²"]     = -tafields["f₀"]**2 * tafields.q̂_norm
+#tafields["q̂_norm"] = tafields["q̂"] / (tafields["N²∞"] * tafields["f₀"])
+#tafields["ω̂²"]     = -tafields["f₀"]**2 * tafields.q̂_norm
 
 tafields["Slope_Bu"] = tafields.Ro_h / tafields.Fr_h
 
@@ -36,28 +31,7 @@ tawake = tawake.drop_vars({'Fr_h', 'simulation', 'Ro_h'}).assign_coords(simulati
 tawake["Ro_h"] = xr.DataArray(data=Ro_h_values, dims="simulation", coords=dict(simulation=tawake.simulation))
 tawake["Fr_h"] = xr.DataArray(data=Fr_h_values, dims="simulation", coords=dict(simulation=tawake.simulation))
 
-CSI = tawake.where(tawake.average_CSI_mask).sel(λ=50)
-#---
-
-#+++ Labels
-CSI["q̄"].attrs = dict(long_name = "Time-avg PV [1/s³]")
-CSI["ω̄²"].attrs = dict(long_name = "ω̄²ₘₐₓ = -f₀ q / N²∞ [1/s²]")
-CSI["ε̄ₖ"].attrs = dict(long_name = "KE dissipation rate [m²/s³]")
-#---
-
-#+++ Plot options
-scatter_options = dict(s=2, edgecolor="none", rasterized=True, facecolor="gray", xscale="symlog", yscale="log")
-binned_options = dict(s=30, edgecolor="none", rasterized=True, facecolor="black")
-
-Ri_cbar_options = dict(vmin=0, vmax=10, cmap="copper_r")
-Ro_cbar_options = dict(vmin=-10, vmax=+10, cmap=cm.balance)
-
-#---
-
-#+++ Figure and options
-fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 4),
-                         constrained_layout=True, squeeze=False)
-axesf = axes.flatten()
+CSI = tawake.where(tawake.average_CSI_mask)
 #---
 
 #+++ Bin results to get a clearer trend
@@ -70,8 +44,26 @@ CSI_q̄_binned = CSI.groupby_bins("q̄", q̄_bins, labels=q̄_bin_labels).mean()
 CSI_ω̄_binned = CSI.groupby_bins("ω̄²", ω̄_bins, labels=ω̄_bin_labels).mean()
 #---
 
+#+++ Plot options and labels
+CSI["q̄"].attrs = dict(long_name = "Time-avg PV [1/s³]")
+CSI["ω̄²"].attrs = dict(long_name = "ω̄²ₘₐₓ = -f₀ q / N²∞ [1/s²]")
+CSI["ε̄ₖ"].attrs = dict(long_name = "KE dissipation rate [m²/s³]")
+
+scatter_options = dict(s=2, edgecolor="none", rasterized=True, facecolor="gray", xscale="symlog", yscale="log")
+binned_options = dict(s=30, edgecolor="none", rasterized=True, facecolor="black")
+
+Ri_cbar_options = dict(vmin=0, vmax=10, cmap="copper_r")
+Ro_cbar_options = dict(vmin=-10, vmax=+10, cmap=cm.balance)
+#---
+
+#+++ Figure and options
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 4),
+                         constrained_layout=True, squeeze=False)
+axesf = axes.flatten()
+#---
+
 #+++ Plot scatter plot
-CSI_coarse = CSI.coarsen(xC=5, yC=5, boundary="pad").mean()
+CSI_coarse = CSI.coarsen(xC=2, yC=2, boundary="pad").max()
 
 ax = axesf[0]
 CSI_coarse.plot.scatter(ax=ax, x="q̄", y="ε̄ₖ", **scatter_options)
