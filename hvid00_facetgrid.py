@@ -214,7 +214,7 @@ for modifier in modifiers:
         #+++ Begin plotting
         varlist = list(plot_kwargs_by_var.keys())
         for var in varlist:
-            print(f"Starting variable {var}")
+            if __name__ == '__main__': print(f"Starting variable {var}")
             if var not in snaps.variables.keys():
                 if __name__ == '__main__': print(f"Skipping {slice_name} slices of {var} since they don't seem to be in the file.")
                 continue

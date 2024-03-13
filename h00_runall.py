@@ -34,11 +34,14 @@ modifiers = ["-f2", "-S-f2"]
 modifiers = ["-f4", "-f2", ""]
 #---
 
+
 for modifier in modifiers:
-    print("\nStarting h01 and h02 post-processing of results using modifier", modifier)
     simnames = [ simname_base + modifier for simname_base in simnames_base ]
     check_simulation_completion(simnames, slice_name="ttt", path=path)
 
+for modifier in modifiers:
+    print("\nStarting h01 and h02 post-processing of results using modifier", modifier)
+    simnames = [ simname_base + modifier for simname_base in simnames_base ]
     exec(open("h01_energy_transfer.py").read())
     exec(open("h02_bulkstats.py").read())
 
