@@ -115,11 +115,11 @@ def check_simulation_completion(simnames, slice_name="ttt", path="./headland_sim
             ds = adjust_times(ds, round_times=True)
             times.append(ds.time.values)
             print(simname, ds.time.values)
-    message = "All times equal"
+    message = Fore.GREEN + "All times equal" + Style.RESET_ALL
     for time in times[1:]:
-        if time != times[0]:
-            message = "Not all times are equal!"
-    print(Fore.RED + message, Style.RESET_ALL)
+        if (len(time)!=len(times[0])) or  (time != times[0]).any():
+            message = Fore.RED + "Not all times are equal!" + Style.RESET_ALL
+    print(message)
     return
 #---
 
