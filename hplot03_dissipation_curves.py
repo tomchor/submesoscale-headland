@@ -53,7 +53,7 @@ for buffer in bulk.buffer.values:
     #+++ Prettify and save
     for ax in axesf:
         ax.axvline(x=0, color="lightgray", ls="--", lw=1, zorder=0)
-        ax.set_xlim(-250, 1250)
+        ax.set_xlim(-250, 2300)
         ax.set_ylim(0, None)
         ax.set_title(f"Average of KE dissipation rate\nexcluding {bulkb.buffer.item()} m closest to the boundary")
 

@@ -62,31 +62,33 @@ if shell is not None:
     test = False
     time_avg = False
     summarize = True
-    plotting_time = 4
+    zoom = True
+    plotting_time = 24
 
     slice_names = ["tafields",]
     slice_names = ["xyi",]
     modifiers = ["-f2", "-S-f2", "", "-S"]
     modifiers = ["",]
 
-    varnames = ["Ro",]
+    varnames = ["q̃_norm", "Ro"]
     contour_variable_name = None #"water_mask_buffered"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
 else:
     #+++ Running from python (probably from run_postproc.sh)
-    animate = False
+    animate = True
     test = False
     time_avg = False
     summarize = True
+    zoom = False
     plotting_time = 4
 
     slice_names = ["xyi", "xiz", "iyz", "tafields"]
-    slice_names = ["tafields",]
+    slice_names = ["xyi",]
     modifiers = ["",]
 
     varnames = ["εₖ", "PV_norm", "Ro"]
-    varnames = ["ε̄ₖ"]
+    varnames = ["PV_norm", "Ro"]
     contour_variable_name = None #"q̃_norm"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
@@ -193,12 +195,13 @@ for modifier in modifiers:
 
         #+++ Options
         sel = dict()
-        if "xC" in snaps.coords: # has an x dimension
-            sel = sel | dict(x=slice(-snaps.headland_intrusion_size_max/3, np.inf))
-        if "yC" in snaps.coords: # has a y dimension
-            sel = sel | dict(y=slice(snaps.yC[0] + snaps.sponge_length_y, np.inf))
-        if "zC" in snaps.coords: # has a z dimension
-            sel = sel | dict(z=slice(None))
+        if zoom:
+            if "xC" in snaps.coords: # has an x dimension
+                sel = sel | dict(x=slice(-snaps.headland_intrusion_size_max/3, np.inf))
+            if "yC" in snaps.coords: # has a y dimension
+                sel = sel | dict(y=slice(snaps.yC[0] + snaps.sponge_length_y, 1400))
+            if "zC" in snaps.coords: # has a z dimension
+                sel = sel | dict(z=slice(None))
 
         cbar_kwargs = dict(shrink=0.5, fraction=0.012, pad=0.02, aspect=30)
         if ("xC" in snaps.coords) and ("yC" in snaps.coords):
@@ -214,7 +217,7 @@ for modifier in modifiers:
         #+++ Begin plotting
         varlist = list(plot_kwargs_by_var.keys())
         for var in varlist:
-            print(f"Starting variable {var}")
+            if __name__ == '__main__': print(f"Starting variable {var}")
             if var not in snaps.variables.keys():
                 if __name__ == '__main__': print(f"Skipping {slice_name} slices of {var} since they don't seem to be in the file.")
                 continue
