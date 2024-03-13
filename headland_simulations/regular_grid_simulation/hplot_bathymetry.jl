@@ -38,7 +38,7 @@ PV = xyz.PV[Ti=Between(params.T_advective_spinup * params.T_advective, Inf)] ./ 
 PVₙ = @lift Array(PV)[:,:,:,$n]
 
 colormap = to_colormap(:balance)
-middle_chunk = Int(1.25 * 128 / mult) # Needs to be *at least* larger than 128 / mult
+middle_chunk = ceil(Int, 1.25 * 128 / mult) # Needs to be *at least* larger than 128 / mult
 colormap[128-middle_chunk:128+middle_chunk] .= RGBAf(0,0,0,0)
 
 settings_axis3 = (aspect = (md["Lx"], md["Ly"], 4*md["Lz"]), azimuth = -0.80π, elevation = 0.2π,

@@ -285,17 +285,6 @@ wizard = TimeStepWizard(max_change=1.05, min_change=0.2, cfl=0.9, min_Δt=1e-4, 
 simulation.callbacks[:wizard] = Callback(wizard, IterationInterval(2))
 simulation.callbacks[:nan_checker] = Callback(Oceananigans.Simulations.NaNChecker((; u=model.velocities.u)), IterationInterval(10))
 
-#+++ Define target cfl
-function change_cfl(sim, p)
-    @warn "change_cfl function accessed"
-    if sim.model.clock.time >= params.T_advective/2
-        @warn "Changing CFL to $(p.cfl)"
-        sim.callbacks[:wizard].func.cfl = p.cfl
-    end
-end
-simulation.callbacks[:cfl_changer] = Callback(change_cfl, SpecifiedTimes([12params.T_advective]), parameters=(; cfl=0.8))
-#---
-
 @info "" simulation
 #---
 
