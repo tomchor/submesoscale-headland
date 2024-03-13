@@ -85,6 +85,8 @@ for simname in simnames:
     xyi = adjust_times(xyi, round_times=True)
     ttt = adjust_times(ttt, round_times=True)
     tti = adjust_times(tti, round_times=True)
+
+    ttt = ttt.assign_coords(xC=tti.xC.values, yC=tti.yC.values) # This is needed just as long as ttt is float32 and tti is float64
     #---
 
     #+++ Preliminary definitions and checks
