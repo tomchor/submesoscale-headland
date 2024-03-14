@@ -64,7 +64,8 @@ module li
 export JULIA_DEPOT_PATH="/glade/work/tomasc/.julia"
 echo $CUDA_VISIBLE_DEVICES
 
-time julia --project --pkgimages=no {julia_file} --simname={simname} 2>&1 | tee logs/{simname_full}.out
+#Xvfb implements X11 without an actual monitor, necessary since we need to use GLMakie for 3D plots
+Xvfb :123 & DISPLAY=:123 time julia --project --pkgimages=no {julia_file} --simname={simname} 2>&1 | tee logs/{simname_full}.out
 #time julia --check-bounds=no --pkgimages=no --project {julia_file} --simname={simname} 2>&1 | tee logs/{simname_full}.out
 
 qstat -f $PBS_JOBID >> logs/{simname_full}.log

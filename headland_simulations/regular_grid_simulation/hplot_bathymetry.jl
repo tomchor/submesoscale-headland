@@ -25,8 +25,8 @@ xC = Array(dims(xyz, :xC))
 yC = Array(dims(xyz, :yC))
 zC = Array(dims(xyz, :zC))
 
-mult = 1.5 + params.Ro_h
-PV_lims = (-mult, +mult)
+PV_lim = 1.5 + params.Ro_h
+PV_lims = (-PV_lim, +PV_lim)
 H = [ bathymetry(x, y, z) < 5 ? 1 : 0 for x=xC, y=yC, z=zC ]
 
 using GLMakie
@@ -38,7 +38,7 @@ PV = xyz.PV[Ti=Between(params.T_advective_spinup * params.T_advective, Inf)] ./ 
 PVₙ = @lift Array(PV)[:,:,:,$n]
 
 colormap = to_colormap(:balance)
-middle_chunk = ceil(Int, 1.25 * 128 / mult) # Needs to be *at least* larger than 128 / mult
+middle_chunk = ceil(Int, 1.5 * 128 / PV_lim) # Needs to be *at least* larger than 128 / PV_lim
 colormap[128-middle_chunk:128+middle_chunk] .= RGBAf(0,0,0,0)
 
 settings_axis3 = (aspect = (md["Lx"], md["Ly"], 4*md["Lz"]), azimuth = -0.80π, elevation = 0.2π,
