@@ -3,26 +3,26 @@ from os import system
 #+++ Define simnames
 simnames = [#"NPN-TEST",
             "NPN-R008F008",
-            "NPN-R008F02",
-            "NPN-R008F05",
-            "NPN-R008F1",
             "NPN-R02F008",
-            "NPN-R02F02",
-            "NPN-R02F05",
-            "NPN-R02F1",
             "NPN-R05F008",
-            "NPN-R05F02",
-            "NPN-R05F05",
-            "NPN-R05F1",
             "NPN-R1F008",
+            "NPN-R008F02",
+            "NPN-R02F02",
+            "NPN-R05F02",
             "NPN-R1F02",
+            "NPN-R008F05",
+            "NPN-R02F05",
+            "NPN-R05F05",
             "NPN-R1F05",
+            "NPN-R008F1",
+            "NPN-R02F1",
+            "NPN-R05F1",
             "NPN-R1F1",
             ]
 
 from cycler import cycler
 names = cycler(name=simnames)
-resolutions = cycler(resolution = ["-f2",])
+resolutions = cycler(resolution = ["-f2"])
 rotations = cycler(rotation = ["", "-S",])
 rotations = cycler(rotation = ["",])
 simnames = [ nr["name"] + nr["rotation"] + nr["resolution"] for nr in rotations * resolutions * names ]
@@ -65,14 +65,14 @@ export JULIA_DEPOT_PATH="/glade/work/tomasc/.julia"
 echo $CUDA_VISIBLE_DEVICES
 
 #Xvfb implements X11 without an actual monitor, necessary since we need to use GLMakie for 3D plots
-Xvfb :123 & DISPLAY=:123 time julia --project --pkgimages=no {julia_file} --simname={simname} 2>&1 | tee logs/{simname_full}.out
+Xvfb :{display_number} & DISPLAY=:{display_number} time julia --project --pkgimages=no {julia_file} --simname={simname} 2>&1 | tee logs/{simname_full}.out
 #time julia --check-bounds=no --pkgimages=no --project {julia_file} --simname={simname} 2>&1 | tee logs/{simname_full}.out
 
 qstat -f $PBS_JOBID >> logs/{simname_full}.log
 qstat -f $PBS_JOBID >> logs/{simname_full}.out
 """
 
-for simname in simnames:
+for i, simname in enumerate(simnames):
 
     #+++ Define simulation name
     simname_full = f"{simname}"
@@ -107,7 +107,8 @@ for simname in simnames:
 
     pbs_script_filled = pbs_script.format(simname_fullshort=simname_fullshort, simname=simname,
                                           simname_full=simname_full, julia_file=julia_file,
-                                          options_string1=options_string1, options_string2=options_string2)
+                                          options_string1=options_string1, options_string2=options_string2,
+                                          display_number=120+i)
     if verbose>1: print(pbs_script_filled)
 
     cmd1 = f"qsub {aux_filename}"
