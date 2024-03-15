@@ -12,7 +12,6 @@ print("Starting snapshot-collecting script")
 
 #+++ Options
 slice_names = ["xyi", "xiz", "iyz", "tafields"]
-slice_names = ["xiz",]
 #---
 
 #+++ Define collect_and_save_datasets() function
@@ -52,18 +51,18 @@ def collect_and_save_datasets():
 
                 if slice_name == "xyi":
                     ds = ds.drop_vars(["zC", "zF"])
-                    variables = ["u", "v", "w", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ",
+                    variables = ["u", "v", "w", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ",
                                  "∂Uᵍ∂z", "∂Vᵍ∂z", "PV_z", "Re_b"]
                     variables = np.concatenate([variables, velocity_gradient_tensor, buoyancy_gradient_tensor])
 
                 elif slice_name == "xiz":
                     ds = ds.drop_vars(["yC", "yF"])
-                    variables = ["u", "v", "w", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
+                    variables = ["u", "v", "w", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
                     variables = np.concatenate([variables, velocity_gradient_tensor, buoyancy_gradient_tensor])
 
                 elif slice_name == "iyz":
                     ds = ds.drop_vars(["xC", "xF"])
-                    variables = ["u", "v", "w", "dbdz", "Ro", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
+                    variables = ["u", "v", "w", "dbdz", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ", "b",]
                 ds = ds[variables]
 
                 #+++ Get rid of slight misalignment in times
@@ -170,20 +169,20 @@ if basename(__file__) != "h00_runall.py":
     path = f"./headland_simulations/data/"
     simnames = [#"NPN-TEST",
                 "NPN-R008F008",
-                "NPN-R008F02",
-                "NPN-R008F05",
-                "NPN-R008F1",
                 "NPN-R02F008",
-                "NPN-R02F02",
-                "NPN-R02F05",
-                "NPN-R02F1",
                 "NPN-R05F008",
-                "NPN-R05F02",
-                "NPN-R05F05",
-                "NPN-R05F1",
                 "NPN-R1F008",
+                "NPN-R008F02",
+                "NPN-R02F02",
+                "NPN-R05F02",
                 "NPN-R1F02",
+                "NPN-R008F05",
+                "NPN-R02F05",
+                "NPN-R05F05",
                 "NPN-R1F05",
+                "NPN-R008F1",
+                "NPN-R02F1",
+                "NPN-R05F1",
                 "NPN-R1F1",
                 ]
 

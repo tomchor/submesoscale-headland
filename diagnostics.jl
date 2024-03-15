@@ -179,15 +179,13 @@ outputs_full = merge(outputs_state_vars, outputs_dissip, outputs_misc, outputs_g
 
 #+++ Construct outputs into simulation
 function construct_outputs(simulation; 
-                           LES = false,
                            simname = "TEST",
-                           rundir = rundir,
+                           rundir = @__DIR__,
                            params = params,
                            overwrite_existing = overwrite_existing,
                            interval_2d = 0.2*params.T_advective,
                            interval_3d = params.T_advective,
                            interval_time_avg = 10*params.T_advective,
-                           interval_checkpointer = 10*params.T_advective,
                            write_xyz = false,
                            write_xiz = true,
                            write_xyi = false,
@@ -211,15 +209,6 @@ function construct_outputs(simulation;
     k_half = @allowscalar Int(ceil(params.H / minimum_zspacing(grid))) # Approximately half the headland height
     kwargs = (overwrite_existing = overwrite_existing,
               global_attributes = merge(params, (; buffers)))
-    if interval_2d == nothing
-        interval_2d = 0.015params.T_strouhal
-    end
-    if interval_3d == nothing
-        interval_3d = 0.3params.T_strouhal
-    end
-    if interval_checkpointer == nothing
-        interval_checkpointer = 10interval_3d
-    end
     #---
 
     #+++ xyz SNAPSHOTS
@@ -229,7 +218,7 @@ function construct_outputs(simulation;
                                                                      filename = "$rundir/data/xyz.$(simname).nc",
                                                                      schedule = TimeInterval(interval_3d),
                                                                      array_type = Array{Float64},
-                                                                     verbose = true,
+                                                                     verbose = debug,
                                                                      dimensions = Dict("b_sorted" => ("xC", "yC", "zC",),),
                                                                      kwargs...
                                                                      )
@@ -340,7 +329,8 @@ function construct_outputs(simulation;
                                                                      schedule = AveragedTimeInterval(interval_time_avg, stride=10),
                                                                      array_type = Array{Float32},
                                                                      with_halos = false,
-                                                                     verbose = debug,
+                                                                     indices = indices,
+                                                                     verbose = true,
                                                                      kwargs...
                                                                      )
         add_grid_metrics_to!(ow, user_indices=indices)
@@ -372,7 +362,7 @@ function construct_outputs(simulation;
                                              Checkpointer(model;
                                              dir="$rundir/data/",
                                              prefix = "chk.$(simname)",
-                                             schedule = TimeInterval(interval_checkpointer),
+                                             schedule = TimeInterval(interval_time_avg),
                                              overwrite_existing = true,
                                              cleanup = true,
                                              verbose = debug,

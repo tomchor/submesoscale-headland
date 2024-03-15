@@ -22,7 +22,7 @@ simnames = [#"NPN-TEST",
 
 from cycler import cycler
 names = cycler(name=simnames)
-resolutions = cycler(resolution = ["-f4", "-f2", ""])
+resolutions = cycler(resolution = ["-f2"])
 rotations = cycler(rotation = ["", "-S",])
 rotations = cycler(rotation = ["",])
 simnames = [ nr["name"] + nr["rotation"] + nr["resolution"] for nr in rotations * resolutions * names ]
@@ -36,7 +36,7 @@ omit_topology = True
 topology_string = "NPN-"
 verbose = 1
 aux_filename = "aux_pbs_twake.sh"
-julia_file = "headland.jl"
+julia_file = "regular_headland.jl"
 #---
 
 pbs_script = \
@@ -64,14 +64,15 @@ module li
 export JULIA_DEPOT_PATH="/glade/work/tomasc/.julia"
 echo $CUDA_VISIBLE_DEVICES
 
-time julia --project --pkgimages=no {julia_file} --simname={simname} 2>&1 | tee logs/{simname_full}.out
+#Xvfb implements X11 without an actual monitor, necessary since we need to use GLMakie for 3D plots
+Xvfb :{display_number} & DISPLAY=:{display_number} time julia --project --pkgimages=no {julia_file} --simname={simname} 2>&1 | tee logs/{simname_full}.out
 #time julia --check-bounds=no --pkgimages=no --project {julia_file} --simname={simname} 2>&1 | tee logs/{simname_full}.out
 
 qstat -f $PBS_JOBID >> logs/{simname_full}.log
 qstat -f $PBS_JOBID >> logs/{simname_full}.out
 """
 
-for simname in simnames:
+for i, simname in enumerate(simnames):
 
     #+++ Define simulation name
     simname_full = f"{simname}"
@@ -106,7 +107,8 @@ for simname in simnames:
 
     pbs_script_filled = pbs_script.format(simname_fullshort=simname_fullshort, simname=simname,
                                           simname_full=simname_full, julia_file=julia_file,
-                                          options_string1=options_string1, options_string2=options_string2)
+                                          options_string1=options_string1, options_string2=options_string2,
+                                          display_number=120+i)
     if verbose>1: print(pbs_script_filled)
 
     cmd1 = f"qsub {aux_filename}"
