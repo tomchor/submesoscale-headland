@@ -35,7 +35,7 @@ end
 
                 Rz = 2.5e-3,
                 runway_length_fraction_L = 2, # runway_length / L
-                sponge_fraction_Ly = 0.2,
+                sponge_fraction_Ly = 0.1,
                 T_advective_spinup = 20, # Should be a multiple of 10
                 T_advective_statistics = 40, # Should be a multiple of 10
                 )
@@ -189,7 +189,7 @@ function expand_headland_parameters(params)
     headland_intrusion_size_max = 2*params.H / tan(θ_rad)
     L = headland_intrusion_size_max / 2
 
-    Lx = 2 * headland_intrusion_size_max
+    Lx = 2.5 * headland_intrusion_size_max
     Ly = params.Ly_ratio * L
 
     sponge_length_y = params.sponge_fraction_Ly * Ly
