@@ -91,7 +91,6 @@ pprintln(params)
 #+++ Base grid
 #+++ Figure out topology and domain
 if topology == "NPN"
-    LES = true
     topo = (Bounded, Periodic, Bounded)
 else
     throw(AssertionError("Topology must be NPN"))
@@ -242,14 +241,10 @@ Fb = Forcing(forc_b, field_dependencies = :b, parameters = merge(mask_y_params, 
 #---
 
 #+++ Turbulence closure
-if LES
-    if AMD
-        closure = AnisotropicMinimumDissipation()
-    else
-        closure = SmagorinskyLilly(C=0.13, Pr=1)
-    end
+if AMD
+    closure = AnisotropicMinimumDissipation()
 else
-    closure = ScalarDiffusivity(ν=params.ν_eddy, κ=params.ν_eddy)
+    closure = SmagorinskyLilly(C=0.13, Pr=1)
 end
 #---
 
@@ -290,17 +285,6 @@ wizard = TimeStepWizard(max_change=1.05, min_change=0.2, cfl=0.9, min_Δt=1e-4, 
 simulation.callbacks[:wizard] = Callback(wizard, IterationInterval(2))
 simulation.callbacks[:nan_checker] = Callback(Oceananigans.Simulations.NaNChecker((; u=model.velocities.u)), IterationInterval(10))
 
-#+++ Define target cfl
-function change_cfl(sim, p)
-    @warn "change_cfl function accessed"
-    if sim.model.clock.time >= params.T_advective/2
-        @warn "Changing CFL to $(p.cfl)"
-        sim.callbacks[:wizard].func.cfl = p.cfl
-    end
-end
-simulation.callbacks[:cfl_changer] = Callback(change_cfl, SpecifiedTimes([12params.T_advective]), parameters=(; cfl=0.8))
-#---
-
 @info "" simulation
 #---
 
@@ -318,7 +302,6 @@ end
 include("$rundir/../../diagnostics.jl")
 tick()
 checkpointer = construct_outputs(simulation,
-                                 LES = true,
                                  simname = simname,
                                  rundir = rundir,
                                  params = params,
@@ -342,7 +325,6 @@ tock()
 if has_cuda_gpu() run(`nvidia-smi`) end
 @info "Starting simulation"
 run!(simulation, pickup=true)
-
-using Oceananigans.OutputWriters: write_output!
-write_output!(checkpointer, model)
 #---
+
+include(string(@__DIR__) * "/hplot_bathymetry.jl")

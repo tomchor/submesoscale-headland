@@ -35,7 +35,7 @@ end
 
                 Rz = 2.5e-3,
                 runway_length_fraction_L = 2, # runway_length / L
-                sponge_fraction_Ly = 0.1,
+                sponge_fraction_Ly = 0.2,
                 T_advective_spinup = 20, # Should be a multiple of 10
                 T_advective_statistics = 40, # Should be a multiple of 10
                 )
@@ -202,7 +202,7 @@ function expand_headland_parameters(params)
     N²∞ = N2_inf = (V∞ / (Fr_h * params.H))^2
     R1 = √N²∞ * params.H / f₀
     z₀ = z_0 = params.Rz * params.H
-    sponge_rate = 20 * V∞ / sponge_length_y
+    sponge_rate = 40 * V∞ / sponge_length_y
     #---
 
     #+++ Diagnostic parameters
