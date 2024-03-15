@@ -11,6 +11,7 @@ from scipy.optimize import curve_fit
 modifier = ""
 
 tafields = xr.open_dataset(f"data_post/tafields_snaps{modifier}.nc", decode_times=False)
+tafields = tafields.reindex(Ro_h = list(reversed(tafields.Ro_h)))
 
 bulk = xr.open_dataset(f"data_post/bulkstats_snaps{modifier}.nc", chunks={})
 bulk = bulk.reindex(Ro_h = list(reversed(bulk.Ro_h))).mean("yC")
