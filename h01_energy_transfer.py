@@ -188,7 +188,7 @@ for simname in simnames:
     #---
 
     #+++ Get TKE
-    tafields["⟨Ek′⟩ₜ"] = (tafields["ūⱼūᵢ"].sel(i=1, j=1) + tafields["ūⱼūᵢ"].sel(i=2, j=2) + tafields["ūⱼūᵢ"].sel(i=3, j=3)) / 2
+    tafields["⟨Ek′⟩ₜ"] = (tafields["⟨u′ⱼu′ᵢ⟩ₜ"].sel(i=1, j=1) + tafields["⟨u′ⱼu′ᵢ⟩ₜ"].sel(i=2, j=2) + tafields["⟨u′ⱼu′ᵢ⟩ₜ"].sel(i=3, j=3)) / 2
     #---
 
     #+++ Volume-average/integrate results so far
