@@ -136,11 +136,12 @@ for buffer in bulk.buffer.values:
     ax = axesf[5]
     bulk_buff["Fr"] = bulk_buff.Fr_h + 0*bulk_buff.Ro_h
     xvarname = "Slope_Bu"
-    yvarname = "⟨⟨w′b′⟩ₜ⟩ᵇ + ⟨Π⟩ᵇ"
+    yvarname = "⟨⟨Ek′⟩ₜ⟩ᵇ"
     for cond, label, color, marker in zip(conditions, labels, colors, markers):
         ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
     ax.set_xlabel(xvarname); ax.set_ylabel(yvarname)
     ax.set_xscale("log"); ax.set_yscale("log")
+    ax.plot(S_Bu, 6e-5*S_Bu, ls="--", label=r"Slope_Bu")
 
 
     print("Plotting axes 6")
