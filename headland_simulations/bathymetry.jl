@@ -5,16 +5,16 @@ ynode(j, grid, ℓy) = ynode(1, j, 1, grid, Center(), ℓy, Center())
 znode(k, grid, ℓz) = znode(1, 1, k, grid, Center(), Center(), ℓz)
 
 #+++ Define headland as x(y, z)
-@inline η(z, p) = p.Lx/2 + (0 - p.Lx/2) * z / (2*p.H) # headland intrusion size
+@inline η(z, p) = 2*p.L + (0 - 2*p.L) * z / (2*p.H) # headland intrusion size
 @inline headland_width(z, p) = p.β * η(z, p)
-@inline headland_x_of_yz(y, z, p) = p.Lx/2 - η(z, p) * exp(-(2y / headland_width(z, p))^2)
+@inline headland_x_of_yz(y, z, p) = 2*p.L - η(z, p) * exp(-(2y / headland_width(z, p))^2)
 #---
 
 #+++ Now define it as z(x, y)
 using LambertW: lambertw
-ξ(x, p) = x - p.Lx/2
+ξ(x, p) = x - 2p.L
 W(x, y, p) = lambertw((√8*y/(p.β*ξ(x, p)))^2)
-f(x, y, p) = y == 0 ? 2ξ(x, p) / p.Lx : 2*√8*y / (p.Lx * p.β * √W(x, y, p))
+f(x, y, p) = y == 0 ? 2ξ(x, p) / 4p.L : 2*√8*y / (4p.L * p.β * √W(x, y, p))
 @inline headland_z_of_xy⁺(x, y, p) = 2*p.H * (1 + f(x, y, p))
 @inline headland_z_of_xy⁻(x, y, p) = 2*p.H * (1 - f(x, y, p))
 @inline headland_z_of_xy_unbounded(x, y, p) = min(headland_z_of_xy⁺(x, y, p), headland_z_of_xy⁻(x, y, p))
@@ -23,7 +23,7 @@ f(x, y, p) = y == 0 ? 2ξ(x, p) / p.Lx : 2*√8*y / (p.Lx * p.β * √W(x, y, p)
 
 #+++ Now calculate approximate x, z distance
 using Oceananigans.Grids: xnode, ynode, znode
-params_geometry = (; params.H, params.Lx, params.β)
+params_geometry = (; params.H, params.Lx, params.β, params.L)
 @inline x_distance_from_headland_boundary_ccc(i, j, k, grid, p) = headland_x_of_yz(ynode(j, grid, Center()), znode(k, grid, Center()), p) - xnode(i, grid, Center())
 Δx_from_headland = KernelFunctionOperation{Center, Center, Center}(x_distance_from_headland_boundary_ccc, grid_base, params_geometry)
 
