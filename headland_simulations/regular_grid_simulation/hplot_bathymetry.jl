@@ -12,9 +12,9 @@ md = metadata(xyz)
 params = (; (Symbol(k) => v for (k, v) in md)...)
 
 #+++ Define headland as x(y, z)
-@inline η(z, p) = p.Lx/2 + (0 - p.Lx/2) * z / (2*p.H) # headland intrusion size
+@inline η(z, p) = 2*p.L + (0 - 2*p.L) * z / (2*p.H) # headland intrusion size
 @inline headland_width(z, p) = p.β * η(z, p)
-@inline headland_x_of_yz(y, z, p) = p.Lx/2 - η(z, p) * exp(-(2y / headland_width(z, p))^2)
+@inline headland_x_of_yz(y, z, p) = 2*p.L - η(z, p) * exp(-(2y / headland_width(z, p))^2)
 @inline headland_continuous(x, y, z) = headland_x_of_yz(y, z, params) - x
 @inline bathymetry(x, y, z) = z > 0 ? headland_continuous(x, y, z) : 0
 #---
