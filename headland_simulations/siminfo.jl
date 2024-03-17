@@ -31,7 +31,7 @@ end
                 Ro_h = 0.1,
 
                 β = 1, # headland_intrusion_size / headland_width = "bumpiness" of feature (β=1 for an x-y symmetric seamount, e.g.)
-                Lx_ratio = 2.5, # Lx / headland_intrusion_size_max
+                Lx_ratio = 3, # Lx / headland_intrusion_size_max
                 Ly_ratio = 15, # Ly / headland_width
 
                 Rz = 2.5e-3,
