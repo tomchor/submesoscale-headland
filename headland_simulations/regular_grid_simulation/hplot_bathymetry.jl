@@ -20,7 +20,7 @@ params = (; (Symbol(k) => v for (k, v) in md)...)
 #---
 
 @show "Slicing xyz"
-xyz = xyz[yC=Between(-md["runway_length"], Inf), xC=Between(dims(PV, :xC)[2], Inf)]
+xyz = xyz[yC=Between(-md["runway_length"], Inf), xC=Between(dims(xyz, :xC)[2], Inf)]
 xC = Array(dims(xyz, :xC))
 yC = Array(dims(xyz, :yC))
 zC = Array(dims(xyz, :zC))
@@ -81,7 +81,6 @@ title = @lift "Frₕ = $(@sprintf "%.2g" params.Fr_h),    Roₕ = $(@sprintf "%.
 fig[1, 1] = Label(fig, title, fontsize=18, tellwidth=false, height=8)
 #---
 
-pause
 #+++ Record animation
 n[] = 1
 frames = 1:length(dims(PV, :Ti))
