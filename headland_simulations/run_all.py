@@ -93,13 +93,19 @@ for simname in simnames:
     options1 = dict(select=1, ncpus=1, ngpus=1)
     options2 = dict()
 
-    if ("-f8" in simname) or ("-f4" in simname):
+    if ("-f16" in simname) or ("-f8" in simname) or ("-f4" in simname):
         options2 = options2 | dict(gpu_type = "v100")
+        cmd1 = f"qsub {aux_filename}"
     elif ("-f2" in simname):
         options2 = options2 | dict(gpu_type = "a100")
+        cmd1 = f"qsub {aux_filename}"
     else:
         options1 = options1 | dict(cpu_type = "milan")
         options2 = options2 | dict(gpu_type = "a100")
+        if "F008" in simname:
+            cmd1 = f"JID1=`qsub {aux_filename}`; JID2=`qsub -W depend=afterok:$JID1 {aux_filename}`; JID3=`qsub -W depend=afterok:$JID2 {aux_filename}`; qrls $JID1"
+        else:
+            cmd1 = f"JID1=`qsub {aux_filename}`; JID2=`qsub -W depend=afterok:$JID1 {aux_filename}`; qrls $JID1"
 
     options_string1 = ":".join([ f"{key}={val}" for key, val in options1.items() ])
     options_string2 = ":".join([ f"{key}={val}" for key, val in options2.items() ])
@@ -108,8 +114,6 @@ for simname in simnames:
                                           simname_full=simname_full, julia_file=julia_file,
                                           options_string1=options_string1, options_string2=options_string2)
     if verbose>1: print(pbs_script_filled)
-
-    cmd1 = f"qsub {aux_filename}"
     if verbose>0: print(cmd1)
     #---
 
