@@ -20,7 +20,7 @@ params = (; (Symbol(k) => v for (k, v) in md)...)
 #---
 
 @show "Slicing xyz"
-xyz = xyz[yC=Between(-md["runway_length"], Inf), xC=Between(dims(xyz, :xC)[2], Inf)]
+xyz = xyz[yC=Between(-md["runway_length"], Inf), xC=Between(dims(xyz, :xC)[3], Inf)]
 xC = Array(dims(xyz, :xC))
 yC = Array(dims(xyz, :yC))
 zC = Array(dims(xyz, :zC))
