@@ -31,11 +31,12 @@ end
                 Ro_h = 0.1,
 
                 β = 1, # headland_intrusion_size / headland_width = "bumpiness" of feature (β=1 for an x-y symmetric seamount, e.g.)
+                Lx_ratio = 3, # Lx / headland_intrusion_size_max
                 Ly_ratio = 15, # Ly / headland_width
 
                 Rz = 2.5e-3,
-                runway_length_fraction_L = 2, # runway_length / L
-                sponge_fraction_Ly = 0.2,
+                runway_length_fraction_L = 4, # runway_length / L
+                sponge_fraction_Ly = 0.1,
                 T_advective_spinup = 20, # Should be a multiple of 10
                 T_advective_statistics = 40, # Should be a multiple of 10
                 )
@@ -186,10 +187,10 @@ function expand_headland_parameters(params)
 
     #+++ Geometry
     Lz = 1.05* 2 * params.H # Lz is 5% larger than 2H in order to avoid flow constriction
-    headland_intrusion_size_max = 2*params.H / tan(θ_rad)
-    L = headland_intrusion_size_max / 2
+    headland_intrusion_size_max = 2*params.H / α
+    L = headland_intrusion_size_max / 2 # Horizontal length scale of the headland
 
-    Lx = 2 * headland_intrusion_size_max
+    Lx = params.Lx_ratio * headland_intrusion_size_max
     Ly = params.Ly_ratio * L
 
     sponge_length_y = params.sponge_fraction_Ly * Ly
