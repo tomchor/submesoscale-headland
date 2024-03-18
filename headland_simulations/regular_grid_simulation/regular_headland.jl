@@ -111,7 +111,7 @@ params = (; params..., NxNyNz...)
 
 grid_base = RectilinearGrid(arch, topology = topo,
                             size = (params.Nx, params.Ny, params.Nz),
-                            x = (-params.Lx/2, +params.Lx/2),
+                            x = (-params.Lx + params.headland_intrusion_size_max, +params.headland_intrusion_size_max),
                             y = (-params.y_offset, params.Ly-params.y_offset),
                             z = (0, params.Lz),
                             halo = (4,4,4),

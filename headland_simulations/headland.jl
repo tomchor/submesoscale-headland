@@ -124,7 +124,7 @@ h(k) = (k - 1) / params.Nx
 
 # Generating function
 f(k) = ζ₀(k) * Σ(k)
-x_extent(k) = params.Lx * (f(k) - 1/2)
+x_extent(k) = params.Lx * (f(k) - 1) + params.headland_intrusion_size_max
 
 grid_base = RectilinearGrid(arch, topology = topo,
                             size = (params.Nx, params.Ny, params.Nz),

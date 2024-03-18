@@ -326,7 +326,7 @@ function construct_outputs(simulation;
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
                                                                      filename = "$rundir/data/ttt.$(simname).nc",
                                                                      schedule = AveragedTimeInterval(interval_time_avg, stride=10),
-                                                                     array_type = Array{Float32},
+                                                                     array_type = Array{Float64},
                                                                      with_halos = false,
                                                                      indices = indices,
                                                                      verbose = true,
