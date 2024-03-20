@@ -14,7 +14,7 @@ slice_name = "xyi"
 snaps = xr.open_dataset(f"data_post/{slice_name}_snaps{modifier}.nc").chunk(time="auto", Fr_h=1, Ro_h=1)
 snaps = snaps.reindex(Ro_h = list(reversed(snaps.Ro_h)))
 snaps = snaps.sel(xC = slice(-snaps.headland_intrusion_size_max/3, np.inf),
-                  yC = slice(-snaps.runway_length/2, np.inf))
+                  yC = slice(-snaps.L, np.inf))
 
 snaps = snaps.isel(time=-1)
 
