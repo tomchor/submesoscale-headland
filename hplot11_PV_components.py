@@ -10,6 +10,7 @@ plt.rcParams["font.size"] = 9
 
 modifier = ""
 slice_name = "xyi"
+Ro_h = 0.2
 
 #+++ Read and reindex dataset
 snaps = xr.open_dataset(f"data_post/{slice_name}_snaps{modifier}.nc").chunk(time="auto", Fr_h=1, Ro_h=1)
@@ -44,13 +45,13 @@ labels = [r"$\tilde\omega^{tot}_i \partial_i \tilde b / f_0 N^2_\infty$",
           r"$\tilde\omega^{tot}_z \partial_z \tilde b / f_0 N^2_\infty$",
           r"$\omega^{tot}_z / f_0 = 1 + Ro$"]
 
-snaps = snaps.sel(Ro_h=0.5)
+snaps = snaps.sel(Ro_h=Ro_h)
 snaps.xC.attrs = dict(long_name="$x$", units="m")
 snaps.yC.attrs = dict(long_name="$y$", units="m")
 #---
 
 #+++ Plotting loop
-fig, axes = plt.subplots(ncols=len(snaps.Fr_h), nrows=3, sharex=True, sharey=True)
+fig, axes = plt.subplots(ncols=len(snaps.Fr_h), nrows=3, sharex=True, sharey=True, figsize=figsize)
 for j_Fr, Fr_h in enumerate(snaps.Fr_h.values):
     print(f"Plotting Frₕ = {Fr_h}")
 
