@@ -1,4 +1,5 @@
 import sys
+from os import path
 sys.path.append("/glade/u/home/tomasc/repos/pynanigans")
 sys.path.append("/glade/u/home/tomasc/repos/xanimations")
 import numpy as np
@@ -56,14 +57,19 @@ except NameError:
     shell = None
 #---
 
-if shell is not None:
+if path.basename(__file__).startswith("hplot"):
+    #+++ Running hplot03, hplot04, or hplot05
+    pass
+    #---
+elif shell is not None:
     #+++ Running from IPython
     animate = False
     test = False
     time_avg = False
     summarize = True
     zoom = True
-    plotting_time = 24
+    plotting_time = 23
+    figdir = "figures_check"
 
     slice_names = ["tafields",]
     slice_names = ["xyi",]
@@ -82,6 +88,7 @@ else:
     summarize = True
     zoom = False
     plotting_time = 4
+    figdir = "figures_check"
 
     slice_names = ["xyi", "xiz", "iyz", "tafields"]
     slice_names = ["xyi",]
@@ -199,7 +206,7 @@ for modifier in modifiers:
             if "xC" in snaps.coords: # has an x dimension
                 sel = sel | dict(x=slice(-snaps.headland_intrusion_size_max/3, np.inf))
             if "yC" in snaps.coords: # has a y dimension
-                sel = sel | dict(y=slice(snaps.yC[0] + snaps.sponge_length_y, 1400))
+                sel = sel | dict(y=slice(-2*snaps.L, np.inf))
             if "zC" in snaps.coords: # has a z dimension
                 sel = sel | dict(z=slice(None))
 
@@ -292,9 +299,9 @@ for modifier in modifiers:
 
                 else:
                     if summarize:
-                        outname = f"figures_check/{var}_{slice_name}_summary_facetgrid{modifier}.pdf"
+                        outname = f"{figdir}/{var}_{slice_name}_summary_facetgrid{modifier}.pdf"
                     else:
-                        outname = f"figures_check/{var}_{slice_name}_facetgrid{modifier}.pdf"
+                        outname = f"{figdir}/{var}_{slice_name}_facetgrid{modifier}.pdf"
                     print(f"Saving snapshots to {outname}")
                     fig.suptitle("")
                     fig.savefig(outname, dpi=200)
