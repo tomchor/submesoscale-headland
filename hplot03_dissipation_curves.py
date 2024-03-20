@@ -28,11 +28,11 @@ for buffer in bulk.buffer.values:
     print(f"Plotting buffer = {buffer} m")
     bulkb = bulk.sel(buffer=buffer)
     #+++ Create figure
-    ncols = len(variables)
-    nrows = 1
-    size = 2.3*ncols
+    nrows = len(variables)
+    ncols = 1
+    size = 3
     fig, axes = plt.subplots(ncols=ncols, nrows=nrows,
-                             figsize = (1.2*ncols*size, nrows*size),
+                             figsize = (2*ncols*size, nrows*size),
                              sharex = True, sharey = True,
                              squeeze = False,
                              constrained_layout=True)
@@ -55,6 +55,7 @@ for buffer in bulk.buffer.values:
 
     #+++ Prettify and save
     for ax in axesf:
+        ax.grid(axis="y")
         ax.axvline(x=0, color="lightgray", ls="--", lw=1, zorder=0)
         ax.set_xlim(-250, bulk.yC[-1])
         ax.set_ylim(0, None)
