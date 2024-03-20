@@ -2,21 +2,21 @@ from os import system
 
 #+++ Define simnames
 simnames = [#"NPN-TEST",
-            "NPN-R008F008",
-            "NPN-R02F008",
-            "NPN-R05F008",
+            #"NPN-R008F008",
+            #"NPN-R02F008",
+            #"NPN-R05F008",
             "NPN-R1F008",
-            "NPN-R008F02",
+            #"NPN-R008F02",
             "NPN-R02F02",
-            "NPN-R05F02",
+            #"NPN-R05F02",
             "NPN-R1F02",
-            "NPN-R008F05",
-            "NPN-R02F05",
-            "NPN-R05F05",
-            "NPN-R1F05",
-            "NPN-R008F1",
+            #"NPN-R008F05",
+            #"NPN-R02F05",
+            #"NPN-R05F05",
+            #"NPN-R1F05",
+            #"NPN-R008F1",
             "NPN-R02F1",
-            "NPN-R05F1",
+            #"NPN-R05F1",
             "NPN-R1F1",
             ]
 
@@ -50,7 +50,7 @@ pbs_script = \
 #PBS -l {options_string1}
 #PBS -l {options_string2}
 #PBS -M tchor@umd.edu
-#PBS -m abe
+#PBS -m ae
 
 # Clear the environment from any previously loaded modules
 module li
