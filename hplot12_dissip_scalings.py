@@ -45,7 +45,7 @@ for buffer in bulk.buffer.values:
     bulk_buff = bulk.sel(buffer=buffer)
 
     #+++ Create figure
-    nrows = 2
+    nrows = 3
     ncols = 1
     size = 3
     fig, axes = plt.subplots(ncols=ncols, nrows=nrows,
@@ -94,16 +94,14 @@ for buffer in bulk.buffer.values:
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.plot(S_Bu, 2e-4*S_Bu, ls="--", label=r"$S_h$", color="k")
 
-#    print("Plotting axes 5")
-#    ax = axesf[5]
-#    bulk_buff["Fr"] = bulk_buff.Fr_h + 0*bulk_buff.Ro_h
-#    xvarname = "Slope_Bu"
-#    yvarname = "⟨⟨Ek′⟩ₜ⟩ᵇ"
-#    for cond, label, color, marker in zip(conditions, labels, colors, markers):
-#        ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
-#    ax.set_xlabel(xvarname); ax.set_ylabel(yvarname)
-#    ax.set_xscale("log"); ax.set_yscale("log")
-#    ax.plot(S_Bu, 6e-5*S_Bu, ls="--", label=r"Slope_Bu")
+    print("Plotting axes 2")
+    ax = axesf[2]
+    xvarname = "Slope_Bu"
+    yvarname = "⟨⟨Ek′⟩ₜ⟩ᵇ"
+    ax.scatter(x=bulk_buff[xvarname], y=bulk_buff[yvarname], label="", color="k")
+    ax.set_xlabel(xvarname); ax.set_ylabel(yvarname)
+    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.plot(S_Bu, 2e-6*S_Bu, ls="--", label=r"$S_h$", color="k")
 
 #    yvarname = "⟨⟨w′b′⟩ₜ⟩ᵇ"
 #    xvarname = "∫∫∫ᵇε̄ₚdxdydz"
