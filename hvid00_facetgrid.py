@@ -14,7 +14,7 @@ plt.rcParams["figure.constrained_layout.use"] = True
 plt.rcParams["font.size"] = 9
 π = np.pi
 
-if __name__ == "__main__": print("Starting hvid00 script")
+if __name__ == "__main__": print("\n\nStarting hvid00 script")
 
 #+++ MASTER DICTIONARY OF OPTIONS
 plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdBu_r),

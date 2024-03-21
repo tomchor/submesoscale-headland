@@ -3,7 +3,7 @@ import pynanigans as pn
 import xarray as xr
 from matplotlib import pyplot as plt
 from cmocean import cm
-from aux02_plotting import BuRd
+from aux02_plotting import BuRd, letterize
 plt.rcParams["figure.constrained_layout.use"] = True
 plt.rcParams["font.size"] = 9
 
@@ -75,5 +75,6 @@ for ax in axes.flatten():
 fig.colorbar(im, ax=axes.ravel().tolist(), label="Vertical shear [1/s]", **cbar_kwargs)
 fig.suptitle("")
 fig.get_layout_engine().set(w_pad=0.02, h_pad=0, hspace=0, wspace=0)
+letterize(axes.flatten(), x=0.05, y=0.9)
 fig.savefig(f"figures/ageo_shears_comparison_Roh={snaps.Ro_h.item()}_{slice_name}{modifier}.pdf", dpi=200)
 #---

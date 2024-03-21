@@ -14,12 +14,10 @@ tafields = tafields.sel(yC=slice(0, np.inf))
 #+++ Energy transfer variables
 tafields["q̄_norm"] = tafields["q̄"] / (tafields["N²∞"] * tafields["f₀"])
 tafields["ω̄²"]     = -tafields["f₀"]**2 * tafields.q̄_norm
-#tafields["q̂_norm"] = tafields["q̂"] / (tafields["N²∞"] * tafields["f₀"])
-#tafields["ω̂²"]     = -tafields["f₀"]**2 * tafields.q̂_norm
 
 tafields["Slope_Bu"] = tafields.Ro_h / tafields.Fr_h
 
-tasims = tafields[["q̄", "ω̄²", "ε̄ₖ", "Slope_Bu", "average_CSI_mask"]].stack(simulation=["Ro_h", "Fr_h"])
+tasims = tafields[["q̄", "ω̄²", "ε̄ₖ", "Slope_Bu", "average_CSI_mask", "average_stratification_mask"]].stack(simulation=["Ro_h", "Fr_h"])
 tawake = tasims.where(tasims.Slope_Bu>1, drop=True)
 taterr = tasims.where(tasims.Fr_h==1.25, drop=True)
 #---
@@ -33,7 +31,7 @@ tawake = tawake.drop_vars({'Fr_h', 'simulation', 'Ro_h'}).assign_coords(simulati
 tawake["Ro_h"] = xr.DataArray(data=Ro_h_values, dims="simulation", coords=dict(simulation=tawake.simulation))
 tawake["Fr_h"] = xr.DataArray(data=Fr_h_values, dims="simulation", coords=dict(simulation=tawake.simulation))
 
-CSI = tawake#.where(tawake.average_CSI_mask)
+CSI = tawake.where(tawake.average_stratification_mask)
 
 simnames = [ "R"+str(sim.Ro_h.item())+"F"+str(sim.Fr_h.item()) for sim in taterr.simulation ]
 Ro_h_values = taterr.Ro_h.values
@@ -43,7 +41,7 @@ taterr = taterr.drop_vars({'Fr_h', 'simulation', 'Ro_h'}).assign_coords(simulati
 taterr["Ro_h"] = xr.DataArray(data=Ro_h_values, dims="simulation", coords=dict(simulation=taterr.simulation))
 taterr["Fr_h"] = xr.DataArray(data=Fr_h_values, dims="simulation", coords=dict(simulation=taterr.simulation))
 
-SHR = taterr
+SHR = taterr.where(taterr.average_stratification_mask)
 #---
 
 #+++ Bin results to get a clearer trend

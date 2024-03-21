@@ -45,6 +45,7 @@ for modifier in modifiers:
                           }
     #---
 
+    #+++ Adjust attributes
     xyz["land_mask"] = xyz["Δxᶜᶜᶜ"].where(xyz["Δxᶜᶜᶜ"] == 0)
     xyz["PV_norm"] = xyz.PV / (xyz.N2_inf * xyz.f_0)
 
@@ -55,6 +56,7 @@ for modifier in modifiers:
     ds_xz["εₖ"].attrs = dict(long_name=r"$\varepsilon_k$ [m²/s³]")
     ds_xz.xC.attrs["long_name"] = "$x$"
     ds_xz.zC.attrs["long_name"] = "$z$"
+    #---
 
     #+++ Create figure
     ncols = len(ds_xz.yC)
@@ -83,9 +85,9 @@ for modifier in modifiers:
         ax_col[0].contour(ds_xz.xC, ds_xz.zC, ds_xz.b.pnisel(y=i), levels=15, colors="black", linestyles="--", linewidths=0.3)
         for ax in ax_col:
             ax.pcolormesh(ds_xz.xC, ds_xz.zC, ds_xz.land_mask.pnisel(y=i), rasterized=True, **opts_land)
-            if j>0:
+            if i>0:
                 ax.set_ylabel("")
-    fig.tight_layout()
+    fig.tight_layout(h_pad=0)
     #---
 
     #+++ Include horizontal plot on the right:
@@ -111,6 +113,8 @@ for modifier in modifiers:
     #---
 
     #+++ Save
+    print("saving...")
     letterize(np.array([*axes.flatten(), ax]), x=0.05, y=0.9)
     fig.savefig(f"figures/{variable}_progression_{simname}.pdf", dpi=200)
+    print()
     #---

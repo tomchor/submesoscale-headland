@@ -4,7 +4,7 @@ import xarray as xr
 from matplotlib import pyplot as plt
 from cmocean import cm
 from aux01_physfuncs import calculate_filtered_PV
-from aux02_plotting import BuRd
+from aux02_plotting import BuRd, letterize
 plt.rcParams["figure.constrained_layout.use"] = True
 plt.rcParams["font.size"] = 9
 
@@ -28,7 +28,7 @@ except ValueError:
 
 #+++ Options
 cbar_kwargs = dict(location="right", shrink=0.5, fraction=0.012, pad=0.02, aspect=30)
-figsize = (10, 12)
+figsize = (7, 7.5)
 
 #plot_kwargs = dict(vmin=-0.005, vmax=0.005, cmap=plt.cm.RdBu_r, rasterized=True)
 plot_kwargs = dict(vmin=-3, vmax=+3, cmap=BuRd, rasterized=True)
@@ -92,5 +92,6 @@ for ax in axes.flatten():
 fig.colorbar(im, ax=axes.ravel().tolist(), label="Normalized Potential Vorticity", **cbar_kwargs)
 fig.suptitle("")
 fig.get_layout_engine().set(w_pad=0.02, h_pad=0, hspace=0, wspace=0)
+letterize(axes.flatten(), x=0.05, y=0.9)
 fig.savefig(f"figures/PV_components_comparison_Roh={snaps.Ro_h.item()}_{slice_name}{modifier}.pdf", dpi=200)
 #---
