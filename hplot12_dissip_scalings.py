@@ -102,9 +102,6 @@ for buffer in bulk.buffer.values:
     ax.set_xlabel(xvarname); ax.set_ylabel(yvarname)
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.plot(S_Bu, 2e-6*S_Bu, ls="--", label=r"$S_h$", color="k")
-
-#    yvarname = "⟨⟨w′b′⟩ₜ⟩ᵇ"
-#    xvarname = "∫∫∫ᵇε̄ₚdxdydz"
     #---
     
     #+++ Prettify and save
