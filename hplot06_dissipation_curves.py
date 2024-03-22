@@ -10,6 +10,7 @@ from scipy.optimize import curve_fit
 from aux02_plotting import letterize
 
 modifier = ""
+tafields = xr.open_dataset(f"data_post/tafields_snaps{modifier}.nc", chunks={})
 bulk = xr.open_dataset(f"data_post/bulkstats_snaps{modifier}.nc", chunks={})
 bulk = bulk.reindex(Ro_h = list(reversed(bulk.Ro_h)))
 
@@ -18,6 +19,7 @@ bulk["⟨ε̄ₖ⟩ˣᶻ"].attrs = dict(units="m²/s³")
 bulk["⟨ε̄ₚ⟩ˣᶻ"].attrs = dict(units="m²/s³")
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
 bulk.yC.attrs =  dict(long_name=r"$y$", units="m")
+q̂_min = (tafields.q̄.pnmin(("x", "y")) / (tafields["f₀"] * tafields["N²∞"]))
 
 #+++ Bathymetry intrusion exponential
 def η(z): return bulk.Lx/2 + (0 - bulk.Lx/2) * z / (2*bulk.H) # headland intrusion size
@@ -29,11 +31,11 @@ for buffer in bulk.buffer.values:
     bulkb = bulk.sel(buffer=buffer)
     #+++ Create figure
     nrows = len(variables)
-    ncols = 1
+    ncols = 2
     size = 3
     fig, axes = plt.subplots(ncols=ncols, nrows=nrows,
                              figsize = (2*ncols*size, nrows*size),
-                             sharex = True, sharey = True,
+                             sharex = "col", sharey = True,
                              squeeze = False,
                              constrained_layout=True)
     axesf = axes.flatten()
@@ -44,9 +46,29 @@ for buffer in bulk.buffer.values:
     for Ro_h in bulkb.Ro_h:
         for Fr_h in bulkb.Fr_h:
             bulk0 = bulkb.sel(Ro_h=Ro_h, Fr_h=Fr_h)
+            q̂_min0 = q̂_min.sel(Ro_h=Ro_h, Fr_h=Fr_h)
+
             S_normalized = (np.log10(bulk0.Slope_Bu) - np.log10(bulkb.Slope_Bu).min()) / (2*np.log10(bulkb.Slope_Bu).max())
-            for ax, variable in zip(axesf, variables):
+            L_C = bulk0["V∞"] * np.sqrt(-q̂_min0) / bulk0["f₀"]
+            bulk1 = bulk0.assign_coords(yC=bulk0.yC.values / L_C.values)
+            bulk1.yC.attrs = dict(long_name = "$yf_0\sqrt{-\hat{q}_{min}}/V_\infty$", units="")
+            for ax_row, variable in zip(axes, variables):
+                ax=ax_row[0]
                 bulk0[variable].pnplot(ax=ax, x="y", color=cmap(S_normalized))
+
+                if ncols >=2:
+                    if (bulk0.Slope_Bu>1):
+                        print(bulk0.Ro_h.values, bulk0.Fr_h.values, bulk0.Slope_Bu.values)
+                        ax=ax_row[1]
+                        bulk1[variable].pnplot(ax=ax, x="y", color=cmap(S_normalized))
+                        ax.set_xlim(-1, 4)
+
+                    elif (bulk0.Slope_Bu<1):
+                        if ncols >= 3:
+                            ax=ax_row[2]
+                            bulk1[variable].pnplot(ax=ax, x="y", color=cmap(S_normalized))
+                            ax.set_xlim(-1, 20)
+
 
     norm = LogNorm(vmin=bulkb.Slope_Bu.min().values, vmax=bulkb.Slope_Bu.max().values)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -54,18 +76,20 @@ for buffer in bulk.buffer.values:
     plt.colorbar(sm, ax=ax, label = "Slope Burger number")
 
     #+++ Prettify and save
-    for ax in axesf:
-        ax.grid(axis="y")
-        ax.axvline(x=0, color="lightgray", ls="--", lw=1, zorder=0)
+    for ax_row in axes:
+        ax = ax_row[0]
         ax.set_xlim(-250, bulk.yC[-1])
         ax.set_ylim(0, None)
-        ax.set_title(f"")
         #ax.set_title(f"Average of KE dissipation rate\nexcluding {bulkb.buffer.item()} m closest to the boundary")
 
         ax2 = ax.twinx()
         ax2.fill_between(bulkb.yC, headland_x_of_yz(bulkb.yC), color="lightgray", alpha=.8)
         ax2.set_ylim(0, 2e3)
         ax2.tick_params(left=False, right=False, bottom=False, labelleft=False, labelright=False, labelbottom=False)
+        for ax in ax_row:
+            ax.grid(axis="y")
+            ax.set_title(f"")
+            ax.axvline(x=0, color="lightgray", ls="--", lw=1, zorder=0)
     letterize(axesf, x=0.05, y=0.9, fontsize=14)
 
     fig.savefig(f"figures/dissipation_curves_buffer={buffer}m{modifier}.pdf")
