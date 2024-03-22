@@ -12,19 +12,19 @@ from aux02_plotting import letterize
 modifier = ""
 tafields = xr.open_dataset(f"data_post/tafields_snaps{modifier}.nc", chunks={})
 tafields = tafields.sel(yC=slice(-tafields.L/2, np.inf))
-bulk = xr.open_dataset(f"data_post/bulkstats_snaps{modifier}.nc", chunks={})
-bulk = bulk.reindex(Ro_h = list(reversed(bulk.Ro_h)))
+tafields = tafields.reindex(Ro_h = list(reversed(tafields.Ro_h)))
 
 tafields["Slope_Bu"] = tafields.Ro_h / tafields.Fr_h
-bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
-bulk.yC.attrs =  dict(long_name=r"$y$", units="m")
-q̂_min = (tafields.q̄.sel(yC=slice(-tafields.L/2, +tafields.L/2)).pnmin(("x", "y")) / (tafields["f₀"] * tafields["N²∞"])) # Close to headland tip
-q̂_minx = tafields.q̄.where(tafields.average_CSI_mask).pnmin("x") / (tafields["f₀"] * tafields["N²∞"])
-q̂_mean = tafields.q̄.where(tafields.average_CSI_mask).pnmean("x") / (tafields["f₀"] * tafields["N²∞"])
+average_CSI_wake_mask = tafields.average_CSI_mask & (tafields.altitude>30)
+
+q̂_min = (tafields.q̄.where(average_CSI_wake_mask).sel(yC=slice(-tafields.L/2, +tafields.L/2)).pnmin(("x", "y")) / (tafields["f₀"] * tafields["N²∞"])) # Close to headland tip
+q̂_minx = tafields.q̄.where(average_CSI_wake_mask).pnmin("x") / (tafields["f₀"] * tafields["N²∞"])
+q̂_mean = tafields.q̄.where(average_CSI_wake_mask).pnmean("x") / (tafields["f₀"] * tafields["N²∞"])
+q̂_minnorm = tafields.q̄.where(average_CSI_wake_mask) / (tafields.q̄.where(average_CSI_wake_mask).min())
 
 #+++ Create figure
 nrows = 2
-ncols = 2
+ncols = 1
 size = 3
 fig, axes = plt.subplots(ncols=ncols, nrows=nrows,
                          figsize = (2*ncols*size, nrows*size),
@@ -45,7 +45,6 @@ for Ro_h in tafields.Ro_h:
         q̂_min0 = q̂_min.sel(Ro_h=Ro_h, Fr_h=Fr_h)
         S_normalized = (np.log10(tafields_RF.Slope_Bu) - np.log10(tafields.Slope_Bu).min()) / (2*np.log10(tafields.Slope_Bu).max())
         L_C = tafields_RF.V_inf * np.sqrt(-q̂_min0) / tafields_RF["f₀"]
-        y_norm = tafields_RF.yC.values / L_C.values
         #---
 
         if (tafields_RF.Slope_Bu>1):
@@ -60,10 +59,13 @@ for Ro_h in tafields.Ro_h:
         else:
             continue
 
-        (q̂_minx_RF/q̂_minx_RF.sel(yC=0, method="nearest")).assign_coords(yC=y_norm).pnplot(ax=ax1, x="y", color=cmap(S_normalized))
+        y_min = q̂_minx_RF.yC.isel(yC=q̂_minx_RF.argmin().values).values # Value of y where the minimum happens
+        y_norm = (tafields_RF.yC.values - y_min) / L_C.values
+
+        (q̂_minx_RF/q̂_minx_RF.min()).assign_coords(yC=y_norm).pnplot(ax=ax1, x="y", color=cmap(S_normalized))
         ax1.set_ylabel("q_min normalized")
 
-        (q̂_mean_RF/q̂_mean_RF.sel(yC=0, method="nearest")).assign_coords(yC=y_norm).pnplot(ax=ax2, x="y", color=cmap(S_normalized))
+        (q̂_mean_RF/q̂_mean_RF.min()).assign_coords(yC=y_norm).pnplot(ax=ax2, x="y", color=cmap(S_normalized))
         ax2.set_ylabel("q_mean normalized")
 
 norm = LogNorm(vmin=tafields.Slope_Bu.min().values, vmax=tafields.Slope_Bu.max().values)
@@ -74,7 +76,7 @@ plt.colorbar(sm, ax=ax2, label = "Slope Burger number")
 #+++ Prettify and save
 for ax_row in axes:
     ax = ax_row[0]
-    ax.set_xlim(0, 1)
+    #ax.set_xlim(0, 1)
 
     for ax in ax_row:
         ax.grid(axis="y")
