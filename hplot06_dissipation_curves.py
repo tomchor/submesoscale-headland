@@ -45,25 +45,25 @@ for buffer in bulk.buffer.values:
     cmap = plt.cm.coolwarm
     for Ro_h in bulkb.Ro_h:
         for Fr_h in bulkb.Fr_h:
-            bulk0 = bulkb.sel(Ro_h=Ro_h, Fr_h=Fr_h)
-            q̂_min0 = q̂_min.sel(Ro_h=Ro_h, Fr_h=Fr_h)
+            bulk_RF = bulkb.sel(Ro_h=Ro_h, Fr_h=Fr_h)
+            q̂_min_RF = q̂_min.sel(Ro_h=Ro_h, Fr_h=Fr_h)
 
-            S_normalized = (np.log10(bulk0.Slope_Bu) - np.log10(bulkb.Slope_Bu).min()) / (2*np.log10(bulkb.Slope_Bu).max())
-            L_C = bulk0["V∞"] * np.sqrt(-q̂_min0) / bulk0["f₀"]
-            bulk1 = bulk0.assign_coords(yC=bulk0.yC.values / L_C.values)
+            S_normalized = (np.log10(bulk_RF.Slope_Bu) - np.log10(bulkb.Slope_Bu).min()) / (2*np.log10(bulkb.Slope_Bu).max())
+            L_C = bulk_RF["V∞"] * np.sqrt(-q̂_min_RF) / bulk_RF["f₀"]
+            bulk1 = bulk_RF.assign_coords(yC=bulk_RF.yC.values / L_C.values)
             bulk1.yC.attrs = dict(long_name = "$yf_0\sqrt{-\hat{q}_{min}}/V_\infty$", units="")
             for ax_row, variable in zip(axes, variables):
                 ax=ax_row[0]
-                bulk0[variable].pnplot(ax=ax, x="y", color=cmap(S_normalized))
+                bulk_RF[variable].pnplot(ax=ax, x="y", color=cmap(S_normalized))
 
                 if ncols >=2:
-                    if (bulk0.Slope_Bu>1):
-                        print(bulk0.Ro_h.values, bulk0.Fr_h.values, bulk0.Slope_Bu.values)
+                    if (bulk_RF.Slope_Bu>1):
+                        print(bulk_RF.Ro_h.values, bulk_RF.Fr_h.values, bulk_RF.Slope_Bu.values)
                         ax=ax_row[1]
                         bulk1[variable].pnplot(ax=ax, x="y", color=cmap(S_normalized))
                         ax.set_xlim(-1, 4)
 
-                    elif (bulk0.Slope_Bu<1):
+                    elif (bulk_RF.Slope_Bu<1):
                         if ncols >= 3:
                             ax=ax_row[2]
                             bulk1[variable].pnplot(ax=ax, x="y", color=cmap(S_normalized))
