@@ -16,7 +16,7 @@ Ro_h = 0.2
 snaps = xr.open_dataset(f"data_post/{slice_name}_snaps{modifier}.nc").chunk(time="auto", Fr_h=1, Ro_h=1)
 snaps = snaps.reindex(Ro_h = list(reversed(snaps.Ro_h)))
 snaps = snaps.sel(xC = slice(-snaps.headland_intrusion_size_max/3, np.inf),
-                  yC = slice(-snaps.runway_length/2, np.inf))
+                  yC = slice(-snaps.L, np.inf))
 
 snaps = snaps.isel(time=-1)
 
@@ -28,7 +28,7 @@ except ValueError:
 
 #+++ Options
 cbar_kwargs = dict(location="right", shrink=0.5, fraction=0.012, pad=0.02, aspect=30)
-figsize = (7, 7.5)
+figsize = (9, 6.5)
 
 #plot_kwargs = dict(vmin=-0.005, vmax=0.005, cmap=plt.cm.RdBu_r, rasterized=True)
 plot_kwargs = dict(vmin=-3, vmax=+3, cmap=BuRd, rasterized=True)
@@ -42,8 +42,8 @@ snaps["q̃ᶻ_norm"] = snaps["q̃ᵢ"].sel(i=3) / (snaps["N²∞"] * snaps["f₀
 snaps["1+Ro"] = 1 + snaps["Ro"]
 
 labels = [r"$\tilde\omega^{tot}_i \partial_i \tilde b / f_0 N^2_\infty$",
-          r"$\tilde\omega^{tot}_z \partial_z \tilde b / f_0 N^2_\infty$",
-          r"$\omega^{tot}_z / f_0 = 1 + Ro$"]
+          #r"$\tilde\omega^{tot}_z \partial_z \tilde b / f_0 N^2_\infty$",
+          r"$1 + Ro$"]
 
 snaps = snaps.sel(Ro_h=Ro_h)
 snaps.xC.attrs = dict(long_name="$x$", units="m")
@@ -51,7 +51,7 @@ snaps.yC.attrs = dict(long_name="$y$", units="m")
 #---
 
 #+++ Plotting loop
-fig, axes = plt.subplots(ncols=len(snaps.Fr_h), nrows=3, sharex=True, sharey=True, figsize=figsize)
+fig, axes = plt.subplots(ncols=len(snaps.Fr_h), nrows=2, sharex=True, sharey=True, figsize=figsize)
 for j_Fr, Fr_h in enumerate(snaps.Fr_h.values):
     print(f"Plotting Frₕ = {Fr_h}")
 
@@ -59,22 +59,14 @@ for j_Fr, Fr_h in enumerate(snaps.Fr_h.values):
     im = snaps["q̃_norm"].sel(Fr_h=Fr_h).pnplot(ax=ax, x="x", add_colorbar=False, **plot_kwargs)
     ax.set_title(f"$Fr_h=$ {Fr_h}")
     ax.set_xlabel("")
-    ax.set_xticklabels([])
 
     ax = axes[1, j_Fr]
-    im = snaps["q̃ᶻ_norm"].sel(Fr_h=Fr_h).pnplot(ax=ax, x="x", add_colorbar=False, **plot_kwargs)
-    ax.set_title("")
-    ax.set_xlabel("")
-    ax.set_xticklabels([])
-
-    ax = axes[2, j_Fr]
     im = snaps["1+Ro"].sel(Fr_h=Fr_h).pnplot(ax=ax, x="x", add_colorbar=False, **plot_kwargs)
     ax.set_title("")
 
     if j_Fr>0:
         for ax in axes[:, j_Fr]:
             ax.set_ylabel("")
-            ax.set_yticklabels([])
 
     if j_Fr == (len(snaps.Fr_h)-1):
         for ax, label in zip(axes[:, j_Fr], labels):
