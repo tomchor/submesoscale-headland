@@ -97,11 +97,11 @@ for buffer in bulk.buffer.values:
     print("Plotting axes 2")
     ax = axesf[2]
     xvarname = "Slope_Bu"
-    yvarname = "⟨⟨Ek′⟩ₜ⟩ᵇ"
+    yvarname = "∫∫∫ᵇ⟨Ek′⟩ₜdxdydz"
     ax.scatter(x=bulk_buff[xvarname], y=bulk_buff[yvarname], label="", color="k")
     ax.set_xlabel(xvarname); ax.set_ylabel(yvarname)
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.plot(S_Bu, 2e-6*S_Bu, ls="--", label=r"$S_h$", color="k")
+    ax.plot(S_Bu, 2e2*S_Bu, ls="--", label=r"$S_h$", color="k")
     #---
     
     #+++ Prettify and save

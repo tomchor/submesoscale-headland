@@ -45,7 +45,7 @@ for buffer in bulk.buffer.values:
     bulk_buff = bulk.sel(buffer=buffer)
 
     #+++ Create figure
-    nrows = 3
+    nrows = 2
     ncols = 1
     size = 3
     fig, axes = plt.subplots(ncols=ncols, nrows=nrows,
@@ -79,19 +79,6 @@ for buffer in bulk.buffer.values:
     print("Plotting axes 0")
     ax = axesf[0]
     xvarname = "RoFr"
-    yvarname = "Kb̄"
-    bulk_buff["Kb̄"].attrs = dict(long_name=r"$K_b = \bar w \bar b / N^2_\infty$")
-    bulk_buff["Kb"].attrs = dict(long_name=r"$K_b = \langle wb \rangle / N^2_\infty$")
-    ax.set_title(bulk_buff[yvarname].attrs["long_name"])
-    for cond, label, color, marker in zip(conditions, labels, colors, markers):
-        ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
-    ax.set_ylabel(yvarname); ax.set_xlabel(xvarname)
-    ax.set_xscale("log"); ax.set_yscale("log")
-    ax.plot(RoFr, 5e-4*RoFr, ls="--", label=r"$Ro_h Fr_h$", color="k")
-
-    print("Plotting axes 1")
-    ax = axesf[1]
-    xvarname = "RoFr"
     yvarname = "Kb′"
     bulk_buff["Kb′"].attrs = dict(long_name=r"$K_b = \langle w′b′ \rangle / N^2_\infty$")
     ax.set_title(bulk_buff[yvarname].attrs["long_name"])
@@ -101,8 +88,8 @@ for buffer in bulk.buffer.values:
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.plot(RoFr, 5e-4*RoFr, ls="--", label=r"$Ro_h Fr_h$", color="k", zorder=0)
 
-    print("Plotting axes 2")
-    ax = axesf[2]
+    print("Plotting axes 1")
+    ax = axesf[1]
     yvarname = "∫∫∫ᵇ⟨w′b′⟩ₜdxdydz"
     xvarname = "∫∫∫ᵇε̄ₚdxdydz"
     #ax.set_title(bulk_buff[yvarname].attrs["long_name"])
