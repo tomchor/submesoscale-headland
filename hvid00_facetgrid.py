@@ -79,7 +79,7 @@ elif shell is not None:
     modifiers = ["",]
 
     varnames = ["q̃_norm", "Ro"]
-    varnames = ["q̄"]
+    varnames = ["q̄_norm"]
     contour_variable_name = None #"water_mask_buffered"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
