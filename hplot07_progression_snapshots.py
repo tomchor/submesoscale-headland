@@ -11,7 +11,21 @@ modifiers = ["", "-S"]
 variables = ["PV_norm", "εₖ"]
 Fr_h = 0.2
 Ro_h = 0.2
-downstream_distances = [0, 50, 100,]
+
+#+++ Pick downstream distances
+if (Fr_h==0.08) and (Ro_h==1):
+    downstream_distances = [0, 100, 200,]
+elif (Fr_h==0.08) and (Ro_h==0.08):
+    downstream_distances = [0, 50, 100,]
+elif (Fr_h==0.2) and (Ro_h==0.2):
+    downstream_distances = [0, 50, 100,]
+elif (Fr_h==0.2) and (Ro_h==0.5):
+    downstream_distances = [0, 50, 100,]
+elif (Fr_h==0.2) and (Ro_h==1):
+    downstream_distances = [0, 100, 200,]
+else:
+    downstream_distances = [0, 50, 100,]
+#---
 
 for modifier in modifiers:
     print(f"Opening modifier={modifier}")

@@ -10,7 +10,7 @@ plt.rcParams["font.size"] = 9
 
 modifier = ""
 slice_name = "tafields"
-Fr_h = 0.08
+Fr_h = 0.2
 
 #+++ Read and reindex dataset
 snaps = xr.open_dataset(f"data_post/{slice_name}_snaps{modifier}.nc").chunk(Fr_h=1, Ro_h=1)
@@ -37,8 +37,8 @@ snaps["Π"] = snaps.SPR.sum("j")
 snaps["Πₕ"] = snaps.SPR.sel(j=[1,2]).sum("j")
 
 variables = ["Π", "Πₕ"]
-snaps["Π"].attrs = dict(long_name = r"Total shear prod rate $\Pi$", units="m²/s³")
-snaps["Πₕ"].attrs = dict(long_name = r"Horizontal shear prod rate", units="m²/s³")
+snaps["Π"].attrs = dict(long_name = r"Total shear production rate $\Pi$")
+snaps["Πₕ"].attrs = dict(long_name = r"Horizontal shear production rate")
 
 snaps = snaps.sel(Fr_h=Fr_h)
 snaps.xC.attrs = dict(long_name="$x$", units="m")
@@ -69,8 +69,7 @@ for j_Ro, Ro_h in enumerate(snaps.Ro_h.values):
     if j_Ro == (len(snaps.Ro_h)-1):
         for i, ax in enumerate(axes[:, j_Ro]):
             ax2 = ax.twinx()
-            varattrs = snaps[variables[i]].attrs
-            label = f"{varattrs['long_name']} [{varattrs['units']}]"
+            label = snaps[variables[i]].attrs["long_name"]
             ax2.set_ylabel(label, fontsize=11)
             ax2.tick_params(left=False, right=False, bottom=False, labelleft=False, labelright=False, labelbottom=False)
             ax2.spines['top'].set_visible(False)
@@ -81,7 +80,7 @@ opts_land = dict(cmap="Set2", vmin=0, vmax=1, alpha=1.0, zorder=10,)
 for ax in axes.flatten():
     ax.pcolormesh(snaps.xC, snaps.yC, snaps.land_mask.where(snaps.land_mask==1), rasterized=True, **opts_land)
 
-fig.colorbar(im, ax=axes.ravel().tolist(), label="Shear production rates", **cbar_kwargs)
+fig.colorbar(im, ax=axes.ravel().tolist(), label="Shear production rate [m²/s³]", **cbar_kwargs)
 fig.suptitle("")
 fig.get_layout_engine().set(w_pad=0.02, h_pad=0, hspace=0, wspace=0)
 letterize(axes.flatten(), x=0.05, y=0.9)
