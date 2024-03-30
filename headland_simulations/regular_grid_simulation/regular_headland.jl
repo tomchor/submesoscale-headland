@@ -176,16 +176,13 @@ params = (; params..., c_dz = (κᵛᵏ / log(z₁/z₀))^2) # quadratic drag co
 @inline τᵛ_drag(x, y, z, t, u, v, w, p) = -p.Cᴰ * v * √(u^2 + v^2 + w^2)
 @inline τʷ_drag(x, y, z, t, u, v, w, p) = -p.Cᴰ * w * √(u^2 + v^2 + w^2)
 
-@inline τᵛ_drag(y, z, t, u, v, w, p) = +p.Cᴰ * v * √(u^2 + v^2 + w^2) # Applied at the domain wall; sign needs to be flipped
-@inline τʷ_drag(y, z, t, u, v, w, p) = +p.Cᴰ * w * √(u^2 + v^2 + w^2) # Applied at the domain wall; sign needs to be flipped
-
 τᵘ = FluxBoundaryCondition(τᵘ_drag, field_dependencies = (:u, :v, :w), parameters=(; Cᴰ = params.c_dz,))
 τᵛ = FluxBoundaryCondition(τᵛ_drag, field_dependencies = (:u, :v, :w), parameters=(; Cᴰ = params.c_dz,))
 τʷ = FluxBoundaryCondition(τʷ_drag, field_dependencies = (:u, :v, :w), parameters=(; Cᴰ = params.c_dz,))
 
 u_bcs = FieldBoundaryConditions(immersed=τᵘ)
-v_bcs = FieldBoundaryConditions(immersed=τᵛ, east=τᵛ)
-w_bcs = FieldBoundaryConditions(immersed=τʷ, east=τʷ)
+v_bcs = FieldBoundaryConditions(immersed=τᵛ)
+w_bcs = FieldBoundaryConditions(immersed=τʷ)
 #---
 
 #+++ Buoyancy model and background
