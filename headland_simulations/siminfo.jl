@@ -203,7 +203,7 @@ function expand_headland_parameters(params)
     N²∞ = N2_inf = (V∞ / (Fr_h * params.H))^2
     R1 = √N²∞ * params.H / f₀
     z₀ = z_0 = params.Rz * params.H
-    sponge_rate = 40 * V∞ / sponge_length_y
+    sponge_rate = 10 * V∞ / sponge_length_y
     #---
 
     #+++ Diagnostic parameters
