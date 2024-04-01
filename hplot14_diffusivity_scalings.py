@@ -38,6 +38,9 @@ bulk["SP_ratio3"] = bulk["∫∫ᶜˢⁱSPRdxdy"].sel(j=[1,2]).sum("j") / bulk["
 bulk.RoFr.attrs = dict(long_name="$Ro_h Fr_h$")
 bulk.RoRi.attrs = dict(long_name="$Ro_h / Fr_h^2$")
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
+bulk["Kb′"].attrs = dict(long_name=r"$K_b = -\overline{w′b′} / N^2_\infty$ [m²/s]")
+bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"].attrs = dict(long_name=r"$\overline{w'b'}$ [m³/s²]")
+bulk["⟨ε̄ₚ⟩ᵇ"].attrs = dict(long_name=r"$\overline{\varepsilon}_p$ [m³/s²]")
 #---
 
 for buffer in bulk.buffer.values:
@@ -80,28 +83,30 @@ for buffer in bulk.buffer.values:
     ax = axesf[0]
     xvarname = "RoFr"
     yvarname = "Kb′"
-    bulk_buff["Kb′"].attrs = dict(long_name=r"$K_b = \langle w′b′ \rangle / N^2_\infty$")
     ax.set_title(bulk_buff[yvarname].attrs["long_name"])
     for cond, label, color, marker in zip(conditions, labels, colors, markers):
         ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
-    ax.set_ylabel(yvarname); ax.set_xlabel(xvarname)
+    ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.plot(RoFr, 5e-4*RoFr, ls="--", label=r"$Ro_h Fr_h$", color="k", zorder=0)
+    ax.legend(loc="lower right")
 
     print("Plotting axes 1")
     ax = axesf[1]
-    yvarname = "∫∫∫ᵇ⟨w′b′⟩ₜdxdydz"
-    xvarname = "∫∫∫ᵇε̄ₚdxdydz"
+    yvarname = "⟨⟨w′b′⟩ₜ⟩ᵇ"
+    xvarname = "⟨ε̄ₚ⟩ᵇ"
     #ax.set_title(bulk_buff[yvarname].attrs["long_name"])
     for cond, label, color, marker in zip(conditions, labels, colors, markers):
         ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
-    ax.set_ylabel(yvarname); ax.set_xlabel(xvarname)
-    ax.set_xscale("log"); ax.set_yscale("symlog", linthresh=1e-4)
+    ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
+    ax.set_xscale("log"); ax.set_yscale("symlog", linthresh=1e-12)
+    x = np.linspace(bulk_buff[xvarname].min(), bulk_buff[xvarname].max(), 50)
+    ax.plot(x, -x, ls="--", color="k", zorder=0, label="1:-1")
+    ax.legend(loc="center right")
     #---
 
     #+++ Prettify and save
     for ax in axesf:
-        ax.legend(loc="lower right")
         ax.grid(True)
         ax.set_title("")
     
