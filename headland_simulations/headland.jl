@@ -226,13 +226,12 @@ const y₀ = params.y_south
 const y₁ = y₀ + params.sponge_length_y/2
 const y₂ = y₀ + params.sponge_length_y
 @inline south_mask_cos(x, y, z, p) = ifelse(y₀ <= y <= y₂, 1/2 * (1 - cos( π*(y-y₀)/(y₁-y₀) )), 0.0)
-@inline south_mask_linear(x, y, z, p) = ifelse((y₀ <= y <= y₁), (y-y₀)/(y₁-y₀), ifelse((y₁ <= y <= y₂), 1.0, 0.0))
-@inline south_mask_linear2(x, y, z, p) = ifelse((y₀ <= y <= y₁), 1.0, 0.0)
+@inline south_mask_linear(x, y, z, p) = ifelse((y₀ <= y <= y₁), 1.0, 0.0)
 
-@inline sponge_u(x, y, z, t, u, p) = -(south_mask_linear2(x, y, z, p)) * p.σ * u
-@inline sponge_v(x, y, z, t, v, p) = -(south_mask_linear2(x, y, z, p)) * p.σ * (v - p.V∞)
-@inline sponge_w(x, y, z, t, w, p) = -(south_mask_linear2(x, y, z, p)) * p.σ * w
-@inline sponge_b(x, y, z, t, b, p) = -(south_mask_linear2(x, y, z, p)) * p.σ * (b - b∞(0, 0, z, 0, p))
+@inline sponge_u(x, y, z, t, u, p) = -(south_mask_linear(x, y, z, p)) * p.σ * u
+@inline sponge_v(x, y, z, t, v, p) = -(south_mask_linear(x, y, z, p)) * p.σ * (v - p.V∞)
+@inline sponge_w(x, y, z, t, w, p) = -(south_mask_linear(x, y, z, p)) * p.σ * w
+@inline sponge_b(x, y, z, t, b, p) = -(south_mask_linear(x, y, z, p)) * p.σ * (b - b∞(0, 0, z, 0, p))
 
 @inline geostrophy(x, y, z, p) = -p.f₀ * p.V∞
 
