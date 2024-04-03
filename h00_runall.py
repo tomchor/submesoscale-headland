@@ -50,3 +50,25 @@ for modifier in modifiers:
     print("\nStarting h03 post-processing of results using modifier", modifier)
     simnames = [ simname_base + modifier for simname_base in simnames_base ]
     exec(open("h03_collect_snapshots.py").read())
+
+for modifier in modifiers:
+    print("\nStarting hvid00", modifier)
+    simnames = [ simname_base + modifier for simname_base in simnames_base ]
+
+    #+++ Options for hvid00
+    animate = True
+    test = False
+    time_avg = False
+    summarize = False
+    zoom = False
+    plotting_time = 23
+    figdir = "figures"
+
+    slice_names = ["xyi",]
+
+    varnames = ["PV_norm", "Ro", "εₖ"]
+    contour_variable_name = None #"water_mask_buffered"
+    contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
+    #---
+
+    exec(open("hvid00_facetgrid.py").read())

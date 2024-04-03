@@ -14,7 +14,7 @@ plt.rcParams["figure.constrained_layout.use"] = True
 plt.rcParams["font.size"] = 9
 π = np.pi
 
-if __name__ == "__main__": print("\n\nStarting hvid00 script")
+if __name__ == "__main__": print("\nStarting hvid00 script")
 
 #+++ MASTER DICTIONARY OF OPTIONS
 plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdBu_r),
@@ -59,9 +59,9 @@ except NameError:
     shell = None
 #---
 
-if path.basename(__file__).startswith("hplot"):
+if path.basename(__file__).startswith("hplot") or path.basename(__file__).startswith("h00"):
     #+++ Running hplot03, hplot04, or hplot05
-    pass
+    print("Getting dynamic options from ", path.basename(__file__))
     #---
 elif shell is not None:
     #+++ Running from IPython
