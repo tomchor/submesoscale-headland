@@ -19,7 +19,9 @@ bulk["⟨ε̄ₖ⟩ˣᶻ"].attrs = dict(units="m²/s³")
 bulk["⟨ε̄ₚ⟩ˣᶻ"].attrs = dict(units="m²/s³")
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
 bulk.yC.attrs =  dict(long_name=r"$y$", units="m")
-q̂_min = (tafields.q̄.sel(yC=slice(-tafields.L/2, +tafields.L/2)).pnmin(("x", "y")) / (tafields["f₀"] * tafields["N²∞"])) # Close to headland tip
+average_CSI_wake_mask = tafields.average_CSI_mask & (tafields.altitude>30)
+#q̂_min = (tafields.q̄.sel(yC=slice(-tafields.L/2, +tafields.L/2)).pnmin(("x", "y")) / (tafields["f₀"] * tafields["N²∞"])) # Close to headland tip
+q̂_min = (tafields.q̄.where(average_CSI_wake_mask).sel(yC=slice(-tafields.L/2, +tafields.L/2)).pnmin(("x", "y")) / (tafields["f₀"] * tafields["N²∞"])) # Close to headland tip
 
 #+++ Bathymetry intrusion exponential
 def η(z): return bulk.Lx/2 + (0 - bulk.Lx/2) * z / (2*bulk.H) # headland intrusion size
