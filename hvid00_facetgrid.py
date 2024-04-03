@@ -88,7 +88,7 @@ else:
     animate = True
     test = False
     time_avg = False
-    summarize = True
+    summarize = False
     zoom = False
     plotting_time = 4
     figdir = "figures_check"

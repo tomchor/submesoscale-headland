@@ -28,10 +28,7 @@ bulk["⟨ε̄ₖ⟩ᴮᴸ"] = bulk["⟨ε̄ₖ⟩ᵇ"].sel(buffer=0) - bulk["⟨
 bulk["εₖ_ratio_bl_to_rest"] = bulk["⟨ε̄ₖ⟩ᴮᴸ"] / bulk["⟨ε̄ₖ⟩ᵇ"]
 
 bulk["⟨⟨w′b′⟩ₜ⟩ᵇ + ⟨Π⟩ᵇ"] = bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"] + bulk["⟨Π⟩ᵇ"]
-
-bulk["⟨Πᶻ⟩"] = bulk["⟨SPR⟩ᵇ"].sel(j=3)
-bulk["SP_ratio1"] = bulk["⟨SPR⟩ᵇ"].sel(j=[1,2]).sum("j") / bulk["⟨SPR⟩ᵇ"].sel(j=3)
-bulk["SP_ratio3"] = bulk["∫∫ᶜˢⁱSPRdxdy"].sel(j=[1,2]).sum("j") / bulk["∫∫ᶜˢⁱSPRdxdy"].sel(j=3)
+bulk["∫∫∫ᵇ⟨w′b′⟩ₜdxdydz + ∫∫∫ᵇΠdxdydz"] = bulk["∫∫∫ᵇ⟨w′b′⟩ₜdxdydz"] + bulk["∫∫∫ᵇΠdxdydz"]
 #---
 
 #+++ Choose buffers and set some attributes
@@ -45,12 +42,12 @@ for buffer in bulk.buffer.values:
     bulk_buff = bulk.sel(buffer=buffer)
 
     #+++ Create figure
-    nrows = 3
+    nrows = 4
     ncols = 1
     size = 3
     fig, axes = plt.subplots(ncols=ncols, nrows=nrows,
                              figsize = (2*ncols*size, nrows*size),
-                             sharex=False, sharey=False,
+                             sharex=True, sharey=False,
                              constrained_layout=True)
     axesf = axes.flatten()
     #---
@@ -97,13 +94,23 @@ for buffer in bulk.buffer.values:
     print("Plotting axes 2")
     ax = axesf[2]
     xvarname = "Slope_Bu"
+    yvarname = "∫∫∫ᵇΠdxdydz"
+    #yvarname = "∫∫∫ᵇ⟨w′b′⟩ₜdxdydz + ∫∫∫ᵇΠdxdydz"
+    ax.scatter(x=bulk_buff[xvarname], y=bulk_buff[yvarname], label="", color="k")
+    ax.set_xlabel(xvarname); ax.set_ylabel(yvarname)
+    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.plot(S_Bu, 2e-4*S_Bu, ls="--", label=r"$S_h$", color="k")
+
+    print("Plotting axes 3")
+    ax = axesf[3]
+    xvarname = "Slope_Bu"
     yvarname = "∫∫∫ᵇ⟨Ek′⟩ₜdxdydz"
     ax.scatter(x=bulk_buff[xvarname], y=bulk_buff[yvarname], label="", color="k")
     ax.set_xlabel(xvarname); ax.set_ylabel(yvarname)
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.plot(S_Bu, 2e2*S_Bu, ls="--", label=r"$S_h$", color="k")
     #---
-    
+
     #+++ Prettify and save
     for ax in axesf:
         ax.legend(loc="lower right")
