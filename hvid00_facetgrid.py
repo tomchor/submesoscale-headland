@@ -59,9 +59,12 @@ except NameError:
     shell = None
 #---
 
+parallel = True
 if path.basename(__file__).startswith("hplot") or path.basename(__file__).startswith("h00"):
-    #+++ Running hplot03, hplot04, or hplot05
+    #+++ Running hplot03, hplot04, hplot05, or h00
     print("Getting dynamic options from ", path.basename(__file__))
+    if path.basename(__file__).startswith("h00"):
+        parallel = False
     #---
 elif shell is not None:
     #+++ Running from IPython
@@ -281,16 +284,16 @@ for modifier in modifiers:
                     else:
                         outname = f"anims/{var}_{slice_name}_facetgrid{modifier}.mp4"
                     print("Start frame saving")
-                    with ProgressBar():
+                    with ProgressBar(dt=5):
                         anim_horvort.save(outname,
                                           ffmpeg_call = "/glade/u/home/tomasc/miniconda3/envs/py310/bin/ffmpeg",
-                                          remove_frames=True,
-                                          remove_movie=False,
-                                          progress=True,
-                                          verbose=False,
-                                          overwrite_existing=True,
-                                          framerate=12,
-                                          parallel=True,
+                                          remove_frames = True,
+                                          remove_movie = False,
+                                          progress = True,
+                                          verbose = False,
+                                          overwrite_existing = True,
+                                          framerate = 12,
+                                          parallel = parallel,
                                           #parallel_compute_kwargs=dict(num_workers=18, memory_limit='5GB', processes=False), # 24 min
                                           parallel_compute_kwargs=dict(num_workers=18, memory_limit='5GB', scheduler="processes"), # 2 min
                                           )
