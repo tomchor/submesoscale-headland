@@ -35,9 +35,13 @@ bulk["∫∫∫ᵇ⟨w′b′⟩ₜdxdydz + ∫∫∫ᵇΠdxdydz"] = bulk["∫�
 bulk.RoFr.attrs = dict(long_name="$Ro_h Fr_h$")
 bulk.RoRi.attrs = dict(long_name="$Ro_h / Fr_h^2$")
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
+bulk["∫∫∫ᵇε̄ₖdxdydz"].attrs = dict(long_name=r"$\int\int\int\overline{\varepsilon}_k dV$ [m⁶/s²]")
+bulk["∫∫∫ᵇε̄ₚdxdydz"].attrs = dict(long_name=r"$\int\int\int\overline{\varepsilon}_p dV$ [m⁶/s²]")
+bulk["∫∫∫ᵇΠdxdydz"].attrs = dict(long_name=r"$\int\int\int\Pi dV$ [m⁶/s²]")
+bulk["∫∫∫ᵇ⟨Ek′⟩ₜdxdydz"].attrs = dict(long_name=r"$\int\int\int {\rm TKE} dV$ [m⁶/s²]")
 #---
 
-for buffer in bulk.buffer.values:
+for buffer in bulk.buffer.values[-1:]:
     print(f"Plotting with buffer = {buffer} m")
     bulk_buff = bulk.sel(buffer=buffer)
 
@@ -70,6 +74,7 @@ for buffer in bulk.buffer.values:
     #+++ Auxiliary continuous variables
     RoFr = np.logspace(np.log10(bulk_buff.RoFr.min())+1/2, np.log10(bulk_buff.RoFr.max())-1/2)
     S_Bu = np.logspace(np.log10(bulk_buff["Slope_Bu"].min())+1/3, np.log10(bulk_buff["Slope_Bu"].max())-1/3)
+    rates_curve = 7e-4*S_Bu
     #---
 
     #+++ Plot stuff
@@ -77,36 +82,40 @@ for buffer in bulk.buffer.values:
     ax = axesf[0]
     xvarname = "Slope_Bu"
     yvarname = "∫∫∫ᵇε̄ₖdxdydz"
-    ax.scatter(x=bulk_buff[xvarname], y=bulk_buff[yvarname], label="", color="k")
-    ax.set_ylabel(yvarname); ax.set_xlabel(xvarname)
+    for cond, label, color, marker in zip(conditions, labels, colors, markers):
+        ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
+    ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.plot(S_Bu, 7e-4*S_Bu, ls="--", label=r"$S_h$", color="k")
+    ax.plot(S_Bu, rates_curve, ls="--", label=r"$S_h$", color="k")
 
     print("Plotting axes 1")
     ax = axesf[1]
     xvarname = "Slope_Bu"
     yvarname = "∫∫∫ᵇε̄ₚdxdydz"
-    ax.scatter(x=bulk_buff[xvarname], y=bulk_buff[yvarname], label="", color="k")
-    ax.set_ylabel(yvarname); ax.set_xlabel(xvarname)
+    for cond, label, color, marker in zip(conditions, labels, colors, markers):
+        ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
+    ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.plot(S_Bu, 2e-4*S_Bu, ls="--", label=r"$S_h$", color="k")
+    ax.plot(S_Bu, rates_curve, ls="--", label=r"$S_h$", color="k")
 
     print("Plotting axes 2")
     ax = axesf[2]
     xvarname = "Slope_Bu"
     yvarname = "∫∫∫ᵇΠdxdydz"
     #yvarname = "∫∫∫ᵇ⟨w′b′⟩ₜdxdydz + ∫∫∫ᵇΠdxdydz"
-    ax.scatter(x=bulk_buff[xvarname], y=bulk_buff[yvarname], label="", color="k")
-    ax.set_xlabel(xvarname); ax.set_ylabel(yvarname)
+    for cond, label, color, marker in zip(conditions, labels, colors, markers):
+        ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
+    ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.plot(S_Bu, 2e-4*S_Bu, ls="--", label=r"$S_h$", color="k")
+    ax.plot(S_Bu, rates_curve, ls="--", label=r"$S_h$", color="k")
 
     print("Plotting axes 3")
     ax = axesf[3]
     xvarname = "Slope_Bu"
     yvarname = "∫∫∫ᵇ⟨Ek′⟩ₜdxdydz"
-    ax.scatter(x=bulk_buff[xvarname], y=bulk_buff[yvarname], label="", color="k")
-    ax.set_xlabel(xvarname); ax.set_ylabel(yvarname)
+    for cond, label, color, marker in zip(conditions, labels, colors, markers):
+        ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
+    ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.plot(S_Bu, 2e2*S_Bu, ls="--", label=r"$S_h$", color="k")
     #---
