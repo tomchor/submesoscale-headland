@@ -96,8 +96,7 @@ else:
     slice_names = ["xyi", "xiz", "iyz", "tafields"]
     modifiers = ["",]
 
-    varnames = ["εₖ", "PV_norm", "Ro"]
-    varnames = ["PV_norm", "Ro"]
+    varnames = ["PV_norm", "Ro", "εₖ",]
     contour_variable_name = None #"q̃_norm"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
