@@ -33,7 +33,7 @@ function squeeze(ds::Union{Raster, RasterStack})
     return getindex(ds; flat_dimensions...)
 end
 
-broad_variables = (:v, :PV, :εₖ, :Ro, :Ri)
+broad_variables = (:v, :PV, :εₖ, :Ro,)
 @info "Reading ds_iyz"
 ds_iyz = RasterStack(fpath_iyz, lazy=true, name=broad_variables)
 
