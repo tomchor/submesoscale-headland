@@ -41,7 +41,7 @@ bulk["∫∫∫ᵇΠdxdydz"].attrs = dict(long_name=r"$\int\int\int\Pi dV$ [m⁶
 bulk["∫∫∫ᵇ⟨Ek′⟩ₜdxdydz"].attrs = dict(long_name=r"$\int\int\int {\rm TKE} dV$ [m⁶/s²]")
 #---
 
-for buffer in bulk.buffer.values[-1:]:
+for buffer in bulk.buffer.values:
     print(f"Plotting with buffer = {buffer} m")
     bulk_buff = bulk.sel(buffer=buffer)
 
