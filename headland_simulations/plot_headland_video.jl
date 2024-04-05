@@ -97,7 +97,7 @@ dslist = [ (squeeze(ds), slice) for (ds, slice) in dslist ]
 #---
 
 #+++ Plotting options
-variables = (:v, :PV, :εₖ, :Ro, :Ri)
+variables = broad_variables
 
 kwargs = Dict(:u => (colorrange = u_lims,
                      colormap = :balance),
