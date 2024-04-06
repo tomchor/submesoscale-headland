@@ -61,7 +61,6 @@ except NameError:
     shell = None
 #---
 
-parallel = True
 if path.basename(__file__).startswith("hplot") or path.basename(__file__).startswith("h00"):
     #+++ Running hplot03, hplot04, hplot05, or h00
     print("Getting dynamic options from ", path.basename(__file__))
@@ -70,6 +69,7 @@ if path.basename(__file__).startswith("hplot") or path.basename(__file__).starts
     #---
 elif shell is not None:
     #+++ Running from IPython
+    parallel = False
     animate = False
     test = False
     time_avg = True
@@ -90,6 +90,7 @@ elif shell is not None:
     #---
 else:
     #+++ Running from python (probably from run_postproc.sh)
+    parallel = False
     animate = True
     test = False
     time_avg = False
@@ -99,10 +100,12 @@ else:
     figdir = "figures_check"
 
     slice_names = ["xyi", "xiz", "iyz", "tafields"]
-    modifiers = ["",]
+    slice_names = ["xyi",]
+    modifiers = ["-f2",]
 
     varnames = ["εₖ", "PV_norm", "Ro"]
     varnames = ["PV_norm", "Ro"]
+    varnames = ["wb"]
     contour_variable_name = None #"q̃_norm"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
