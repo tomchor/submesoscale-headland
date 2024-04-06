@@ -206,22 +206,21 @@ bcs = (u=u_bcs,
 @info "Defining sponge layer"
 params = (; params..., y_south = ynode(1, grid, Face()))
 mask_y_params = (; params.y_south, params.sponge_length_y, σ = params.sponge_rate)
-@inline function south_mask_cos(x, y, z, p)
-    y₀ = p.y_south
-    y₁ = y₀ + p.sponge_length_y/2
-    y₂ = y₀ + p.sponge_length_y
 
-    if y₀ <= y <= y₂
-        return 1/2 * (1 - cos( π*(y-y₀)/(y₁-y₀) ))
-    else
-        return 0.0
-    end
-end
+const y₀ = params.y_south
+const y₁ = y₀ + params.sponge_length_y/2
+const y₂ = y₀ + params.sponge_length_y
+@inline south_mask_cos(x, y, z, p) = ifelse(y₀ <= y <= y₂, 1/2 * (1 - cos( π*(y-y₀)/(y₁-y₀) )), 0.0)
+@inline south_mask_linear(x, y, z, p) = ifelse((y₀ <= y <= y₁),
+                                               (y-y₀)/(y₁-y₀),
+                                               ifelse((y₁ <= y <= y₂),
+                                                      (y-y₂)/(y₁-y₂), 0.0
+                                                      ))
 
-@inline sponge_u(x, y, z, t, u, p) = -(south_mask_cos(x, y, z, p)) * p.σ * u
-@inline sponge_v(x, y, z, t, v, p) = -(south_mask_cos(x, y, z, p)) * p.σ * (v - p.V∞)
-@inline sponge_w(x, y, z, t, w, p) = -(south_mask_cos(x, y, z, p)) * p.σ * w
-@inline sponge_b(x, y, z, t, b, p) = -(south_mask_cos(x, y, z, p)) * p.σ * (b - b∞(0, 0, z, 0, p))
+@inline sponge_u(x, y, z, t, u, p) = -(south_mask_linear(x, y, z, p)) * p.σ * u
+@inline sponge_v(x, y, z, t, v, p) = -(south_mask_linear(x, y, z, p)) * p.σ * (v - p.V∞)
+@inline sponge_w(x, y, z, t, w, p) = -(south_mask_linear(x, y, z, p)) * p.σ * w
+@inline sponge_b(x, y, z, t, b, p) = -(south_mask_linear(x, y, z, p)) * p.σ * (b - b∞(0, 0, z, 0, p))
 
 @inline geostrophy(x, y, z, p) = -p.f₀ * p.V∞
 
