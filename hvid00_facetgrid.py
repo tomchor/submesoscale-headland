@@ -10,14 +10,16 @@ from matplotlib.colors import LogNorm
 from aux01_physfuncs import calculate_filtered_PV
 from aux02_plotting import manual_facetgrid, get_orientation, BuRd
 from cmocean import cm
+import argparse
 plt.rcParams["figure.constrained_layout.use"] = True
 plt.rcParams["font.size"] = 9
 π = np.pi
 
-if __name__ == "__main__": print("\n\nStarting hvid00 script")
+if __name__ == "__main__": print("\nStarting hvid00 script")
 
 #+++ MASTER DICTIONARY OF OPTIONS
 plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdBu_r),
+                      "w"         : dict(vmin=-0.003, vmax=+0.003, cmap=plt.cm.RdBu_r),
                       "PV_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "PVᶻ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "PVʰ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
@@ -36,7 +38,8 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       "Lo"        : dict(vmin=0, vmax=2, cmap=cm.balance),
                       "Δz_norm"   : dict(vmin=0, vmax=2, cmap=cm.balance),
                       "v"         : dict(vmin=-1.2 * 0.01, vmax=1.2 * 0.01, cmap=cm.balance),
-                      "wb"        : dict(vmin=-1e-8, vmax=+1e-8, cmap=cm.balance),
+                      "wb"        : dict(vmin=-3e-8, vmax=+3e-8, cmap=cm.balance),
+                      "uᵢGᵢ"      : dict(vmin=-1e-7, vmax=+1e-7, cmap=cm.balance),
                       "Kb"        : dict(vmin=-1e-1, vmax=+1e-1, cmap=cm.balance),
                       "γ"         : dict(vmin=0, vmax=1, cmap="plasma"),
                       "Π"         : dict(cmap=cm.balance, vmin=-1e-9, vmax=+1e-9),
@@ -60,11 +63,12 @@ except NameError:
 #---
 
 if path.basename(__file__).startswith("hplot"):
-    #+++ Running hplot03, hplot04, or hplot05
-    pass
+    #+++ Running hplot03, hplot04, hplot05, or h00
+    print("Getting dynamic options from ", path.basename(__file__))
     #---
 elif shell is not None:
     #+++ Running from IPython
+    parallel = False
     animate = False
     test = False
     time_avg = True
@@ -83,24 +87,65 @@ elif shell is not None:
     contour_variable_name = None #"water_mask_buffered"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
+
 else:
     #+++ Running from python (probably from run_postproc.sh)
-    animate = True
-    test = False
-    time_avg = False
-    summarize = False
-    zoom = False
-    plotting_time = 4
-    figdir = "figures_check"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--no_parsing", action="store_true")
+    parser.add_argument("--parallel", action="store_true")
+    parser.add_argument("--animate", action="store_true")
+    parser.add_argument("--test", action="store_true")
+    parser.add_argument("--time_avg", action="store_true",)
+    parser.add_argument("--summarize", action="store_true")
+    parser.add_argument("--zoom", default=False, type=bool,)
+    parser.add_argument("--plotting_time", default=4, type=float,)
+    parser.add_argument("--figdir", default="figures_check", type=str,)
+    parser.add_argument("--modifiers", default=["-f2"], type=str, nargs="+")
+    parser.add_argument("--slice_names", default=["xyi",], type=str, nargs="+")
+    parser.add_argument("--varnames", default=["uᵢGᵢ"], type=str, nargs="+")
+    parser.add_argument("--contour_variable_name", default=None, type=str)
 
-    slice_names = ["xyi", "xiz", "iyz", "tafields"]
-    modifiers = ["",]
+    args = parser.parse_args()
 
-    varnames = ["εₖ", "PV_norm", "Ro"]
-    varnames = ["PV_norm", "Ro"]
-    contour_variable_name = None #"q̃_norm"
-    contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
+    if args.no_parsing:
+        #+++ Override parasing
+        if __name__ == "__main__": print("Not using parsed arguments")
+        parallel = True
+        animate = True
+        test = False
+        time_avg = False
+        summarize = False
+        zoom = False
+        plotting_time = 23
+        figdir = "figures"
+
+        slice_names = ["xyi",]
+        modifiers = ["-f2",]
+
+        varnames = ["uᵢGᵢ"]
+        contour_variable_name = None #"water_mask_buffered"
+        contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
+        #---
+
+    else:
+        #+++ Use argument parser
+        if __name__ == "__main__": print("Using parsed arguments")
+        parallel = args.parallel
+        animate = args.animate
+        test = args.test
+        time_avg = args.time_avg
+        summarize = args.summarize
+        zoom = args.zoom
+        plotting_time = args.plotting_time
+        figdir = args.figdir
+        modifiers = args.modifiers
+        slice_names = args.slice_names
+        varnames = args.varnames
+        contour_variable_name = None #"q̃_norm"
+        contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
+        #---
     #---
+
 
 plot_kwargs_by_var = { k : plot_kwargs_by_var[k] for k in plot_kwargs_by_var if k in varnames}
 #---
@@ -281,16 +326,16 @@ for modifier in modifiers:
                     else:
                         outname = f"anims/{var}_{slice_name}_facetgrid{modifier}.mp4"
                     print("Start frame saving")
-                    with ProgressBar():
+                    with ProgressBar(dt=5):
                         anim_horvort.save(outname,
                                           ffmpeg_call = "/glade/u/home/tomasc/miniconda3/envs/py310/bin/ffmpeg",
-                                          remove_frames=True,
-                                          remove_movie=False,
-                                          progress=True,
-                                          verbose=False,
-                                          overwrite_existing=True,
-                                          framerate=12,
-                                          parallel=True,
+                                          remove_frames = True,
+                                          remove_movie = False,
+                                          progress = True,
+                                          verbose = False,
+                                          overwrite_existing = True,
+                                          framerate = 12,
+                                          parallel = parallel,
                                           #parallel_compute_kwargs=dict(num_workers=18, memory_limit='5GB', processes=False), # 24 min
                                           parallel_compute_kwargs=dict(num_workers=18, memory_limit='5GB', scheduler="processes"), # 2 min
                                           )

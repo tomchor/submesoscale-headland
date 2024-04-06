@@ -14,7 +14,7 @@ plt.rcParams["font.size"] = 9
 π = np.pi
 
 
-#+++ Running from IPython
+#+++ Options for hvid00
 animate = False
 test = False
 time_avg = False

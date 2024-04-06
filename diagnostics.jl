@@ -112,13 +112,16 @@ PV_z = @at CellCenter DirectionalErtelPotentialVorticity(model, (0, 0, 1))
 εₚ = @at CellCenter TracerVarianceDissipationRate(model, :b)/(2params.N2_inf)
 εₛ = @at CellCenter KineticEnergyForcingTerm(model)
 
+κₑ = diffusivity(model.closure, model.diffusivity_fields, Val(:b))
+κₑ = κₑ isa Tuple ? sum(κₑ) : κₑ
+
 Re_b = KernelFunctionOperation{Center, Center, Center}(buoyancy_reynolds_number_ccc, model.grid, u, v, w, params.N²∞)
 
 Ri = @at CellCenter RichardsonNumber(model, u, v, w, b)
 Ro = @at CellCenter RossbyNumber(model)
 PV = @at CellCenter ErtelPotentialVorticity(model, u, v, w, b, model.coriolis)
 
-outputs_dissip = Dict(pairs((;εₖ, εₚ,)))
+outputs_dissip = Dict(pairs((;εₖ, εₚ, κₑ)))
 
 outputs_misc = Dict(pairs((; dbdx, dbdy, dbdz,
                              εₛ, Re_b,
