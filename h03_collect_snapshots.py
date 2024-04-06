@@ -52,7 +52,7 @@ def collect_and_save_datasets():
                 if slice_name == "xyi":
                     ds = ds.drop_vars(["zC", "zF"])
                     variables = ["u", "v", "w", "Ro", "Ri", "PV", "εₖ", "εₚ", "Δxᶜᶜᶜ", "Δyᶜᶜᶜ", "Δzᶜᶜᶜ",
-                                 "∂Uᵍ∂z", "∂Vᵍ∂z", "PV_z", "Re_b"]
+                                 "∂Uᵍ∂z", "∂Vᵍ∂z", "PV_z", "Re_b", "uᵢGᵢ"]
                     variables = np.concatenate([variables, velocity_gradient_tensor, buoyancy_gradient_tensor])
 
                 elif slice_name == "xiz":
