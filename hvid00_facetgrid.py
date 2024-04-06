@@ -18,6 +18,7 @@ if __name__ == "__main__": print("\nStarting hvid00 script")
 
 #+++ MASTER DICTIONARY OF OPTIONS
 plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdBu_r),
+                      "w"         : dict(vmin=-0.003, vmax=+0.003, cmap=plt.cm.RdBu_r),
                       "PV_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "PVᶻ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "PVʰ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
@@ -37,6 +38,7 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       "Δz_norm"   : dict(vmin=0, vmax=2, cmap=cm.balance),
                       "v"         : dict(vmin=-1.2 * 0.01, vmax=1.2 * 0.01, cmap=cm.balance),
                       "wb"        : dict(vmin=-1e-8, vmax=+1e-8, cmap=cm.balance),
+                      "uᵢGᵢ"      : dict(vmin=-1e-8, vmax=+1e-8, cmap=cm.balance),
                       "Kb"        : dict(vmin=-1e-1, vmax=+1e-1, cmap=cm.balance),
                       "γ"         : dict(vmin=0, vmax=1, cmap="plasma"),
                       "Π"         : dict(cmap=cm.balance, vmin=-1e-9, vmax=+1e-9),
