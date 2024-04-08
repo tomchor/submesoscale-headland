@@ -1,5 +1,6 @@
 import sys
 sys.path.append("/glade/u/home/tomasc/repos/pynanigans")
+import subprocess
 import numpy as np
 import xarray as xr
 import pynanigans as pn
@@ -31,7 +32,6 @@ simnames_base = [#"NPN-TEST",
                  "NPN-R1F1",
                  ]
 modifiers = ["-f4", "-S-f4", "-f2", "-S-f2"]
-modifiers = ["-f2", "-S-f2"]
 modifiers = ["-f4", "-f2", ""]
 #---
 
@@ -50,3 +50,41 @@ for modifier in modifiers:
     print("\nStarting h03 post-processing of results using modifier", modifier)
     simnames = [ simname_base + modifier for simname_base in simnames_base ]
     exec(open("h03_collect_snapshots.py").read())
+
+print("\nStarting hvid00", modifier)
+simnames = [ simname_base + modifier for simname_base in simnames_base ]
+
+#+++ Options for hvid00
+parallel = True
+animate = True
+test = False
+time_avg = False
+summarize = False
+zoom = False
+plotting_time = 23
+figdir = "figures_check"
+
+slice_names = ["xyi",]
+
+varnames = ["PV_norm", "Ro", "εₖ"]
+varnames = ["PV_norm",]
+contour_variable_name = None #"water_mask_buffered"
+#---
+
+aux_modifiers = [ modifier.replace("-", "") if modifier != "" else "f1" for modifier in modifiers ]
+arglist = ["--parallel" if parallel else "",
+           "--animate" if animate else "",
+           "--test" if test else "",
+           "--time_avg" if time_avg else "",
+           "--summarize" if summarize else "",
+           "--zoom" if zoom else "",
+           "--plotting_time", str(plotting_time),
+           "--figdir", figdir,
+           "--slice_names", *slice_names,
+           "--varnames", *varnames,
+           "--modifiers", *aux_modifiers,
+           "--contour_variable_name" if contour_variable_name is not None else "",
+           ]
+arglist = [ item for item in arglist if item != "" ]
+print("Using arguments", arglist)
+subprocess.run(["/glade/u/home/tomasc/miniconda3/envs/py310/bin/python", "hvid00_facetgrid.py", *arglist])
