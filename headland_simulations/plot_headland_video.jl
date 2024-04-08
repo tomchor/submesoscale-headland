@@ -33,7 +33,7 @@ function squeeze(ds::Union{Raster, RasterStack})
     return getindex(ds; flat_dimensions...)
 end
 
-broad_variables = (:v, :PV, :εₖ, :Ro, :Ri)
+broad_variables = (:v, :PV, :εₖ, :Ro,)
 @info "Reading ds_iyz"
 ds_iyz = RasterStack(fpath_iyz, lazy=true, name=broad_variables)
 
@@ -97,7 +97,7 @@ dslist = [ (squeeze(ds), slice) for (ds, slice) in dslist ]
 #---
 
 #+++ Plotting options
-variables = (:v, :PV, :εₖ, :Ro, :Ri)
+variables = broad_variables
 
 kwargs = Dict(:u => (colorrange = u_lims,
                      colormap = :balance),

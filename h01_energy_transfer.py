@@ -85,6 +85,8 @@ for simname in simnames:
     xyi = adjust_times(xyi, round_times=True)
     ttt = adjust_times(ttt, round_times=True)
     tti = adjust_times(tti, round_times=True)
+
+    ttt = ttt.assign_coords(xC=tti.xC.values, yC=tti.yC.values) # This is needed just as long as ttt is float32 and tti is float64
     #---
 
     #+++ Preliminary definitions and checks
@@ -169,6 +171,7 @@ for simname in simnames:
                                 "uᵢGᵢ" : "⟨wb⟩ₜ",
                                 "εₖ"   : "ε̄ₖ",
                                 "εₚ"   : "ε̄ₚ",
+                                "κₑ"   : "κ̄ₑ",
                                 })
     tafields.attrs = ttt.attrs
     #---
@@ -201,14 +204,14 @@ for simname in simnames:
     buffer = 5 # meters
 
     distance_mask = tafields.altitude > buffer
-    for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨wb⟩ₜ", "⟨Ek′⟩ₜ", "1"]:
+    for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨wb⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ", "1"]:
         int_all = f"∫∫∫⁰{var}dxdydz"
         int_buf = f"∫∫∫⁵{var}dxdydz"
         tafields[int_all] = integrate(tafields[var])
         tafields[int_buf] = integrate(tafields[var], dV=tafields.ΔxΔyΔz.where(distance_mask))
         tafields = condense(tafields, [int_all, int_buf], f"∫∫∫ᵇ{var}dxdydz", dimname="buffer", indices=[0, buffer])
 
-    for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "⟨Ek′⟩ₜ", "1"]:
+    for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "⟨w′b′⟩ₜ", "⟨Ek′⟩ₜ", "1"]:
         int_all = f"∫∫⁰{var}dxdz"
         int_buf = f"∫∫⁵{var}dxdz"
         tafields[int_all] = integrate(tafields[var], dV=tafields.ΔxΔz, dims=("x", "z"))
@@ -238,6 +241,7 @@ for simname in simnames:
     #---
 
     #+++ Get CSI mask and CSI-integral
+    tafields["average_stratification_mask"] = tafields["∂ⱼb̄"].sel(j=3) > 0
     tafields["average_CSI_mask"] = ((tafields.q̄ * tafields.f_0) < 0) & (tafields["∂ⱼb̄"].sel(j=3) > 0)
     ΔxΔy = tafields["Δxᶜᶜᶜ"] * tafields["Δyᶜᶜᶜ"]
     for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "1"]:

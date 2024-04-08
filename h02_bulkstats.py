@@ -93,7 +93,7 @@ for simname in simnames:
     #+++ Get means from tafields integrals
     bulk = xr.Dataset()
     bulk["∫∫∫ᵇ1dxdydz"] = tafields["∫∫∫ᵇ1dxdydz"]
-    for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨wb⟩ₜ", "⟨Ek′⟩ₜ"]:
+    for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨wb⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ"]:
         int_var = f"∫∫∫ᵇ{var}dxdydz"
         bulk[int_var] = tafields[int_var]
         bulk[f"⟨{var}⟩ᵇ"] = bulk[int_var] / bulk["∫∫∫ᵇ1dxdydz"]
@@ -148,7 +148,7 @@ for simname in simnames:
     bulk["N∞³L²"] = np.sqrt(bulk.N2_inf)**3 * bulk.L**2
 
     bulk["Kb"]  = -bulk["⟨⟨wb⟩ₜ⟩ᵇ"] / bulk["N²∞"]
-    bulk["Kb′"] = -bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"] / bulk["N²∞"]
+    bulk["Kb′"] = -bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"] / bulk["N²∞"] + bulk["⟨κ̄ₑ⟩ᵇ"]
     bulk["Kb̄"]  = -bulk["⟨w̄b̄⟩ᵇ"] / bulk["N²∞"]
     bulk["Kbᵋ"] = -bulk["⟨⟨wb⟩ₜ⟩ᵋ"] / bulk["N²∞"]
 
