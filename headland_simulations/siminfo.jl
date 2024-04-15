@@ -21,7 +21,7 @@ end
 @with_kw struct Headland
 
     defaults = (;
-                N = 100e6,
+                N = 85e6,
 
                 V∞ = 0.01meters/second, # m/s
                 H  = 40meters,
