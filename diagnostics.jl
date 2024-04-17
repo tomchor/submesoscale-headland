@@ -108,6 +108,8 @@ PV_x = @at CellCenter DirectionalErtelPotentialVorticity(model, (1, 0, 0))
 PV_y = @at CellCenter DirectionalErtelPotentialVorticity(model, (0, 1, 0))
 PV_z = @at CellCenter DirectionalErtelPotentialVorticity(model, (0, 0, 1))
 
+ω_y = @at CellCenter (∂z(u) - ∂x(w))
+
 εₖ = @at CellCenter KineticEnergyDissipationRate(model)
 εₚ = @at CellCenter TracerVarianceDissipationRate(model, :b)/(2params.N2_inf)
 εₛ = @at CellCenter KineticEnergyForcingTerm(model)
@@ -123,7 +125,7 @@ PV = @at CellCenter ErtelPotentialVorticity(model, u, v, w, b, model.coriolis)
 
 outputs_dissip = Dict(pairs((;εₖ, εₚ, κₑ)))
 
-outputs_misc = Dict(pairs((; dbdx, dbdy, dbdz,
+outputs_misc = Dict(pairs((; dbdx, dbdy, dbdz, ω_y,
                              εₛ, Re_b,
                              Ri, Ro,
                              PV, PV_x, PV_y, PV_z,)))
