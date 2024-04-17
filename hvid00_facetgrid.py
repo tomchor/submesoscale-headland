@@ -100,15 +100,15 @@ else:
     parser.add_argument("--zoom", default=False, type=bool,)
     parser.add_argument("--plotting_time", default=4, type=float,)
     parser.add_argument("--figdir", default="figures_check", type=str,)
-    parser.add_argument("--modifiers", default=["-f2"], type=str, nargs="+")
+    parser.add_argument("--modifiers", default=["f2"], type=str, nargs="+", dest="aux_modifiers")
     parser.add_argument("--slice_names", default=["xyi",], type=str, nargs="+")
-    parser.add_argument("--varnames", default=["uᵢGᵢ"], type=str, nargs="+")
+    parser.add_argument("--varnames", default=["PV_norm"], type=str, nargs="+")
     parser.add_argument("--contour_variable_name", default=None, type=str)
 
     args = parser.parse_args()
 
     if args.no_parsing:
-        #+++ Override parasing
+        #+++ Override parsing
         if __name__ == "__main__": print("Not using parsed arguments")
         parallel = True
         animate = True
@@ -120,7 +120,7 @@ else:
         figdir = "figures"
 
         slice_names = ["xyi",]
-        modifiers = ["-f2",]
+        aux_modifiers = ["f2",]
 
         varnames = ["uᵢGᵢ"]
         contour_variable_name = None #"water_mask_buffered"
@@ -138,12 +138,14 @@ else:
         zoom = args.zoom
         plotting_time = args.plotting_time
         figdir = args.figdir
-        modifiers = args.modifiers
+        aux_modifiers = args.aux_modifiers
         slice_names = args.slice_names
         varnames = args.varnames
         contour_variable_name = None #"q̃_norm"
         contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
         #---
+
+    modifiers = [ f"-{modifier}" if modifier != "f1" else "" for modifier in aux_modifiers ]
     #---
 
 
