@@ -8,8 +8,8 @@ from aux00_utils import open_simulation
 from aux02_plotting import letterize
 
 modifiers = ["", "-S"]
-variables = ["PV_norm", "εₖ"]
 variable_xy = "PV_norm"
+variables = ["PV_norm", "εₖ"]
 Fr_h = 0.2
 Ro_h = 0.2
 
