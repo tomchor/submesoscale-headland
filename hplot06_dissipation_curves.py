@@ -72,10 +72,11 @@ for buffer in bulk.buffer.values:
                             ax.set_xlim(-1, 20)
 
 
-    norm = LogNorm(vmin=bulkb.Slope_Bu.min().values, vmax=bulkb.Slope_Bu.max().values)
-    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-    sm.set_array([])
-    plt.colorbar(sm, ax=ax, label = "Slope Burger number")
+    for ax in axes[:,0]:
+        norm = LogNorm(vmin=bulkb.Slope_Bu.min().values, vmax=bulkb.Slope_Bu.max().values)
+        sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+        sm.set_array([])
+        plt.colorbar(sm, ax=ax, label = "Slope Burger number")
 
     #+++ Prettify and save
     for ax_row in axes:
