@@ -145,7 +145,7 @@ else:
         contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
         #---
 
-    modifiers = [ f"-{modifier}" if modifier != "f1" else "" for modifier in aux_modifiers ]
+    modifiers = [ f"-{modifier}" if (modifier != "f1" and modifier != "") else "" for modifier in aux_modifiers ]
     #---
 
 
