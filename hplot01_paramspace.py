@@ -1,7 +1,7 @@
 import numpy as np
 import pynanigans as pn
 import xarray as xr
-from aux00_utils import filter_by_resolution
+from aux00_utils import filter_by_resolution, threed_sims, bathfo_sims, vertco_sims, vertsh_sims
 from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
 from cmocean import cm
@@ -59,7 +59,7 @@ for modifier in modifiers:
     simnames = [ simname_base + modifier for simname_base in simnames_base ]
 
     #+++ Create figure and options
-    fig, ax = plt.subplots(layout="constrained", figsize=(5, 5))
+    fig, ax = plt.subplots(layout="constrained", figsize=(5, 7))
     params_background(ax, add_lines=False, cmap="Blues")
     #---
 
@@ -68,24 +68,39 @@ for modifier in modifiers:
         xyi = xr.open_dataset(path+f"/xyi.{simname}.nc", decode_times=False)
         if (np.round(xyi.Ro_h, decimals=2) in [0.2, 1.25]) and (np.round(xyi.Fr_h, decimals=2) in [0.2, 1.25]):
             ax.scatter(xyi.Fr_h, xyi.Ro_h, label=simname[4:], s=300, edgecolor="red", color=[0,0,0,0], zorder=10, linewidths=3)
-        ax.scatter(xyi.Fr_h, xyi.Ro_h, label=simname[4:], s=120, color="black", zorder=10)
+
+        if simname.split("-")[1] in threed_sims:
+            p3d = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="^", color="green", zorder=10, label="3D regime")
+        elif simname.split("-")[1] in bathfo_sims:
+            pbf = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="X", color="blue", zorder=10, label="Bath. following")
+        elif simname.split("-")[1] in vertco_sims:
+            pvc = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="D", color="orange", zorder=10, label="Vert. coherent")
+        elif simname.split("-")[1] in vertsh_sims:
+            pvs = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="d", color="orchid", zorder=10, label="Vert. sheared")
+        else:
+            ptr = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, color="black", zorder=10, label="Transition regime")
 
     #+++ Include secondary x axis (f₀)
     Ro2f = lambda x: x * (xyi.V_inf/(xyi.Lx/4))
     f2Ro = lambda x: (xyi.V_inf/(xyi.Lx/4)) / x
     secyax = ax.secondary_yaxis("right", functions=(Ro2f, f2Ro))
-    secyax.set_ylabel(r"$f_0$")
+    secyax.set_ylabel(r"$f_0$ [1/s]")
     #---
 
     #+++ Include secondary y axis (N∞)
     Fr2N = lambda x: x * (xyi.V_inf/xyi.H)
     N2Fr = lambda x: (xyi.V_inf/xyi.H) / x
     secxax = ax.secondary_xaxis("top", functions=(Fr2N, N2Fr))
-    secxax.set_xlabel(r"$N_\infty$")
+    secxax.set_xlabel(r"$N_\infty$ [1/s]")
     #---
 
     #+++ Adjust panel
     ax.grid(True, zorder=0)
+    ax.legend((p3d, pbf, pvc, pvs, ptr),
+              ("3D turbulence", "Bathymetry-following", "Vertically-coherent eddying", "Vertically-sheared eddying", "Transitional"),
+              numpoints=1,
+              loc="lower center", bbox_to_anchor=(0.5, 1.15))
+    ax.set_aspect("equal")
     #ax.set_title("Large-Eddy Simulations")
 
     ax.set_xlabel(r"$Fr_h = V_\infty / H N_\infty$")
