@@ -17,7 +17,7 @@ function parse_command_line_arguments()
 
         "--simname"
             help = "Setup and name of simulation in siminfo.jl"
-            default = "NPN-TEST-f64"
+            default = "NPN-TEST-f32"
             arg_type = String
 
     end
@@ -271,7 +271,7 @@ model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
                             tracers = :b,
                             closure = closure,
                             boundary_conditions = bcs,
-                            forcing = (u=Fᵤ, v=Fᵥ, w=Fw, b=Fb),
+                            #forcing = (u=Fᵤ, v=Fᵥ, w=Fw, b=Fb),
                            )
 @info "" model
 if has_cuda_gpu() run(`nvidia-smi`) end
@@ -282,7 +282,7 @@ set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
 #+++ Create simulation
 params = (; params..., T_advective_max = params.T_advective_spinup + params.T_advective_statistics)
 simulation = Simulation(model, Δt=0.2*minimum_zspacing(grid.underlying_grid)/params.V_inf,
-                        stop_time=params.T_advective_max * params.T_advective,
+                        stop_time=5*params.T_advective,
                         wall_time_limit=23.2hours,
                         )
 
@@ -303,44 +303,22 @@ simulation.callbacks[:nan_checker] = Callback(Oceananigans.Simulations.NaNChecke
 #---
 
 #+++ Diagnostics
-#+++ Check for checkpoints
-if any(startswith("chk.$(simname)_iteration"), readdir("$rundir/data"))
-    @warn "Checkpoint for $simname found. Assuming this is a pick-up simulation! Setting overwrite_existing=false."
-    overwrite_existing = false
-else
-    @warn "No checkpoint for $simname found. Setting overwrite_existing=true."
-    overwrite_existing = true
-end
-#---
+u, v, w = model.velocities
+b = model.tracers.b
 
-include("$rundir/../diagnostics.jl")
-tick()
-checkpointer = construct_outputs(simulation,
-                                 simname = simname,
-                                 rundir = rundir,
-                                 params = params,
-                                 overwrite_existing = overwrite_existing,
-                                 interval_2d = 0.2*params.T_advective,
-                                 interval_3d = 2.0*params.T_advective,
-                                 interval_time_avg = 10*params.T_advective,
-                                 write_xyz = true,
-                                 write_xiz = true,
-                                 write_xyi = true,
-                                 write_iyz = true,
-                                 write_ttt = true,
-                                 write_tti = true,
-                                 write_conditional_aya = true,
-                                 debug = false,
-                                 )
-tock()
+δ = ∂x(u) + ∂y(v) + ∂z(w)
+outputs = (; δ, model.pressures.pNHS, model.pressures.pHY′)
+interval_3d = 0.05*params.T_advective
+simulation.output_writers[:nc_xyz] = NetCDFOutputWriter(model, outputs;
+                   filename = "$rundir/data/xyz.$(simname).nc",
+                   schedule = TimeInterval(0.01*params.T_advective),
+                   array_type = Array{Float64},
+                   overwrite_existing = true,
+                   global_attributes = params,)
 #---
 
 #+++ Run simulations and plot video afterwards
 if has_cuda_gpu() run(`nvidia-smi`) end
 @info "Starting simulation"
-run!(simulation, pickup=true)
-#---
-
-#+++ Plot video
-include("$rundir/plot_headland_video.jl")
+run!(simulation)
 #---
