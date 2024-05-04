@@ -176,10 +176,6 @@ grid = ImmersedBoundaryGrid(grid_base, GFB)
 @info grid
 #---
 
-#+++ Drag (Implemented as in https://doi.org/10.1029/2005WR004685)
-z₀ = params.z_0 # roughness length
-#---
-
 #+++ Buoyancy model and background
 buoyancy = BuoyancyTracer()
 
@@ -201,7 +197,7 @@ model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
                             advection = WENO(grid=grid_base, order=5),
                             buoyancy = buoyancy,
                             tracers = :b,
-                           )
+                            )
 @info "" model
 
 set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
