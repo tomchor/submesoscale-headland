@@ -82,8 +82,6 @@ if south
 end
 
 simname_full = simname
-@info "Nondimensional parameter space" params.Ro_h params.Fr_h params.α params.Bu_h params.Γ 
-@info "Dimensional parameters" params.L params.H params.N²∞ params.f₀ params.z₀
 pprintln(params)
 #---
 #---
@@ -180,41 +178,12 @@ grid = ImmersedBoundaryGrid(grid_base, GFB)
 
 #+++ Drag (Implemented as in https://doi.org/10.1029/2005WR004685)
 z₀ = params.z_0 # roughness length
-z₁ = minimum_zspacing(grid_base, Center(), Center(), Center())/2
-@info "Using z₁ =" z₁
-
-const κᵛᵏ = 0.4 # von Karman constant
-params = (; params..., c_dz = (κᵛᵏ / log(z₁/z₀))^2) # quadratic drag coefficient
-@info "Defining momentum BCs with Cᴰ (x, y, z) =" params.c_dz
-
-@inline τᵘ_drag(x, y, z, t, u, v, w, p) = -p.Cᴰ * u * √(u^2 + v^2 + w^2)
-@inline τᵛ_drag(x, y, z, t, u, v, w, p) = -p.Cᴰ * v * √(u^2 + v^2 + w^2)
-@inline τʷ_drag(x, y, z, t, u, v, w, p) = -p.Cᴰ * w * √(u^2 + v^2 + w^2)
-
-@inline τᵛ_drag(y, z, t, u, v, w, p) = +p.Cᴰ * v * √(u^2 + v^2 + w^2) # Applied at the domain wall; sign needs to be flipped
-@inline τʷ_drag(y, z, t, u, v, w, p) = +p.Cᴰ * w * √(u^2 + v^2 + w^2) # Applied at the domain wall; sign needs to be flipped
-
-τᵘ = FluxBoundaryCondition(τᵘ_drag, field_dependencies = (:u, :v, :w), parameters=(; Cᴰ = params.c_dz,))
-τᵛ = FluxBoundaryCondition(τᵛ_drag, field_dependencies = (:u, :v, :w), parameters=(; Cᴰ = params.c_dz,))
-τʷ = FluxBoundaryCondition(τʷ_drag, field_dependencies = (:u, :v, :w), parameters=(; Cᴰ = params.c_dz,))
-
-u_bcs = FieldBoundaryConditions(immersed=τᵘ)
-v_bcs = FieldBoundaryConditions(immersed=τᵛ, east=τᵛ)
-w_bcs = FieldBoundaryConditions(immersed=τʷ, east=τʷ)
 #---
 
 #+++ Buoyancy model and background
-buoyancy = model=BuoyancyTracer()
+buoyancy = BuoyancyTracer()
 
 b∞(x, y, z, t, p) = p.N²∞ * z
-
-b_bcs = FieldBoundaryConditions()
-
-bcs = (u=u_bcs,
-       v=v_bcs,
-       w=w_bcs,
-       b=b_bcs,
-       )
 #---
 
 #+++ Sponge layer definition
@@ -222,44 +191,8 @@ bcs = (u=u_bcs,
 params = (; params..., y_south = ynode(1, grid, Face()))
 mask_y_params = (; params.y_south, params.sponge_length_y, σ = params.sponge_rate)
 
-const y₀ = params.y_south
-const y₁ = y₀ + params.sponge_length_y/2
-const y₂ = y₀ + params.sponge_length_y
-@inline south_mask_cos(x, y, z, p) = ifelse(y₀ <= y <= y₂, 1/2 * (1 - cos( π*(y-y₀)/(y₁-y₀) )), 0.0)
-@inline south_mask_linear(x, y, z, p) = ifelse((y₀ <= y <= y₁),
-                                               (y-y₀)/(y₁-y₀),
-                                               ifelse((y₁ <= y <= y₂),
-                                                      (y-y₂)/(y₁-y₂), 0.0
-                                                      ))
-
-@inline sponge_u(x, y, z, t, u, p) = -(south_mask_linear(x, y, z, p)) * p.σ * u
-@inline sponge_v(x, y, z, t, v, p) = -(south_mask_linear(x, y, z, p)) * p.σ * (v - p.V∞)
-@inline sponge_w(x, y, z, t, w, p) = -(south_mask_linear(x, y, z, p)) * p.σ * w
-@inline sponge_b(x, y, z, t, b, p) = -(south_mask_linear(x, y, z, p)) * p.σ * (b - b∞(0, 0, z, 0, p))
-
-@inline geostrophy(x, y, z, p) = -p.f₀ * p.V∞
-
-forc_u(x, y, z, t, u, p) = sponge_u(x, y, z, t, u, p) + geostrophy(x, y, z, p)
-forc_v(x, y, z, t, v, p) = sponge_v(x, y, z, t, v, p)
-forc_w(x, y, z, t, w, p) = sponge_w(x, y, z, t, w, p)
-forc_b(x, y, z, t, b, p) = sponge_b(x, y, z, t, b, p)
-
-
 f_params = (; params.H, params.L, params.sponge_length_y,
             params.V∞, params.f₀, params.N²∞,)
-
-Fᵤ = Forcing(forc_u, field_dependencies = :u, parameters = merge(mask_y_params, (; f₀ = params.f_0, V∞ = params.V_inf)))
-Fᵥ = Forcing(forc_v, field_dependencies = :v, parameters = merge(mask_y_params, f_params))
-Fw = Forcing(forc_w, field_dependencies = :w, parameters = mask_y_params)
-Fb = Forcing(forc_b, field_dependencies = :b, parameters = merge(mask_y_params, f_params))
-#---
-
-#+++ Turbulence closure
-if AMD
-    closure = AnisotropicMinimumDissipation()
-else
-    closure = SmagorinskyLilly(C=0.13, Pr=1)
-end
 #---
 
 #+++ Model and ICs
@@ -267,14 +200,9 @@ end
 model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
                             advection = WENO(grid=grid_base, order=5),
                             buoyancy = buoyancy,
-                            coriolis = FPlane(params.f_0),
                             tracers = :b,
-                            closure = closure,
-                            boundary_conditions = bcs,
-                            #forcing = (u=Fᵤ, v=Fᵥ, w=Fw, b=Fb),
                            )
 @info "" model
-if has_cuda_gpu() run(`nvidia-smi`) end
 
 set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
 #---
@@ -312,13 +240,10 @@ interval_3d = 0.05*params.T_advective
 simulation.output_writers[:nc_xyz] = NetCDFOutputWriter(model, outputs;
                    filename = "$rundir/data/xyz.$(simname).nc",
                    schedule = TimeInterval(0.01*params.T_advective),
-                   array_type = Array{Float64},
                    overwrite_existing = true,
                    global_attributes = params,)
 #---
 
 #+++ Run simulations and plot video afterwards
-if has_cuda_gpu() run(`nvidia-smi`) end
-@info "Starting simulation"
 run!(simulation)
 #---
