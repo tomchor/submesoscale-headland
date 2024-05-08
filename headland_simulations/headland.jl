@@ -130,8 +130,7 @@ simulation.callbacks[:wizard] = Callback(wizard, IterationInterval(2))
 @info "" simulation
 #---
 
-δ = ∂x(u) + ∂y(v) + ∂z(w)
-outputs = (; δ, model.pressures.pNHS, model.pressures.pHY′)
+outputs = (; model.pressures.pNHS,)
 interval_3d = 0.05*params.T_advective
 simulation.output_writers[:nc_xyz] = NetCDFOutputWriter(model, outputs;
                    filename = "$rundir/data/xyz.$(simname).nc",
