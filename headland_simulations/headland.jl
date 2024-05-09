@@ -31,14 +31,6 @@ sep = "-"
 global topology, configname, modifiers... = split(simname, sep)
 #---
 
-#+++ Figure out architecture
-if has_cuda_gpu()
-    arch = GPU()
-else
-    arch = CPU()
-end
-#---
-
 #+++ Get primary simulation parameters
 include("$(@__DIR__)/siminfo.jl")
 params = getproperty(Headland(), Symbol(configname))
@@ -50,8 +42,7 @@ params = expand_headland_parameters(params)
 #---
 
 #+++ Base grid
-topo = (Bounded, Periodic, Bounded)
-grid_base = RectilinearGrid(arch, topology = topo,
+grid_base = RectilinearGrid(topology = (Bounded, Periodic, Bounded),
                             size = (14, 43, 4),
                             x = (-400, 400),
                             y = (-1000, 1000),
@@ -61,11 +52,7 @@ grid_base = RectilinearGrid(arch, topology = topo,
 #---
 
 #+++ Immersed boundary
-#include("bathymetry.jl")
-@inline η(z, p) = 2*p.L + (0 - 2*p.L) * z / (2*p.H) # headland intrusion size
-@inline headland_width(z, p) = p.β * η(z, p)
-@inline headland_x_of_yz(y, z, p) = 2*p.L - η(z, p) * exp(-(2y / headland_width(z, p))^2)
-@inline headland(x, y, z) = x > headland_x_of_yz(y, z, params)
+@inline headland(x, y, z) = x > 0
 
 GFB = GridFittedBoundary(headland)
 grid = ImmersedBoundaryGrid(grid_base, GFB)
