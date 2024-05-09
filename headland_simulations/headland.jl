@@ -43,18 +43,18 @@ params = expand_headland_parameters(params)
 
 #+++ Base grid
 grid_base = RectilinearGrid(topology = (Bounded, Periodic, Bounded),
-                            size = (14, 43, 4),
-                            x = (-400, 400),
-                            y = (-1000, 1000),
-                            z = (0, 84),
+                            size = (16, 20, 4),
+                            x = (0, 800),
+                            y = (0, 1000),
+                            z = (0, 80),
                             halo = (4,4,4),
                             )
 #---
 
 #+++ Immersed boundary
-@inline headland(x, y, z) = x > 0
+@inline east_wall(x, y, z) = x > 400
 
-GFB = GridFittedBoundary(headland)
+GFB = GridFittedBoundary(east_wall)
 grid = ImmersedBoundaryGrid(grid_base, GFB)
 #---
 
@@ -62,11 +62,7 @@ grid = ImmersedBoundaryGrid(grid_base, GFB)
 buoyancy = BuoyancyTracer()
 
 N²∞ = 6e-6
-b∞(x, y, z, t, p) = p.N²∞ * z
-#---
-
-#+++ Sponge layer definition
-f_params = (; params.H, params.L, params.sponge_length_y, params.V∞, params.f₀, N²∞,)
+b∞(x, y, z) = N²∞ * z
 #---
 
 #+++ Model and ICs
@@ -77,7 +73,7 @@ model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
                             )
 @info "" model
 
-set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=0.01)
+set!(model, b=(x, y, z) -> b∞(x, y, z), v=0.01)
 #---
 
 #+++ Create simulation
