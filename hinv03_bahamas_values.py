@@ -15,7 +15,7 @@ f = 6.6e-5 # 1/s
 
 Ro_h = V / (f * L)
 Fr_h = V / (N * H)
-S_h  = Ro_h / Fr_h
+Sb_h  = Ro_h / Fr_h
 
 ΔLa = 28 - 25.5
 ΔLo = 79.5 - 78
@@ -59,12 +59,22 @@ norm["εₖ_norm_Chor"] = norm["⟨ε̄ₖ⟩_Chor"] / ε_scale_Chor
 #---
 
 #+++ Print results
-norm = norm.sel(α=0.07)
+α_value = 0.07
+N_value = 0.01
+norm = norm.sel(α=α_value)
+Ro_h = Ro_h.sel(α=α_value)
+Fr_h = Fr_h.sel(N=N_value)
+Sb_h = Sb_h.sel(α=α_value, N=N_value)
 for V in norm.V.values:
-    print(f"\nFor V∞ = {V} m/s")
+    print(f"\n---- For V∞ = {V} m/s ----\n")
+    print(f"Gula's Roₕ = ", Ro_h.sel(V=V).item())
+    print(f"Gula's Frₕ = ", Fr_h.sel(V=V).item())
+    print(f"Gula's Sbₕ = ", Sb_h.sel(V=V).item())
+    print()
+
     print("Gula et al.'s normalized instantaneous dissipation: ", norm["εₖ_max_norm_Gula"].sel(V=V).item())
     print("Chor & Wenegrat's normalized instantaneous dissipation: ", norm["εₖ_max_norm_Chor"].item())
     print()
-    print("Gula et al.'s normalized average dissipation: ", norm["εₖ_norm_Gula"].sel(V=V).item())
-    print("Chor & Wenegrat's normalized average dissipation: ", norm["εₖ_norm_Chor"].item())
+    print("Gula et al.'s normalized average dissipation: ", norm["εₖ_norm_Gula"].sel(V=V).item(), "m²/s³")
+    print("Chor & Wenegrat's normalized average dissipation: ", norm["εₖ_norm_Chor"].item(), "m²/s³")
     print()
