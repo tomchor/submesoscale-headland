@@ -58,9 +58,13 @@ norm["⟨ε̄ₖ⟩_Chor"] = norm["∫∫∫ε̄ₖdxdydz_Chor"] / ΔV_Chor
 norm["εₖ_norm_Chor"] = norm["⟨ε̄ₖ⟩_Chor"] / ε_scale_Chor
 #---
 
-print()
-print("Gula et al.'s normalized instantaneous dissipation: ", norm["εₖ_max_norm_Gula"].sel(V=1, α=0.07).item())
-print("Chor & Wenegrat's normalized instantaneous dissipation: ", norm["εₖ_max_norm_Chor"].item())
-print()
-print("Gula et al.'s normalized average dissipation: ", norm["εₖ_norm_Gula"].sel(V=1, α=0.07).item())
-print("Chor & Wenegrat's normalized average dissipation: ", norm["εₖ_norm_Chor"].item())
+#+++ Print results
+norm = norm.sel(α=0.07)
+for V in norm.V.values:
+    print(f"\nFor V∞ = {V} m/s")
+    print("Gula et al.'s normalized instantaneous dissipation: ", norm["εₖ_max_norm_Gula"].sel(V=V).item())
+    print("Chor & Wenegrat's normalized instantaneous dissipation: ", norm["εₖ_max_norm_Chor"].item())
+    print()
+    print("Gula et al.'s normalized average dissipation: ", norm["εₖ_norm_Gula"].sel(V=V).item())
+    print("Chor & Wenegrat's normalized average dissipation: ", norm["εₖ_norm_Chor"].item())
+    print()
