@@ -2,7 +2,7 @@ import xarray as xr
 from matplotlib import pyplot as plt
 from matplotlib.colors import SymLogNorm
 
-ds = xr.load_dataset("xyz.NPN-TEST-f32.nc", decode_times=False).squeeze()
+ds = xr.load_dataset("test_pressure.nc", decode_times=False).squeeze()
 
 ds.pNHS.std(("xC", "yC", "zC")).plot()
 
