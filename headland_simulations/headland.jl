@@ -29,33 +29,6 @@ rundir = "$(DrWatson.findproject())/headland_simulations"
 #+++ Figure out name, dimensions, modifier, etc
 sep = "-"
 global topology, configname, modifiers... = split(simname, sep)
-global AMD = "AMD" in modifiers ? true : false
-global DNS = "DNS" in modifiers ? true : false
-global f2  = "f2"  in modifiers ? true : false
-global f4  = "f4"  in modifiers ? true : false
-global f8  = "f8"  in modifiers ? true : false
-global f16 = "f16" in modifiers ? true : false
-global f32 = "f32" in modifiers ? true : false
-global f64 = "f64" in modifiers ? true : false
-global south = "S" in modifiers ? true : false
-#---
-
-#+++ Modify factor accordingly
-if f2
-    factor = 2
-elseif f4
-    factor = 4
-elseif f8
-    factor = 8
-elseif f16
-    factor = 16
-elseif f32
-    factor = 32
-elseif f64
-    factor = 64
-else
-    factor = 1
-end
 #---
 
 #+++ Figure out architecture
@@ -88,7 +61,10 @@ grid_base = RectilinearGrid(arch, topology = topo,
 #---
 
 #+++ Immersed boundary
-include("bathymetry.jl")
+#include("bathymetry.jl")
+@inline η(z, p) = 2*p.L + (0 - 2*p.L) * z / (2*p.H) # headland intrusion size
+@inline headland_width(z, p) = p.β * η(z, p)
+@inline headland_x_of_yz(y, z, p) = 2*p.L - η(z, p) * exp(-(2y / headland_width(z, p))^2)
 @inline headland(x, y, z) = x > headland_x_of_yz(y, z, params)
 
 GFB = GridFittedBoundary(headland)
@@ -98,23 +74,23 @@ grid = ImmersedBoundaryGrid(grid_base, GFB)
 #+++ Buoyancy model and background
 buoyancy = BuoyancyTracer()
 
+N²∞ = 6e-6
 b∞(x, y, z, t, p) = p.N²∞ * z
 #---
 
 #+++ Sponge layer definition
-f_params = (; params.H, params.L, params.sponge_length_y, params.V∞, params.f₀, params.N²∞,)
+f_params = (; params.H, params.L, params.sponge_length_y, params.V∞, params.f₀, N²∞,)
 #---
 
 #+++ Model and ICs
 @info "Creating model"
 model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
-                            advection = WENO(grid=grid_base, order=5),
                             buoyancy = buoyancy,
                             tracers = :b,
                             )
 @info "" model
 
-set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
+set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=0.01)
 #---
 
 #+++ Create simulation
@@ -124,17 +100,16 @@ simulation = Simulation(model, Δt=0.2*minimum_zspacing(grid.underlying_grid)/pa
                         wall_time_limit=23.2hours,
                         )
 
-wizard = TimeStepWizard(max_change=1.05, min_change=0.2, cfl=0.5, min_Δt=1e-4, max_Δt=1/√params.N²∞)
+wizard = TimeStepWizard(max_change=1.05, min_change=0.2, cfl=0.5, min_Δt=1e-4, max_Δt=1/√N²∞)
 simulation.callbacks[:wizard] = Callback(wizard, IterationInterval(2))
 
 @info "" simulation
 #---
 
 outputs = (; model.pressures.pNHS,)
-interval_3d = 0.05*params.T_advective
 simulation.output_writers[:nc_xyz] = NetCDFOutputWriter(model, outputs;
                    filename = "$rundir/data/xyz.$(simname).nc",
-                   schedule = TimeInterval(0.01*params.T_advective),
+                   schedule = TimeInterval(200),
                    overwrite_existing = true,)
 
 run!(simulation)
