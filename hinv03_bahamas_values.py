@@ -28,15 +28,20 @@ S_h  = Ro_h / Fr_h
 
 ε_scale_Gula = V**3 / L
 
-bulk = xr.Dataset()
-bulk["ρ∫∫∫ε̄ₖdxdydz_Gula"] = 0.5e9 # W
+norm = xr.Dataset()
+
+norm["εₖ_max_Gula"] = 1e-5
+norm["εₖ_max_norm_Gula"] = norm["εₖ_max_Gula"] / ε_scale_Gula
+
+# Reminder: 1 Watt = kg m² / s³
+norm["ρ∫∫∫ε̄ₖdxdydz_Gula"] = 0.5e9 # W
 ρ = 1000
-bulk["∫∫∫ε̄ₖdxdydz_Gula"] = bulk["ρ∫∫∫ε̄ₖdxdydz_Gula"] / ρ
-bulk["⟨ε̄ₖ⟩_Gula"] = bulk["∫∫∫ε̄ₖdxdydz_Gula"] / ΔV_Gula
-bulk["ε_norm_Gula"] = bulk["⟨ε̄ₖ⟩_Gula"] / ε_scale_Gula
+norm["∫∫∫ε̄ₖdxdydz_Gula"] = norm["ρ∫∫∫ε̄ₖdxdydz_Gula"] / ρ
+norm["⟨ε̄ₖ⟩_Gula"] = norm["∫∫∫ε̄ₖdxdydz_Gula"] / ΔV_Gula
+norm["εₖ_norm_Gula"] = norm["⟨ε̄ₖ⟩_Gula"] / ε_scale_Gula
 #---
 
-#+++
+#+++ Chor and Wenegrat's results
 Δx_Chor = (800 + 400) # m
 Δy_Chor = 3000 # m
 Δz_Chor = 84 # m
@@ -44,14 +49,18 @@ bulk["ε_norm_Gula"] = bulk["⟨ε̄ₖ⟩_Gula"] / ε_scale_Gula
 
 ε_scale_Chor = 0.01**3 / 400 # (m/s)³ / m
 
-bulk["∫∫∫ε̄ₖdxdydz_Chor"] = 1e-2 # W m³ / kg
-bulk["ρ∫∫∫ε̄ₖdxdydz_Chor"] = ρ * bulk["∫∫∫ε̄ₖdxdydz_Chor"]
-bulk["⟨ε̄ₖ⟩_Chor"] = bulk["∫∫∫ε̄ₖdxdydz_Chor"] / ΔV_Chor
-bulk["ε_norm_Chor"] = bulk["⟨ε̄ₖ⟩_Chor"] / ε_scale_Chor
-# 1 Watt = kg m² / s³
+norm["εₖ_max_Chor"] = 1e-8
+norm["εₖ_max_norm_Chor"] = norm["εₖ_max_Chor"] / ε_scale_Chor
 
-print("Gula et al.'s average dissipation: ", bulk["⟨ε̄ₖ⟩_Gula"])
-print("Chor & Wenegrat's average dissipation: ", bulk["⟨ε̄ₖ⟩_Chor"])
+norm["∫∫∫ε̄ₖdxdydz_Chor"] = 1e-2 # W m³ / kg
+norm["ρ∫∫∫ε̄ₖdxdydz_Chor"] = ρ * norm["∫∫∫ε̄ₖdxdydz_Chor"]
+norm["⟨ε̄ₖ⟩_Chor"] = norm["∫∫∫ε̄ₖdxdydz_Chor"] / ΔV_Chor
+norm["εₖ_norm_Chor"] = norm["⟨ε̄ₖ⟩_Chor"] / ε_scale_Chor
+#---
+
 print()
-print("Gula et al.'s normalized average dissipation: ", bulk["ε_norm_Gula"])
-print("Chor & Wenegrat's normalized average dissipation: ", bulk["ε_norm_Chor"])
+print("Gula et al.'s normalized instantaneous dissipation: ", norm["εₖ_max_norm_Gula"].sel(V=1, α=0.07).item())
+print("Chor & Wenegrat's normalized instantaneous dissipation: ", norm["εₖ_max_norm_Chor"].item())
+print()
+print("Gula et al.'s normalized average dissipation: ", norm["εₖ_norm_Gula"].sel(V=1, α=0.07).item())
+print("Chor & Wenegrat's normalized average dissipation: ", norm["εₖ_norm_Chor"].item())
