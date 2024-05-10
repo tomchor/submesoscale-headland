@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 g = 9.81 # m/s²
 ρ0 = 1000 # kg/m³
+# Reminder: 1 Watt = kg m² / s³
 
 #+++ Gula et al.'s results
 α_array_Gula = np.array([0.07, 0.1, 0.2])
@@ -16,9 +17,9 @@ V_Gula = xr.DataArray(V_array_Gula, dims=["V"], coords=dict(V=V_array_Gula))
 N_Gula = xr.DataArray(N_array_Gula, dims=["N"], coords=dict(N=N_array_Gula))
 f_Gula = 6.6e-5 # 1/s
 
-Ro_h = V_Gula / (f_Gula * L_Gula)
-Fr_h = V_Gula / (N_Gula * H_Gula)
-Sb_h  = Ro_h / Fr_h
+Ro_h_Gula = V_Gula / (f_Gula * L_Gula)
+Fr_h_Gula = V_Gula / (N_Gula * H_Gula)
+Sb_h_Gula  = Ro_h_Gula / Fr_h_Gula
 
 ΔLa = 28 - 25.5
 ΔLo = 79.5 - 78
@@ -35,7 +36,6 @@ norm = xr.Dataset()
 norm["εₖ_max_Gula"] = 1e-5
 norm["εₖ_max_norm_Gula"] = norm["εₖ_max_Gula"] / ε_scale_Gula
 
-# Reminder: 1 Watt = kg m² / s³
 norm["ρ∫∫∫ε̄ₖdxdydz_Gula"] = 0.5e9 # W
 ρ = 1000
 norm["∫∫∫ε̄ₖdxdydz_Gula"] = norm["ρ∫∫∫ε̄ₖdxdydz_Gula"] / ρ
@@ -62,9 +62,14 @@ V_Nagai = xr.DataArray(V_array_Nagai, dims=["V"], coords=dict(V=V_array_Nagai))
 N_Nagai = xr.DataArray(N_array_Nagai, dims=["N"], coords=dict(N=N_array_Nagai))
 f_Nagai = 7.3e-5 # 1/s
 
-Ro_h = V_Nagai / (f_Nagai * L_Nagai)
-Fr_h = V_Nagai / (N_Nagai * H_Nagai)
-Sb_h  = Ro_h / Fr_h
+Ro_h_Nagai = V_Nagai / (f_Nagai * L_Nagai)
+Fr_h_Nagai = V_Nagai / (N_Nagai * H_Nagai)
+Sb_h_Nagai = Ro_h_Nagai / Fr_h_Nagai
+
+ε_scale_Nagai = V_Nagai**3 / L_Nagai
+
+norm["εₖ_max_Nagai"] = 1e-7
+norm["εₖ_max_norm_Nagai"] = norm["εₖ_max_Nagai"] / ε_scale_Nagai
 pause
 #---
 
