@@ -15,8 +15,10 @@ b∞(x, y, z) = N² * z
 set!(model, b=b∞)
 
 simulation = Simulation(model, Δt=25, stop_time=1e4,)
-simulation.output_writers[:nc_xyz] = NetCDFOutputWriter(model, (; model.pressures.pNHS,),
-                                                        filename = "test_pressure.nc",
-                                                        schedule = TimeInterval(100),
-                                                        overwrite_existing = true,)
+Δt(model) = model.clock.last_Δt
+simulation.output_writers[:snaps] = NetCDFOutputWriter(model, (; model.pressures.pNHS, dpdx=∂x(model.pressures.pNHS), Δt=Δt),
+                                                       filename = "test_pressure.nc",
+                                                       schedule = TimeInterval(100),
+                                                       dimensions = (; Δt = ()),
+                                                       overwrite_existing = true,)
 run!(simulation)
