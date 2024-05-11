@@ -51,8 +51,7 @@ for modifier in modifiers:
     simnames = [ simname_base + modifier for simname_base in simnames_base ]
     exec(open("h03_collect_snapshots.py").read())
 
-print("\nStarting hvid00", modifier)
-simnames = [ simname_base + modifier for simname_base in simnames_base ]
+print("\nStarting hvid00")
 
 #+++ Options for hvid00
 parallel = True
@@ -71,7 +70,7 @@ varnames = ["PV_norm",]
 contour_variable_name = None #"water_mask_buffered"
 #---
 
-aux_modifiers = [ modifier.replace("-", "") if modifier != "" else "f1" for modifier in modifiers ]
+aux_modifiers = [ modifier.replace("-", "", 1) if modifier != "" else "f1" for modifier in modifiers ]
 arglist = ["--parallel" if parallel else "",
            "--animate" if animate else "",
            "--test" if test else "",
