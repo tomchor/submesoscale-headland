@@ -35,7 +35,7 @@ for buffer in bulk.buffer.values:
     bulkb = bulk.sel(buffer=buffer)
     #+++ Create figure
     nrows = len(variables)
-    ncols = 2
+    ncols = 1
     size = 3
     fig, axes = plt.subplots(ncols=ncols, nrows=nrows,
                              figsize = (2*ncols*size, nrows*size),
@@ -62,7 +62,7 @@ for buffer in bulk.buffer.values:
 
                 if ncols >=2:
                     if (bulk_RF.Slope_Bu>1):
-                        print(bulk_RF.Ro_h.values, bulk_RF.Fr_h.values, bulk_RF.Slope_Bu.values)
+                        #print(bulk_RF.Ro_h.values, bulk_RF.Fr_h.values, bulk_RF.Slope_Bu.values)
                         ax=ax_row[1]
                         bulk1[variable].pnplot(ax=ax, x="y", color=cmap(S_normalized))
                         ax.set_xlim(-1, 4)
