@@ -51,41 +51,39 @@ for modifier in modifiers:
     simnames = [ simname_base + modifier for simname_base in simnames_base ]
     exec(open("h03_collect_snapshots.py").read())
 
-for modifier in modifiers:
-    print("\nStarting hvid00", modifier)
-    simnames = [ simname_base + modifier for simname_base in simnames_base ]
+print("\nStarting hvid00")
 
-    #+++ Options for hvid00
-    parallel = True
-    animate = True
-    test = False
-    time_avg = False
-    summarize = False
-    zoom = False
-    plotting_time = 23
-    figdir = "figures_check"
+#+++ Options for hvid00
+parallel = True
+animate = True
+test = False
+time_avg = False
+summarize = False
+zoom = False
+plotting_time = 23
+figdir = "figures_check"
 
-    slice_names = ["xyi",]
+slice_names = ["xyi",]
 
-    varnames = ["PV_norm", "Ro", "εₖ"]
-    varnames = ["PV_norm",]
-    contour_variable_name = None #"water_mask_buffered"
-    #---
+varnames = ["PV_norm", "Ro", "εₖ"]
+varnames = ["PV_norm",]
+contour_variable_name = None #"water_mask_buffered"
+#---
 
-    arglist = ["--parallel" if parallel else "",
-               "--animate" if animate else "",
-               "--test" if test else "",
-               "--time_avg" if time_avg else "",
-               "--summarize" if summarize else "",
-               "--zoom" if zoom else "",
-               "--plotting_time", str(plotting_time),
-               "--figdir", figdir,
-               "--slice_names", *slice_names,
-               "--varnames", *varnames,
-               "--contour_variable_name" if contour_variable_name is not None else "",
-               ]
-    arglist = [ item for item in arglist if item != "" ]
-    print("Using arguments", arglist)
-    import os
-    os.system(" ".join(["python", "hvid00_facetgrid.py", *arglist]))
-    #subprocess.run(["python", "hvid00_facetgrid.py", *arglist])
+aux_modifiers = [ modifier.replace("-", "", 1) if modifier != "" else "f1" for modifier in modifiers ]
+arglist = ["--parallel" if parallel else "",
+           "--animate" if animate else "",
+           "--test" if test else "",
+           "--time_avg" if time_avg else "",
+           "--summarize" if summarize else "",
+           "--zoom" if zoom else "",
+           "--plotting_time", str(plotting_time),
+           "--figdir", figdir,
+           "--slice_names", *slice_names,
+           "--varnames", *varnames,
+           "--modifiers", *aux_modifiers,
+           "--contour_variable_name" if contour_variable_name is not None else "",
+           ]
+arglist = [ item for item in arglist if item != "" ]
+print("Using arguments", arglist)
+subprocess.run(["/glade/u/home/tomasc/miniconda3/envs/py310/bin/python", "hvid00_facetgrid.py", *arglist])

@@ -8,6 +8,7 @@ from aux00_utils import open_simulation
 from aux02_plotting import letterize
 
 modifiers = ["", "-S"]
+variable_xy = "PV_norm"
 variables = ["PV_norm", "εₖ"]
 Fr_h = 0.2
 Ro_h = 0.2
@@ -56,6 +57,7 @@ for modifier in modifiers:
                           "v"         : dict(vmin=-1.2*xyz.V_inf, vmax=1.2*xyz.V_inf, cmap=cm.balance),
                           "wb"        : dict(vmin=-1e-8, vmax=+1e-8, cmap=cm.balance),
                           "Kb"        : dict(vmin=-1e-1, vmax=+1e-1, cmap=cm.balance),
+                          "ω_y"       : dict(vmin=-3e-3, vmax=+3e-3, cmap=cm.balance),
                           }
     #---
 
@@ -68,6 +70,7 @@ for modifier in modifiers:
 
     ds_xz.PV_norm.attrs = dict(long_name=r"Ertel PV / $N^2_\infty f_0$")
     ds_xz["εₖ"].attrs = dict(long_name=r"$\varepsilon_k$ [m²/s³]")
+    ds_xz["ω_y"].attrs = dict(long_name=r"$y$-vorticity [1/s]")
     ds_xz.xC.attrs["long_name"] = "$x$"
     ds_xz.zC.attrs["long_name"] = "$z$"
     #---
@@ -109,9 +112,8 @@ for modifier in modifiers:
         fig.subplots_adjust(right=0.8,)
         ax = fig.add_axes((0.86, 0.1, 0.12, 0.85))
 
-        variable = variables[0]
         ds_xy = xyz.sel(zC=40, method="nearest")
-        ds_xy[variable].pnplot(ax=ax, x="x", add_colorbar=False, rasterized=True, **plot_kwargs_by_var[variable])
+        ds_xy[variable_xy].pnplot(ax=ax, x="x", add_colorbar=False, rasterized=True, **plot_kwargs_by_var[variable_xy])
 
         ax.set_title(f"z = {ds_xy.zC.values:.2f} m")
         ax.set_xlabel("x [m]")
@@ -129,6 +131,6 @@ for modifier in modifiers:
     #+++ Save
     print("saving...")
     letterize(np.array([*axes.flatten(), ax]), x=0.05, y=0.9)
-    fig.savefig(f"figures/{variable}_progression_{simname}.pdf", dpi=200)
+    fig.savefig(f"figures/{variable_xy}_progression_{simname}.pdf", dpi=200)
     print()
     #---
