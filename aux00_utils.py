@@ -20,6 +20,24 @@ simnames = ["NPN-R008F008",
             "NPN-R1F05",
             "NPN-R1F1",
             ]
+
+threed_sims = ["R1F1",
+               "R05F05",
+               ]
+
+bathfo_sims = ["R008F1",
+               "R008F05",
+               "R02F1",
+               ]
+
+vertco_sims = ["R008F008",
+               "R02F02",
+               ]
+
+vertsh_sims = ["R05F008",
+               "R1F008",
+               "R1F02",
+               ]
 #---
 
 #+++ Open simulation following the standard way
