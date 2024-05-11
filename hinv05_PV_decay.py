@@ -14,13 +14,16 @@ tafields = xr.open_dataset(f"data_post/tafields_snaps{modifier}.nc", chunks={})
 tafields = tafields.sel(yC=slice(-tafields.L/2, np.inf))
 tafields = tafields.reindex(Ro_h = list(reversed(tafields.Ro_h)))
 
-tafields["Slope_Bu"] = tafields.Ro_h / tafields.Fr_h
-average_CSI_wake_mask = tafields.average_CSI_mask & (tafields.altitude>30)
+average_CSI_wake_mask = tafields.average_CSI_mask & (tafields.xC < 2*tafields.L - 30) & (tafields.altitude > 5)
+tafields["q̄"] = tafields["q̄"].where(average_CSI_wake_mask)
 
-q̂_min = (tafields.q̄.where(average_CSI_wake_mask).sel(yC=slice(-tafields.L/2, +tafields.L/2)).pnmin(("x", "y")) / (tafields["f₀"] * tafields["N²∞"])) # Close to headland tip
-q̂_minx = tafields.q̄.where(average_CSI_wake_mask).pnmin("x") / (tafields["f₀"] * tafields["N²∞"])
-q̂_mean = tafields.q̄.where(average_CSI_wake_mask).pnmean("x") / (tafields["f₀"] * tafields["N²∞"])
-q̂_minnorm = tafields.q̄.where(average_CSI_wake_mask) / (tafields.q̄.where(average_CSI_wake_mask).min())
+tafields["Slope_Bu"] = tafields.Ro_h / tafields.Fr_h
+#tafields = tafields.where((tafields.Slope_Bu > 1) | ((tafields.Ro_h<=0.2) & (tafields.Slope_Bu == 1)))
+tafields = tafields.where(tafields.Slope_Bu > 1)
+
+q̂_min = (tafields.q̄.sel(yC=slice(-tafields.L/2, +tafields.L/2)).pnmin(("x", "y")) / (tafields["f₀"] * tafields["N²∞"])) # Close to headland tip
+q̂_minx = tafields.q̄.pnmin("x") / (tafields["f₀"] * tafields["N²∞"])
+q̂_mean = tafields.q̄.pnmean("x") / (tafields["f₀"] * tafields["N²∞"])
 
 #+++ Create figure
 nrows = 2
@@ -42,9 +45,9 @@ for Ro_h in tafields.Ro_h:
         q̂_mean_RF = q̂_mean.sel(Ro_h=Ro_h, Fr_h=Fr_h)
 
         #+++ Get distance norm
-        q̂_min0 = q̂_min.sel(Ro_h=Ro_h, Fr_h=Fr_h)
+        q̂_min_Ro_Fr = q̂_min.sel(Ro_h=Ro_h, Fr_h=Fr_h)
         S_normalized = (np.log10(tafields_RF.Slope_Bu) - np.log10(tafields.Slope_Bu).min()) / (2*np.log10(tafields.Slope_Bu).max())
-        L_C = tafields_RF.V_inf * np.sqrt(-q̂_min0) / tafields_RF["f₀"]
+        L_C = tafields_RF.V_inf * np.sqrt(-q̂_min_Ro_Fr) / tafields_RF["f₀"]
         #---
 
         if (tafields_RF.Slope_Bu>1):
@@ -59,7 +62,8 @@ for Ro_h in tafields.Ro_h:
         else:
             continue
 
-        y_min = q̂_minx_RF.yC.isel(yC=q̂_minx_RF.argmin().values).values # Value of y where the minimum happens
+        #y_min = q̂_minx_RF.yC.isel(yC=q̂_minx_RF.argmin().values).values # Value of y where the minimum happens
+        y_min = q̂_minx.where((q̂_minx == q̂_minx_RF.min()).compute(), drop=True).yC[0].values
         y_norm = (tafields_RF.yC.values - y_min) / L_C.values
 
         (q̂_minx_RF/q̂_minx_RF.min()).assign_coords(yC=y_norm).pnplot(ax=ax1, x="y", color=cmap(S_normalized))
