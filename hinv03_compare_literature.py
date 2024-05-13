@@ -43,6 +43,30 @@ Gula["⟨ε̄ₖ⟩"] = Gula["∫∫∫ε̄ₖdxdydz"] / ΔV_Gula
 Gula["εₖ_norm"] = Gula["⟨ε̄ₖ⟩"] / Gula.ε_scale
 #---
 
+#+++ Srinivasan et alia (2021)'s results
+α_array_Sri21 = np.array([0.05])
+V_array_Sri21 = np.array([0.1,]) # m
+N_array_Sri21 = np.array([6e-3,]) # 1/s
+
+α_Sri21 = xr.DataArray(α_array_Sri21, dims=["α"], coords=dict(α=α_array_Sri21))
+H_Sri21 = 400 # m; half the total depth, which is ≈ 800 m
+L_Sri21 = H_Sri21 / α_Sri21 # m; half the intrusion length at the bottom (approx between 4 and 8 km for the bahamas)
+V_Sri21 = xr.DataArray(V_array_Sri21, dims=["V"], coords=dict(V=V_array_Sri21))
+N_Sri21 = xr.DataArray(N_array_Sri21, dims=["N"], coords=dict(N=N_array_Sri21))
+f_Sri21 = 1.25e-5 # 1/s
+
+Sri21 = xr.Dataset()
+
+Sri21["Ro_h"] = V_Sri21 / (f_Sri21 * L_Sri21)
+Sri21["Fr_h"] = V_Sri21 / (N_Sri21 * H_Sri21)
+Sri21["Sb_h"] = Sri21.Ro_h / Sri21.Fr_h
+
+Sri21["ε_scale"] = V_Sri21**3 / L_Sri21
+
+Sri21["εₖ_max"] = 1e-9
+Sri21["εₖ_max_norm"] = Sri21["εₖ_max"] / Sri21.ε_scale
+#---
+
 #+++ Nagai et alia's results
 α_array_Nagai = np.array([0.05, 0.1, 0.2])
 V_array_Nagai = np.array([0.5, 1]) # m
@@ -98,26 +122,31 @@ Chor["εₖ_norm"] = Chor["⟨ε̄ₖ⟩"] / Chor.ε_scale
 
 #+++ Print results
 N_value = 0.01
+V_value = 0.5
 α_value_Gula = 0.07
-Gula = Gula.sel(α=α_value_Gula, N=N_value)
+Gula = Gula.sel(α=α_value_Gula, V=V_value, N=N_value)
 
 α_value_Nagai = 0.2
-Nagai = Nagai.sel(α=α_value_Nagai, N=N_value, method="nearest")
+Nagai = Nagai.sel(α=α_value_Nagai, V=V_value, N=N_value, method="nearest")
 
-for V in Gula.V.values:
-    print(f"\n---- For V∞ = {V} m/s ----\n")
-    print(f"Gula's Roₕ = ", Gula.Ro_h.sel(V=V).item())
-    print(f"Gula's Frₕ = ", Gula.Fr_h.sel(V=V).item())
-    print(f"Gula's Sbₕ = ", Gula.Sb_h.sel(V=V).item())
-    print()
-    print(f"Nagai's Roₕ = ", Nagai.Ro_h.sel(V=V).item())
-    print(f"Nagai's Frₕ = ", Nagai.Fr_h.sel(V=V).item())
-    print(f"Nagai's Sbₕ = ", Nagai.Sb_h.sel(V=V).item())
-    print()
+print(f"Gula's Roₕ = ", Gula.Ro_h.item())
+print(f"Gula's Frₕ = ", Gula.Fr_h.item())
+print(f"Gula's Sbₕ = ", Gula.Sb_h.item())
+print()
+print(f"Srinivasan (2021)'s Roₕ = ", Sri21.Ro_h.item())
+print(f"Srinivasan (2021)'s Frₕ = ", Sri21.Fr_h.item())
+print(f"Srinivasan (2021)'s Sbₕ = ", Sri21.Sb_h.item())
+print()
+print(f"Nagai's Roₕ = ", Nagai.Ro_h.item())
+print(f"Nagai's Frₕ = ", Nagai.Fr_h.item())
+print(f"Nagai's Sbₕ = ", Nagai.Sb_h.item())
+print()
 
-    print("Gula et al.'s normalized instantaneous dissipation: ", Gula["εₖ_max_norm"].sel(V=V).item())
-    print("Chor & Wenegrat's normalized instantaneous dissipation: ", Chor["εₖ_max_norm"].item())
-    print()
-    print("Gula et al.'s normalized average dissipation: ", Gula["εₖ_norm"].sel(V=V).item(), "m²/s³")
-    print("Chor & Wenegrat's normalized average dissipation: ", Chor["εₖ_norm"].item(), "m²/s³")
-    print()
+print("Gula et al.'s normalized instantaneous dissipation: ", Gula["εₖ_max_norm"].item())
+print("Srinivasan Gula et alia (2021)'s normalized instantaneous dissipation: ", Sri21["εₖ_max_norm"].item())
+print("Nagai et al.'s normalized instantaneous dissipation: ", Nagai["εₖ_max_norm"].item())
+print("Chor & Wenegrat's normalized instantaneous dissipation: ", Chor["εₖ_max_norm"].item())
+print()
+print("Gula et al.'s normalized average dissipation: ", Gula["εₖ_norm"].item(), "m²/s³")
+print("Chor & Wenegrat's normalized average dissipation: ", Chor["εₖ_norm"].item(), "m²/s³")
+print()
