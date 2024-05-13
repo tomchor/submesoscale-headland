@@ -15,8 +15,10 @@ bulk = xr.open_dataset(f"data_post/bulkstats_snaps{modifier}.nc", chunks={})
 bulk = bulk.reindex(Ro_h = list(reversed(bulk.Ro_h)))
 
 variables = ["⟨ε̄ₖ⟩ˣᶻ", "⟨ε̄ₚ⟩ˣᶻ"]
+#variables = ["⟨ε̄ₖ⟩ˣᶻ", "⟨ε̄ₚ⟩ˣᶻ", "⟨⟨Ek′⟩ₜ⟩ˣᶻ"]
 bulk["⟨ε̄ₖ⟩ˣᶻ"].attrs = dict(units="m²/s³")
 bulk["⟨ε̄ₚ⟩ˣᶻ"].attrs = dict(units="m²/s³")
+bulk["⟨⟨Ek′⟩ₜ⟩ˣᶻ"].attrs = dict(units="m²/s²")
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
 bulk.yC.attrs =  dict(long_name=r"$y$", units="m")
 average_CSI_wake_mask = tafields.average_CSI_mask & (tafields.altitude>30)
@@ -33,11 +35,11 @@ for buffer in bulk.buffer.values:
     bulkb = bulk.sel(buffer=buffer)
     #+++ Create figure
     nrows = len(variables)
-    ncols = 2
+    ncols = 1
     size = 3
     fig, axes = plt.subplots(ncols=ncols, nrows=nrows,
                              figsize = (2*ncols*size, nrows*size),
-                             sharex = "col", sharey = True,
+                             sharex = "col", sharey = "row",
                              squeeze = False,
                              constrained_layout=True)
     axesf = axes.flatten()
@@ -60,7 +62,7 @@ for buffer in bulk.buffer.values:
 
                 if ncols >=2:
                     if (bulk_RF.Slope_Bu>1):
-                        print(bulk_RF.Ro_h.values, bulk_RF.Fr_h.values, bulk_RF.Slope_Bu.values)
+                        #print(bulk_RF.Ro_h.values, bulk_RF.Fr_h.values, bulk_RF.Slope_Bu.values)
                         ax=ax_row[1]
                         bulk1[variable].pnplot(ax=ax, x="y", color=cmap(S_normalized))
                         ax.set_xlim(-1, 4)
@@ -72,10 +74,11 @@ for buffer in bulk.buffer.values:
                             ax.set_xlim(-1, 20)
 
 
-    norm = LogNorm(vmin=bulkb.Slope_Bu.min().values, vmax=bulkb.Slope_Bu.max().values)
-    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-    sm.set_array([])
-    plt.colorbar(sm, ax=ax, label = "Slope Burger number")
+    for ax in axes[:,0]:
+        norm = LogNorm(vmin=bulkb.Slope_Bu.min().values, vmax=bulkb.Slope_Bu.max().values)
+        sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+        sm.set_array([])
+        plt.colorbar(sm, ax=ax, label = "Slope Burger number")
 
     #+++ Prettify and save
     for ax_row in axes:

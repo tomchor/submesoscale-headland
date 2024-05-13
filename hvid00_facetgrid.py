@@ -119,10 +119,10 @@ else:
         plotting_time = 23
         figdir = "figures"
 
-        slice_names = ["xyi",]
-        aux_modifiers = ["f2",]
+        slice_names = ["iyz",]
+        aux_modifiers = ["",]
 
-        varnames = ["uᵢGᵢ"]
+        varnames = ["v"]
         contour_variable_name = None #"water_mask_buffered"
         contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
         #---
@@ -145,7 +145,7 @@ else:
         contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
         #---
 
-    modifiers = [ f"-{modifier}" if modifier != "f1" else "" for modifier in aux_modifiers ]
+    modifiers = [ f"-{modifier}" if (modifier != "f1" and modifier != "") else "" for modifier in aux_modifiers ]
     #---
 
 
