@@ -27,7 +27,7 @@ bulk["⟨ε̄ₚ⟩ˣᶻ²"] = bulk["⟨ε̄ₚ⟩ᵋʷ"] * tafields["∫∫ᵋ1
 #---
 
 
-variables = ["⟨ε̄ₖ⟩ˣᶻ", "⟨ε̄ₖ⟩ˣᶻ²", "⟨ε̄ₚ⟩ˣᶻ",]
+variables = ["⟨ε̄ₖ⟩ˣᶻ", "⟨ε̄ₚ⟩ˣᶻ",]
 bulk["⟨ε̄ₖ⟩ˣᶻ"].attrs = dict(units="m²/s³")
 bulk["⟨ε̄ₚ⟩ˣᶻ"].attrs = dict(units="m²/s³")
 bulk["⟨⟨Ek′⟩ₜ⟩ˣᶻ"].attrs = dict(units="m²/s²")
