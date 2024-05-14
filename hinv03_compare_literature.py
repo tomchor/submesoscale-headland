@@ -126,7 +126,7 @@ V_value = 0.5
 α_value_Gula = 0.07
 Gula = Gula.sel(α=α_value_Gula, V=V_value, N=N_value)
 
-α_value_Nagai = 0.2
+α_value_Nagai = 0.1
 Nagai = Nagai.sel(α=α_value_Nagai, V=V_value, N=N_value, method="nearest")
 
 print(f"Gula's Roₕ = ", Gula.Ro_h.item())
