@@ -159,7 +159,7 @@ for modifier in modifiers:
         ncname = f"data_post/{slice_name}_snaps{modifier}.nc"
         if __name__ == "__main__": print(f"\nOpening {ncname}")
         snaps = xr.open_dataset(ncname)
-        if (not animate) and (not time_avg):
+        if (not animate) and (not time_avg) and ("time" in snaps.coords.keys()):
             snaps = snaps.sel(time=[plotting_time], method="nearest")
 
         if summarize:
