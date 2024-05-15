@@ -76,9 +76,12 @@ def manual_facetgrid(da, fig, tt=None,
                     ax.text(0.05, 0.9, f"({alphabet.pop(0)})\n$Bu_h=${Bu_h:.3g}", transform=ax.transAxes, bbox=bbox, zorder=1e3, fontsize=7)
     #---
  
-    label = da.long_name if "long_name" in da.attrs.keys() else da.longname if "longname" in da.attrs else da.name
-    label += f" [{da.units}]" if "units" in da.attrs else ""
-    fig.colorbar(im, ax=axes.ravel().tolist(), label=label, **cbar_kwargs)
+    if "label" not in cbar_kwargs.keys():
+        label = da.long_name if "long_name" in da.attrs.keys() else da.longname if "longname" in da.attrs else da.name
+        label += f" [{da.units}]" if "units" in da.attrs else ""
+        fig.colorbar(im, ax=axes.ravel().tolist(), label=label, **cbar_kwargs)
+    else:
+        fig.colorbar(im, ax=axes.ravel().tolist(), **cbar_kwargs)
     fig.get_layout_engine().set(w_pad=0.02, h_pad=0, hspace=0, wspace=0)
 
     return axes, fig
