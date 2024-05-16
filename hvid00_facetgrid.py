@@ -52,6 +52,11 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       "R_SPv2"    : dict(cmap=cm.balance, vmin=0, vmax=1),
                       "R_SPh"     : dict(cmap=cm.balance, vmin=0, vmax=1),
                       }
+
+label_dict = {"ε̄ₖ"     : r"Time-averaged KE dissipation rate $\bar\varepsilon_k$ [m²/s³]",
+              "Ro"     : r"$Ro$ [vertical vorticity / $f_0$]",
+              "q̃_norm" : r"Normalized filtered Ertel PV",
+              }
 #---
 
 #+++ Dynamic options
@@ -159,7 +164,7 @@ for modifier in modifiers:
         ncname = f"data_post/{slice_name}_snaps{modifier}.nc"
         if __name__ == "__main__": print(f"\nOpening {ncname}")
         snaps = xr.open_dataset(ncname)
-        if (not animate) and (not time_avg):
+        if (not animate) and (not time_avg) and ("time" in snaps.coords.keys()):
             snaps = snaps.sel(time=[plotting_time], method="nearest")
 
         if summarize:
@@ -286,6 +291,11 @@ for modifier in modifiers:
                 if __name__ == '__main__': print(f"Skipping {slice_name} slices of {var} since they don't seem to be in the file.")
                 continue
 
+            if var in label_dict.keys():
+                cbar_kwargs["label"] = label_dict[var]
+            else:
+                cbar_kwargs["label"] = var
+
             plot_kwargs = plot_kwargs_by_var[var]
             if contour_variable_name in snaps.variables.keys():
                 contour_variable = snaps[contour_variable_name].pnsel(**sel)
@@ -310,10 +320,10 @@ for modifier in modifiers:
                 anim_horvort = Movie(snaps[var].pnsel(**sel), plotfunc=manual_facetgrid,
                                      pixelwidth  = 1000 if (summarize and slice_name in ["xyi", "tafields"]) else 1800,
                                      pixelheight = 1000 if (summarize and slice_name in ["xyi", "tafields"]) else 1000,
-                                     dpi=200,
-                                     frame_pattern='frame_%05d.png',
-                                     fieldname=None,
-                                     input_check=False,
+                                     dpi = 200,
+                                     frame_pattern = "frame_%05d.png",
+                                     fieldname = None,
+                                     input_check = False,
                                      **kwargs
                              )
 
