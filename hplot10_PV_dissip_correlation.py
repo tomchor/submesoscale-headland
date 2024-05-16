@@ -86,7 +86,7 @@ CSI_q̄_binned.plot.scatter(ax=ax, x="q̄", y="ε̄ₖ", **binned_options)
 ax = axesf[1]
 CSI_coarse.plot.scatter(ax=ax, x="ω̄²", y="ε̄ₖ", **scatter_options)
 CSI_ω̄_binned.plot.scatter(ax=ax, x="ω̄²", y="ε̄ₖ", **binned_options)
-ax.set_xlim(1e-11, None)
+#ax.set_xlim(1e-11, None)
 
 ax = axesf[2]
 SHR_coarse.plot.scatter(ax=ax, x="q̄", y="ε̄ₖ", **scatter_options)
@@ -96,7 +96,7 @@ SHR_coarse.plot.scatter(ax=ax, x="q̄", y="ε̄ₖ", **scatter_options)
 ax = axesf[3]
 SHR_coarse.plot.scatter(ax=ax, x="ω̄²", y="ε̄ₖ", **scatter_options)
 #CSI_ω̄_binned.plot.scatter(ax=ax, x="ω̄²", y="ε̄ₖ", **binned_options)
-ax.set_xlim(1e-11, None)
+#ax.set_xlim(1e-11, None)
 #---
 
 #+++ Prettify axes and save
@@ -104,7 +104,7 @@ for ax in axesf:
     ax.set_title("")
     ax.grid(True)
     ax.set_ylim(1e-12, None)
-    ax.set_xscale("symlog", linthresh=1e-14)
+    ax.set_xscale("symlog", linthresh=1e-13)
 
 fig.savefig(f"figures/ω_εₖ_correlation{modifier}.pdf", dpi=200)
 #---
