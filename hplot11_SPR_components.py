@@ -3,7 +3,6 @@ import pynanigans as pn
 import xarray as xr
 from matplotlib import pyplot as plt
 from cmocean import cm
-from aux01_physfuncs import calculate_filtered_PV
 from aux02_plotting import BuRd, letterize
 plt.rcParams["figure.constrained_layout.use"] = True
 plt.rcParams["font.size"] = 9
