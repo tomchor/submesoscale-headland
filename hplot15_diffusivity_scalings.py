@@ -18,25 +18,16 @@ bulk = bulk.sel(Fr_h=slice(0.2, None))
 #+++ Define new variables
 bulk["γᵇ"] = bulk["⟨ε̄ₚ⟩ᵇ"] / (bulk["⟨ε̄ₚ⟩ᵇ"] + bulk["⟨ε̄ₖ⟩ᵇ"])
 bulk["RoFr"] = bulk.Ro_h * bulk.Fr_h
-bulk["RoRi"] = bulk.Ro_h / bulk.Fr_h**2
-
-bulk["∫∫∫ᵇΠdxdydz"] = bulk["⟨Π⟩ᵇ"] * bulk["∫∫∫ᵇ1dxdydz"]
-
-bulk["⟨ε̄ₖ⟩ᴮᴸ"] = bulk["⟨ε̄ₖ⟩ᵇ"].sel(buffer=0) - bulk["⟨ε̄ₖ⟩ᵇ"]
-bulk["εₖ_ratio_bl_to_rest"] = bulk["⟨ε̄ₖ⟩ᴮᴸ"] / bulk["⟨ε̄ₖ⟩ᵇ"]
 
 bulk["⟨⟨w′b′⟩ₜ⟩ᵇ + ⟨Π⟩ᵇ"] = bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"] + bulk["⟨Π⟩ᵇ"]
-
-bulk["⟨Πᶻ⟩"] = bulk["⟨SPR⟩ᵇ"].sel(j=3)
-bulk["SP_ratio1"] = bulk["⟨SPR⟩ᵇ"].sel(j=[1,2]).sum("j") / bulk["⟨SPR⟩ᵇ"].sel(j=3)
-bulk["SP_ratio3"] = bulk["∫∫ᶜˢⁱSPRdxdy"].sel(j=[1,2]).sum("j") / bulk["∫∫ᶜˢⁱSPRdxdy"].sel(j=3)
+bulk["𝒦"] = bulk["Kb′"] / (bulk["V∞"] * bulk.L)
 #---
 
 #+++ Choose buffers and set some attributes
 bulk.RoFr.attrs = dict(long_name="$Ro_h Fr_h$")
-bulk.RoRi.attrs = dict(long_name="$Ro_h / Fr_h^2$")
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
 bulk["Kb′"].attrs = dict(long_name=r"$K_b = -\overline{w′b′} / N^2_\infty$ [m²/s]")
+bulk["𝒦"].attrs = dict(long_name=r"$\mathcal{K}_b = -\overline{w′b′} / (N^2_\infty V_\infty L)$")
 bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"].attrs = dict(long_name=r"$\overline{w'b'}$ [m³/s²]")
 bulk["⟨ε̄ₚ⟩ᵇ"].attrs = dict(long_name=r"$\overline{\varepsilon}_p$ [m³/s²]")
 #---
@@ -80,20 +71,19 @@ for buffer in bulk.buffer.values:
     print("Plotting axes 0")
     ax = axesf[0]
     xvarname = "RoFr"
-    yvarname = "Kb′"
+    yvarname = "𝒦"
     ax.set_title(bulk_buff[yvarname].attrs["long_name"])
     for cond, label, color, marker in zip(conditions, labels, colors, markers):
         ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.plot(RoFr, 5e-4*RoFr, ls="--", label=r"$Ro_h Fr_h$", color="k", zorder=0)
+    ax.plot(RoFr, 2.5e-4*RoFr, ls="--", label=r"$Ro_h Fr_h$", color="k", zorder=0)
     ax.legend(loc="lower right")
 
     print("Plotting axes 1")
     ax = axesf[1]
     yvarname = "⟨⟨w′b′⟩ₜ⟩ᵇ"
     xvarname = "⟨ε̄ₚ⟩ᵇ"
-    #ax.set_title(bulk_buff[yvarname].attrs["long_name"])
     for cond, label, color, marker in zip(conditions, labels, colors, markers):
         ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
