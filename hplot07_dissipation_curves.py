@@ -97,10 +97,7 @@ for buffer in bulk.buffer.values:
     for i, ax_row in enumerate(axes):
         ax = ax_row[0]
         ax.set_xlim(-250, bulk.yC[-1])
-        if i <= 1:
-            ax.set_ylim(0, 5.5e-11)
-        else:
-            ax.set_ylim(0, None)
+        ax.set_ylim(0, None)
         #ax.set_title(f"Average of KE dissipation rate\nexcluding {bulkb.buffer.item()} m closest to the boundary")
 
         ax2 = ax.twinx()
