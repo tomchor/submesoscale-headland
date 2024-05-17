@@ -7,20 +7,22 @@ from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
 from cmocean import cm
 from scipy.optimize import curve_fit
-from aux02_plotting import letterize
+from aux02_plotting import letterize, create_mc, mscatter
 
 modifier = ""
 
 bulk = xr.open_dataset(f"data_post/bulkstats_snaps{modifier}.nc", chunks={})
 bulk = bulk.reindex(Ro_h = list(reversed(bulk.Ro_h))).mean("yC")
-bulk = bulk.sel(Fr_h=slice(0.2, None))
+#bulk = bulk.sel(Fr_h=slice(0.2, None))
+
+bulk = create_mc(bulk)
 
 #+++ Define new variables
 bulk["γᵇ"] = bulk["⟨ε̄ₚ⟩ᵇ"] / (bulk["⟨ε̄ₚ⟩ᵇ"] + bulk["⟨ε̄ₖ⟩ᵇ"])
 bulk["RoFr"] = bulk.Ro_h * bulk.Fr_h
 
 bulk["⟨⟨w′b′⟩ₜ⟩ᵇ + ⟨Π⟩ᵇ"] = bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"] + bulk["⟨Π⟩ᵇ"]
-bulk["𝒦"] = bulk["Kb′"] / (bulk["V∞"] * bulk.L)
+bulk["𝒦"] = (bulk["Kb′"] - bulk["⟨κ̄ₑ⟩ᵇ"]) / (bulk["V∞"] * bulk.L) # Exclude SGS diffusivity contribution
 #---
 
 #+++ Choose buffers and set some attributes
@@ -28,8 +30,8 @@ bulk.RoFr.attrs = dict(long_name="$Ro_h Fr_h$")
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
 bulk["Kb′"].attrs = dict(long_name=r"$K_b = -\overline{w′b′} / N^2_\infty$ [m²/s]")
 bulk["𝒦"].attrs = dict(long_name=r"$\mathcal{K}_b = -\overline{w′b′} / (N^2_\infty V_\infty L)$")
-bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"].attrs = dict(long_name=r"$\overline{w'b'}$ [m³/s²]")
-bulk["⟨ε̄ₚ⟩ᵇ"].attrs = dict(long_name=r"$\overline{\varepsilon}_p$ [m³/s²]")
+bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"].attrs = dict(long_name=r"$\overline{w'b'}$ [m²/s³]")
+bulk["⟨ε̄ₚ⟩ᵇ"].attrs = dict(long_name=r"$\overline{\varepsilon}_p$ [m²/s³]")
 #---
 
 for buffer in bulk.buffer.values:
@@ -73,8 +75,7 @@ for buffer in bulk.buffer.values:
     xvarname = "RoFr"
     yvarname = "𝒦"
     ax.set_title(bulk_buff[yvarname].attrs["long_name"])
-    for cond, label, color, marker in zip(conditions, labels, colors, markers):
-        ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
+    mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.plot(RoFr, 2.5e-4*RoFr, ls="--", label=r"$Ro_h Fr_h$", color="k", zorder=0)
@@ -84,8 +85,7 @@ for buffer in bulk.buffer.values:
     ax = axesf[1]
     yvarname = "⟨⟨w′b′⟩ₜ⟩ᵇ"
     xvarname = "⟨ε̄ₚ⟩ᵇ"
-    for cond, label, color, marker in zip(conditions, labels, colors, markers):
-        ax.scatter(x=bulk_buff.where(cond)[xvarname], y=bulk_buff.where(cond)[yvarname], label=label, color=color, marker=marker)
+    mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("symlog", linthresh=1e-12)
     x = np.linspace(bulk_buff[xvarname].min(), bulk_buff[xvarname].max(), 50)
