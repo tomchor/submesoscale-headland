@@ -43,46 +43,6 @@ end
 
     TEST = (; defaults...,)
 
-    #+++ Magaldi Simulations
-    Magaldi4h = (; defaults...,
-                 α = 1,
-                 Ro_h = 0.06,
-                 Fr_h = 0.06 / √(6.48),
-                )
-
-    Magaldi6h = (; defaults...,
-                 α = 0.01,
-                 Ro_h = 0.06,
-                 Fr_h = 0.06 / √(6.48),
-                )
-
-    Magaldi6h_steep = (; defaults...,
-                 α = 0.1,
-                 Ro_h = 0.06,
-                 Fr_h = 0.06 / √(6.48),
-                 )
-    #---
-
-    #+++ Simulations from the proposal (seamount)
-    PropA = (; defaults...,
-             α = 0.1,
-             Ro_h = 1.25,
-             Fr_h = 0.06,
-             )
-
-    PropB = (; defaults...,
-             α = 0.1,
-             Ro_h = 0.2,
-             Fr_h = 0.06,
-             )
-
-    PropD = (; defaults...,
-             α = 0.1,
-             Ro_h = 0.1,
-             Fr_h = 0.2,
-             )
-    #---
-
     #+++ Ro=0.08
     R008F008 = (; defaults...,
                 Ro_h = 0.08,

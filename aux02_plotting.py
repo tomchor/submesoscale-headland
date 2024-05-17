@@ -112,6 +112,65 @@ def fill_seamount_xy(ax, ds, radius, color="silver"):
     return
 #---
 
+#+++
+def mscatter(x,y,ax=None, markers=None, **kw):
+    """ Plots scatter but marker can be a list """
+    import matplotlib.markers as mmarkers
+    if not ax: ax=plt.gca()
+    sc = ax.scatter(x,y,**kw)
+    if (markers is not None) and (len(markers)==len(x)):
+        paths = []
+        for marker in markers:
+            if isinstance(marker, mmarkers.MarkerStyle):
+                marker_obj = marker
+            else:
+                marker_obj = mmarkers.MarkerStyle(marker)
+            path = marker_obj.get_path().transformed(
+                        marker_obj.get_transform())
+            paths.append(path)
+        sc.set_paths(paths)
+    return sc
+#---
+
+#+++ Get DataArray with proper colors and markers
+def create_mc(bulk):
+    """ Creates marker and color variables in `bulk` """
+    import xarray as xr
+
+    bulk["marker"] = xr.DataArray(len(bulk.Ro_h)*[len(bulk.Fr_h)*["o"]], dims=["Ro_h", "Fr_h"], coords=dict(Ro_h=bulk.Ro_h, Fr_h=bulk.Fr_h))
+    bulk["color"] = xr.DataArray(len(bulk.Ro_h)*[len(bulk.Fr_h)*["black"]], dims=["Ro_h", "Fr_h"], coords=dict(Ro_h=bulk.Ro_h, Fr_h=bulk.Fr_h))
+
+    # threed_sims
+    bulk["marker"] = bulk.marker.where(np.logical_not((bulk.Ro_h==1.25) & (bulk.Fr_h==1.25)), other="^")
+    bulk["color"] = bulk.color.where(np.logical_not((bulk.Ro_h==1.25) & (bulk.Fr_h==1.25)), other="green")
+    bulk["marker"] = bulk.marker.where(np.logical_not((bulk.Ro_h==0.5) & (bulk.Fr_h==0.5)), other="^")
+    bulk["color"] = bulk.color.where(np.logical_not((bulk.Ro_h==0.5) & (bulk.Fr_h==0.5)), other="green")
+
+    # bathfo_sims
+    bulk["marker"] = bulk.marker.where(np.logical_not((bulk.Ro_h==0.08) & (bulk.Fr_h==1.25)), other="X")
+    bulk["color"] = bulk.color.where(np.logical_not((bulk.Ro_h==0.08) & (bulk.Fr_h==1.25)), other="blue")
+    bulk["marker"] = bulk.marker.where(np.logical_not((bulk.Ro_h==0.08) & (bulk.Fr_h==0.5)), other="X")
+    bulk["color"] = bulk.color.where(np.logical_not((bulk.Ro_h==0.08) & (bulk.Fr_h==0.5)), other="blue")
+    bulk["marker"] = bulk.marker.where(np.logical_not((bulk.Ro_h==0.2) & (bulk.Fr_h==1.25)), other="X")
+    bulk["color"] = bulk.color.where(np.logical_not((bulk.Ro_h==0.2) & (bulk.Fr_h==1.25)), other="blue")
+
+    # vertco_sims
+    bulk["marker"] = bulk.marker.where(np.logical_not((bulk.Ro_h==0.08) & (bulk.Fr_h==0.08)), other="D")
+    bulk["color"] = bulk.color.where(np.logical_not((bulk.Ro_h==0.08) & (bulk.Fr_h==0.08)), other="orange")
+    bulk["marker"] = bulk.marker.where(np.logical_not((bulk.Ro_h==0.2) & (bulk.Fr_h==0.2)), other="D")
+    bulk["color"] = bulk.color.where(np.logical_not((bulk.Ro_h==0.2) & (bulk.Fr_h==0.2)), other="orange")
+
+    # vertsh_sims
+    bulk["marker"] = bulk.marker.where(np.logical_not((bulk.Ro_h==0.5) & (bulk.Fr_h==0.08)), other="d")
+    bulk["color"] = bulk.color.where(np.logical_not((bulk.Ro_h==0.5) & (bulk.Fr_h==0.08)), other="orchid")
+    bulk["marker"] = bulk.marker.where(np.logical_not((bulk.Ro_h==1.25) & (bulk.Fr_h==0.08)), other="d")
+    bulk["color"] = bulk.color.where(np.logical_not((bulk.Ro_h==1.25) & (bulk.Fr_h==0.08)), other="orchid")
+    bulk["marker"] = bulk.marker.where(np.logical_not((bulk.Ro_h==1.25) & (bulk.Fr_h==0.2)), other="d")
+    bulk["color"] = bulk.color.where(np.logical_not((bulk.Ro_h==1.25) & (bulk.Fr_h==0.2)), other="orchid")
+
+    return bulk
+#---
+
 #+++ Instability angles
 def plot_angles(angles, ax):
     vlim = ax.get_ylim()
@@ -132,8 +191,6 @@ marker_base = ["o", "v", "P"]
 
 colors = color_base*len(marker_base)
 markers = list(chain(*[ [m]*len(color_base) for m in marker_base ]))
-#markers = marker_base*len(color_base)
-#colors = list(chain(*[ [m]*len(marker_base) for m in color_base ]))
 #---
 
 #+++ Standardized plotting

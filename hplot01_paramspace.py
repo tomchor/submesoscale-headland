@@ -78,7 +78,7 @@ for modifier in modifiers:
         elif simname.split("-")[1] in vertsh_sims:
             pvs = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="d", color="orchid", zorder=10, label="Vert. sheared")
         else:
-            ptr = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, color="black", zorder=10, label="Transition regime")
+            ptr = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="o", color="black", zorder=10, label="Transition regime")
 
     #+++ Include secondary x axis (f₀)
     Ro2f = lambda x: x * (xyi.V_inf/(xyi.Lx/4))
