@@ -24,15 +24,15 @@ bulk["H"]  = bulk.α * bulk.L
 bulk["ℰₖ"] = bulk["∫∫∫ᵇε̄ₖdxdydz"]     / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["ℰₚ"] = bulk["∫∫∫ᵇε̄ₚdxdydz"]     / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["𝒫"]  = bulk["∫∫∫ᵇΠdxdydz"]      / (bulk["V∞"]**3 * bulk.L * bulk.H)
-bulk["𝑬"]  = bulk["∫∫∫ᵇ⟨Ek′⟩ₜdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
+bulk["𝑬"]  = bulk["∫∫∫ᵇ⟨Ek′⟩ₜdxdydz"] / (bulk["V∞"]**2 * bulk.L**2 * bulk.H)
 #---
 
 #+++ Choose buffers and set some attributes
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
 bulk["ℰₖ"].attrs = dict(long_name=r"$\int\int\int\overline{\varepsilon}_k dV\,/ V_\infty^3 L H$")
 bulk["ℰₚ"].attrs = dict(long_name=r"$\int\int\int\overline{\varepsilon}_p dV\,/ V_\infty^3 L H$")
-bulk["𝒫"].attrs = dict(long_name=r"$\int\int\int\Pi dV$")
-bulk["𝑬"].attrs = dict(long_name=r"$\int\int\int {\rm TKE} dV$ [m⁶/s²]")
+bulk["𝒫"].attrs = dict(long_name=r"$\int\int\int\Pi dV\,/ V_\infty^3 L H$")
+bulk["𝑬"].attrs = dict(long_name=r"$\int\int\int {\rm TKE} dV\,/ V_\infty^2 L^2 H$")
 #---
 
 for buffer in bulk.buffer.values:
@@ -90,7 +90,7 @@ for buffer in bulk.buffer.values:
     mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.plot(S_Bu, 1.2e5*S_Bu, ls="--", label=r"$S_h$", color="k")
+    ax.plot(S_Bu, 1e0*S_Bu, ls="--", label=r"$S_h$", color="k")
     #---
 
     #+++ Prettify and save
