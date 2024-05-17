@@ -4,17 +4,12 @@ import numpy as np
 import pynanigans as pn
 import xarray as xr
 from matplotlib import pyplot as plt
-from matplotlib.colors import LogNorm
-from cmocean import cm
-from scipy.optimize import curve_fit
 from aux02_plotting import letterize, create_mc, mscatter
 
 modifier = ""
 
 bulk = xr.open_dataset(f"data_post/bulkstats_snaps{modifier}.nc", chunks={})
 bulk = bulk.reindex(Ro_h = list(reversed(bulk.Ro_h))).mean("yC")
-#bulk = bulk.sel(Fr_h=slice(0.2, None))
-
 bulk = create_mc(bulk)
 
 #+++ Define new variables
@@ -47,21 +42,6 @@ for buffer in bulk.buffer.values:
                              sharex=False, sharey=False,
                              constrained_layout=True)
     axesf = axes.flatten()
-    #---
-
-    #+++ Marker details
-    marker_large_Bu = "^"
-    marker_unity_Bu = "s"
-    marker_small_Bu = "o"
-    markers = [marker_large_Bu, marker_unity_Bu, marker_small_Bu]
-
-    color_large_Bu = "blue"
-    color_unity_Bu = "orange"
-    color_small_Bu = "green"
-    colors = [color_large_Bu, color_unity_Bu, color_small_Bu]
-    
-    conditions = [bulk_buff.Bu_h>1, bulk_buff.Bu_h==1, bulk_buff.Bu_h<1]
-    labels = ["Bu>1", "Bu=1", "Bu<1"]
     #---
 
     #+++ Auxiliary continuous variables
