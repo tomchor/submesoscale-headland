@@ -30,6 +30,7 @@ Gula["Sb_h"] = Gula.Ro_h / Gula.Fr_h
 Δy_Gula = ΔLa * 111e3 # m
 Δz_Gula = 800 # m
 ΔV_Gula = Δx_Gula * Δy_Gula * Δz_Gula # m³
+LLH_Gula = L_Gula * L_Gula * H_Gula
 
 Gula["ε_scale"] = V_Gula**3 / L_Gula
 
@@ -39,8 +40,8 @@ Gula["εₖ_max_norm"] = Gula["εₖ_max"] / Gula.ε_scale
 Gula["ρ∫∫∫ε̄ₖdxdydz"] = 0.5e9 # W
 ρ = 1000
 Gula["∫∫∫ε̄ₖdxdydz"] = Gula["ρ∫∫∫ε̄ₖdxdydz"] / ρ
-Gula["⟨ε̄ₖ⟩"] = Gula["∫∫∫ε̄ₖdxdydz"] / ΔV_Gula
-Gula["εₖ_norm"] = Gula["⟨ε̄ₖ⟩"] / Gula.ε_scale
+Gula["⟨ε̄ₖ⟩"] = Gula["∫∫∫ε̄ₖdxdydz"] / LLH_Gula
+Gula["εₖ_avg_norm"] = Gula["⟨ε̄ₖ⟩"] / Gula.ε_scale
 #---
 
 #+++ Srinivasan et alia (2021)'s results
@@ -99,35 +100,35 @@ Nagai["εₖ_max_norm"] = Nagai["εₖ_max"] / Nagai.ε_scale
 #---
 
 #+++ Chor and Wenegrat's results
+L_Chor = 200 # m
+H_Chor = 40 # m
+V_Chor = 0.01 # m
+
 Δx_Chor = (800 + 400) # m
 Δy_Chor = 3000 # m
 Δz_Chor = 84 # m
 ΔV_Chor = Δx_Chor * Δy_Chor * Δz_Chor
+LLH_Chor = L_Chor * L_Chor * H_Chor
 
-L_Chor = 200 # m
-V_Chor = 0.01 # m
 
 Chor = xr.Dataset()
 
 Chor["ε_scale"] = V_Chor**3 / L_Chor # (m/s)³ / m
 
-Chor["εₖ_max"] = 1e-8
+Chor["εₖ_max"] = 1e-9 # m²/s³
 Chor["εₖ_max_norm"] = Chor["εₖ_max"] / Chor.ε_scale
-
-Chor["∫∫∫ε̄ₖdxdydz"] = 1e-2 # W m³ / kg
-Chor["ρ∫∫∫ε̄ₖdxdydz"] = ρ * Chor["∫∫∫ε̄ₖdxdydz"]
-Chor["⟨ε̄ₖ⟩"] = Chor["∫∫∫ε̄ₖdxdydz"] / ΔV_Chor
-Chor["εₖ_norm"] = Chor["⟨ε̄ₖ⟩"] / Chor.ε_scale
+Chor["εₖ_avg_norm"] = 8e-1
 #---
 
 #+++ Print results
-N_value = 0.01
-V_value = 0.5
+N_value = 0.01 # 1/s
+V_value_Gula = 1 # m/s
 α_value_Gula = 0.07
-Gula = Gula.sel(α=α_value_Gula, V=V_value, N=N_value)
+Gula = Gula.sel(α=α_value_Gula, V=V_value_Gula, N=N_value)
 
 α_value_Nagai = 0.1
-Nagai = Nagai.sel(α=α_value_Nagai, V=V_value, N=N_value, method="nearest")
+V_value_Nagai = 0.5 # m/s
+Nagai = Nagai.sel(α=α_value_Nagai, V=V_value_Nagai, N=N_value, method="nearest")
 
 print(f"Gula's Roₕ = ", Gula.Ro_h.item())
 print(f"Gula's Frₕ = ", Gula.Fr_h.item())
@@ -147,6 +148,6 @@ print("Nagai et al.'s normalized instantaneous dissipation: ", Nagai["εₖ_max_
 print("Gula et al.'s normalized instantaneous dissipation: ", Gula["εₖ_max_norm"].item())
 print("Chor & Wenegrat's normalized instantaneous dissipation: ", Chor["εₖ_max_norm"].item())
 print()
-print("Gula et al.'s normalized average dissipation: ", Gula["εₖ_norm"].item(), "m²/s³")
-print("Chor & Wenegrat's normalized average dissipation: ", Chor["εₖ_norm"].item(), "m²/s³")
+print("Gula et al.'s normalized average dissipation: ", Gula["εₖ_avg_norm"].item())
+print("Chor & Wenegrat's normalized average dissipation: ", Chor["εₖ_avg_norm"].item())
 print()
