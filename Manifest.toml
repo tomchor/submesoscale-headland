@@ -1287,9 +1287,9 @@ version = "0.90.6"
 
 [[deps.Oceanostics]]
 deps = ["DocStringExtensions", "Oceananigans", "Printf"]
-git-tree-sha1 = "4c5c13403052583ba3ddc1bd733ad6eaa3a3c540"
+git-tree-sha1 = "41e65d86b17a5e9ffde63ca2f04f39a9c421f3c0"
 uuid = "d0ccf422-c8fb-49b5-a76d-74acdde946ac"
-version = "0.13.2"
+version = "0.14.0"
 
 [[deps.OffsetArrays]]
 deps = ["Adapt"]

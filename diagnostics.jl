@@ -6,7 +6,7 @@ using Oceananigans: znode
 using Oceananigans.Fields: @compute
 
 using Oceanostics.FlowDiagnostics: strain_rate_tensor_modulus_ccc
-using Oceanostics: KineticEnergyTendency, KineticEnergyDissipationRate, KineticEnergyDiffusiveTerm,
+using Oceanostics: KineticEnergyTendency, KineticEnergyDissipationRate, KineticEnergyStressTerm,
                    ErtelPotentialVorticity, DirectionalErtelPotentialVorticity, RossbyNumber, RichardsonNumber,
                    TracerVarianceDissipationRate, KineticEnergyForcingTerm, StrainRateTensorModulus, TurbulentKineticEnergy
 
@@ -171,7 +171,7 @@ outputs_budget = Dict{Symbol, Any}(:uᵢGᵢ     => KineticEnergyTendency(model)
                                    :uᵢ∂ⱼuⱼuᵢ => AdvectionTerm(model),
                                    :uᵢ∂ᵢp    => PressureTransportTerm(model, pressure = sum(model.pressures)),
                                    :uᵢbᵢ     => BuoyancyConversionTerm(model),
-                                   :uᵢ∂ⱼτᵢⱼ  => KineticEnergyDiffusiveTerm(model),
+                                   :uᵢ∂ⱼτᵢⱼ  => KineticEnergyStressTerm(model),
                                    :uᵢ∂ⱼτᵇᵢⱼ => KineticEnergyImmersedBoundaryTerm(model),
                                    :Ek       => TurbulentKineticEnergy(model, u, v, w),)
 #---
