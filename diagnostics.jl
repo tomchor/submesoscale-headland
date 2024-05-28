@@ -215,6 +215,7 @@ function construct_outputs(simulation;
     #+++ Preamble and common keyword arguments
     k_half = @allowscalar Int(ceil(params.H / minimum_zspacing(grid))) # Approximately half the headland height
     kwargs = (overwrite_existing = overwrite_existing,
+              deflatelevel = 5,
               global_attributes = merge(params, (; buffers)))
     #---
 

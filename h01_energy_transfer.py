@@ -112,15 +112,16 @@ for simname in simnames:
     #---
 
     #+++ Trimming domain
-    t_slice = slice(ttt.T_advective_spinup+0.01, np.inf)
+    t_slice_inclusive = slice(ttt.T_advective_spinup, np.inf) # For snapshots, we want to include t=T_advective_spinup
+    t_slice_exclusive = slice(ttt.T_advective_spinup+0.01, np.inf) # For time-averaged outputs, we want to exclude t=T_advective_spinup
     x_slice = slice(xyz.xF[0], np.inf)
     y_slice = slice(xyz.yF[0] + xyz.sponge_length_y, np.inf)
     z_slice = slice(ttt.zF[0], ttt.zC[-1])
 
-    xyz = xyz.sel(time=t_slice, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice, zC=z_slice, zF=z_slice)
-    xyi = xyi.sel(time=t_slice, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice)
-    ttt = ttt.sel(time=t_slice, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice)
-    tti = tti.sel(time=t_slice, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice)
+    xyz = xyz.sel(time=t_slice_inclusive, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice, zC=z_slice, zF=z_slice)
+    xyi = xyi.sel(time=t_slice_inclusive, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice)
+    ttt = ttt.sel(time=t_slice_exclusive, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice)
+    tti = tti.sel(time=t_slice_exclusive, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice)
     #---
 
     #+++ Condense tensors
@@ -179,6 +180,8 @@ for simname in simnames:
                                 "εₚ"       : "ε̄ₚ",
                                 "κₑ"       : "κ̄ₑ",
                                 })
+    tafields["⟨∂ₜEk⟩ₜ"] = (xyz.Ek.sel(time=(xyz.T_advective_spinup+xyz.T_advective_statistics))
+                          -xyz.Ek.sel(time=(xyz.T_advective_spinup))) / (xyz.T_advective_statistics * xyz.T_advective)
     tafields.attrs = ttt.attrs
     #---
 
@@ -210,7 +213,7 @@ for simname in simnames:
     buffer = 5 # meters
 
     distance_mask = tafields.altitude > buffer
-    for var in ["ε̄ₖ", "ε̄ₚ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "⟨Ek⟩ₜ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ", "1"]:
+    for var in ["ε̄ₖ", "ε̄ₚ", "⟨∂ₜEk⟩ₜ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "⟨Ek⟩ₜ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ", "1"]:
         int_all = f"∫∫∫⁰{var}dxdydz"
         int_buf = f"∫∫∫⁵{var}dxdydz"
         tafields[int_all] = integrate(tafields[var])
