@@ -168,6 +168,7 @@ outputs_geo_grads = Dict{Symbol, Any}(:∂Uᵍ∂x => (@at CellCenter ∂x(Uᵍ)
 #+++ Define energy budget terms
 @info "Calculating energy budget terms"
 outputs_budget = Dict{Symbol, Any}(:uᵢGᵢ     => KineticEnergyTendency(model),
+                                   :uᵢGⁿᵢ    => KineticEnergyTendency_Gⁿ(model),
                                    :uᵢ∂ⱼuⱼuᵢ => AdvectionTerm(model),
                                    :uᵢ∂ᵢp    => PressureTransportTerm(model, pressure = sum(model.pressures)),
                                    :uᵢbᵢ     => BuoyancyConversionTerm(model),
@@ -324,9 +325,7 @@ function construct_outputs(simulation;
     #+++ ttt (Time averages)
     if write_ttt
         @info "Setting up ttt writer"
-        outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip)
-        outputs_ttt[:uᵢGᵢ] = outputs_budget[:uᵢGᵢ]
-        outputs_ttt[:uᵢ∂ᵢp] = outputs_budget[:uᵢ∂ᵢp]
+        outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip, outputs_budget)
         indices = (:, :, :)
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
                                                                      filename = "$rundir/data/ttt.$(simname).nc",
