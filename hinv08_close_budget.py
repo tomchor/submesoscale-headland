@@ -107,4 +107,4 @@ for simname in simnames:
             ax.grid(True)
         fig.savefig(f"figures_check/budget_{simname}_buffer={buffer}m.png")
         #---
-        pause
+    pause

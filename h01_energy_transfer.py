@@ -116,7 +116,7 @@ for simname in simnames:
     t_slice_exclusive = slice(ttt.T_advective_spinup+0.01, np.inf) # For time-averaged outputs, we want to exclude t=T_advective_spinup
     x_slice = slice(xyz.xF[0], np.inf)
     y_slice = slice(xyz.yF[0] + xyz.sponge_length_y, np.inf)
-    z_slice = slice(ttt.zF[0], ttt.zC[-1])
+    z_slice = slice(ttt.zF[0], np.inf)
 
     xyz = xyz.sel(time=t_slice_inclusive, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice, zC=z_slice, zF=z_slice)
     xyi = xyi.sel(time=t_slice_inclusive, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice)
