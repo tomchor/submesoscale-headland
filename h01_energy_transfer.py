@@ -164,14 +164,20 @@ for simname in simnames:
     #+++ Time average
     # Here ū and ⟨u⟩ₜ are interchangeable
     tafields = ttt.mean("time")
-    tafields = tafields.rename({"uᵢ"   : "ūᵢ",
-                                "∂ⱼuᵢ" : "∂ⱼūᵢ",
-                                "uⱼuᵢ" : "⟨uⱼuᵢ⟩ₜ",
-                                "b"    : "b̄",
-                                "εₖ"   : "ε̄ₖ",
-                                "εₚ"   : "ε̄ₚ",
-                                "κₑ"   : "κ̄ₑ",
+    tafields = tafields.rename({"uᵢ"       : "ūᵢ",
+                                "∂ⱼuᵢ"     : "∂ⱼūᵢ",
+                                "uⱼuᵢ"     : "⟨uⱼuᵢ⟩ₜ",
+                                "b"        : "b̄",
+                                "uᵢGᵢ"     : "⟨uᵢGᵢ⟩ₜ",
+                                "uᵢ∂ⱼuⱼuᵢ" : "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ",
+                                "uᵢ∂ᵢp"    : "⟨uᵢ∂ᵢp⟩ₜ",
                                 "uᵢbᵢ"     : "⟨wb⟩ₜ",
+                                "uᵢ∂ⱼτᵢⱼ"  : "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ",
+                                "uᵢ∂ⱼτᵇᵢⱼ" : "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ",
+                                "Ek"       : "⟨Ek⟩ₜ",
+                                "εₖ"       : "ε̄ₖ",
+                                "εₚ"       : "ε̄ₚ",
+                                "κₑ"       : "κ̄ₑ",
                                 })
     tafields.attrs = ttt.attrs
     #---
@@ -204,7 +210,7 @@ for simname in simnames:
     buffer = 5 # meters
 
     distance_mask = tafields.altitude > buffer
-    for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨wb⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ", "1"]:
+    for var in ["ε̄ₖ", "ε̄ₚ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "⟨Ek⟩ₜ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ", "1"]:
         int_all = f"∫∫∫⁰{var}dxdydz"
         int_buf = f"∫∫∫⁵{var}dxdydz"
         tafields[int_all] = integrate(tafields[var])
