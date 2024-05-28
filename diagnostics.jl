@@ -168,6 +168,7 @@ outputs_geo_grads = Dict{Symbol, Any}(:∂Uᵍ∂x => (@at CellCenter ∂x(Uᵍ)
 #+++ Define energy budget terms
 @info "Calculating energy budget terms"
 outputs_budget = Dict{Symbol, Any}(:uᵢGᵢ     => KineticEnergyTendency(model),
+                                   :uᵢG⁻ᵢ    => KineticEnergyTendency_G⁻(model),
                                    :uᵢGⁿᵢ    => KineticEnergyTendency_Gⁿ(model),
                                    :uᵢ∂ⱼuⱼuᵢ => AdvectionTerm(model),
                                    :uᵢ∂ᵢp    => PressureTransportTerm(model, pressure = sum(model.pressures)),
