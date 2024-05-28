@@ -12,11 +12,11 @@ simnames = [#"NPN-TEST",
             #"NPN-R008F02",
             #"NPN-R008F05",
             #"NPN-R008F1",
-            "NPN-R02F008",
-            #"NPN-R02F02",
+            #"NPN-R02F008",
+            "NPN-R02F02",
             #"NPN-R02F05",
             #"NPN-R02F1",
-            "NPN-R05F008",
+            #"NPN-R05F008",
             #"NPN-R05F02",
             #"NPN-R05F05",
             #"NPN-R05F1",
@@ -28,11 +28,12 @@ simnames = [#"NPN-TEST",
 
 from cycler import cycler
 names = cycler(name=simnames)
-modifiers = cycler(modifier = ["-f2"])
+modifiers = cycler(modifier = [""])
 simnames = [ nr["name"] + nr["modifier"] for nr in modifiers * names ]
 #---
 
 for simname in simnames:
+    print("\n", simname)
    
     #+++ Open datasets xyz and xyi
     print(f"\nOpening {simname} xyz")
@@ -92,10 +93,14 @@ for simname in simnames:
     from matplotlib import pyplot as plt
     plt.rcParams['figure.constrained_layout.use'] = True
 
-    x0 = 100
+    if (np.round(xyz.Ro_h, decimals=2) == 0.2) and (np.round(xyz.Fr_h, decimals=2) == 0.2):
+        x0 = 250
+    else:
+        x0 = 100
     title = f"Roₕ = {xyz.Ro_h.item():.2f}, Frₕ = {xyz.Fr_h.item():.2f}"
 
     PV_opts = dict(vmin=-2, vmax=2, cmap=plt.cm.RdBu_r)
+    plt.figure()
     tti.PV_norm.pnplot(x="x", **PV_opts)
     plt.scatter(x0, xiz.yC.item(), color="k", s=100)
     plt.title(title)
@@ -123,4 +128,5 @@ for simname in simnames:
         ax.set_xticks(np.arange(np.round(xiz.time[0]), np.round(xiz.time[-1])+1, 1), minor=True)
         ax.grid(which="both", axis="both")
         ax.set_title("")
+    pause
     #---
