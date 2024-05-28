@@ -168,10 +168,10 @@ for simname in simnames:
                                 "∂ⱼuᵢ" : "∂ⱼūᵢ",
                                 "uⱼuᵢ" : "⟨uⱼuᵢ⟩ₜ",
                                 "b"    : "b̄",
-                                "uᵢGᵢ" : "⟨wb⟩ₜ",
                                 "εₖ"   : "ε̄ₖ",
                                 "εₚ"   : "ε̄ₚ",
                                 "κₑ"   : "κ̄ₑ",
+                                "uᵢbᵢ"     : "⟨wb⟩ₜ",
                                 })
     tafields.attrs = ttt.attrs
     #---
