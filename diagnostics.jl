@@ -6,7 +6,7 @@ using Oceananigans: znode
 using Oceananigans.Fields: @compute
 
 using Oceanostics.FlowDiagnostics: strain_rate_tensor_modulus_ccc
-using Oceanostics: KineticEnergyTendency, KineticEnergyDissipationRate, KineticEnergyDiffusiveTerm,
+using Oceanostics: KineticEnergyTendency, KineticEnergyDissipationRate, KineticEnergyStressTerm,
                    ErtelPotentialVorticity, DirectionalErtelPotentialVorticity, RossbyNumber, RichardsonNumber,
                    TracerVarianceDissipationRate, KineticEnergyForcingTerm, StrainRateTensorModulus, TurbulentKineticEnergy
 
@@ -171,7 +171,7 @@ outputs_budget = Dict{Symbol, Any}(:uᵢGᵢ     => KineticEnergyTendency(model)
                                    :uᵢ∂ⱼuⱼuᵢ => AdvectionTerm(model),
                                    :uᵢ∂ᵢp    => PressureTransportTerm(model, pressure = sum(model.pressures)),
                                    :uᵢbᵢ     => BuoyancyConversionTerm(model),
-                                   :uᵢ∂ⱼτᵢⱼ  => KineticEnergyDiffusiveTerm(model),
+                                   :uᵢ∂ⱼτᵢⱼ  => KineticEnergyStressTerm(model),
                                    :uᵢ∂ⱼτᵇᵢⱼ => KineticEnergyImmersedBoundaryTerm(model),
                                    :Ek       => TurbulentKineticEnergy(model, u, v, w),)
 #---
@@ -326,7 +326,7 @@ function construct_outputs(simulation;
         @info "Setting up ttt writer"
         outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip)
         outputs_ttt[:uᵢGᵢ] = outputs_budget[:uᵢGᵢ]
-        #indices = (:, :, round(Int, 2*(k_half/3)):round(Int, 4*(k_half/3)))
+        outputs_ttt[:uᵢ∂ᵢp] = outputs_budget[:uᵢ∂ᵢp]
         indices = (:, :, :)
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
                                                                      filename = "$rundir/data/ttt.$(simname).nc",
