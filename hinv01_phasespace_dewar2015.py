@@ -90,26 +90,37 @@ for simname in simnames:
 
     #+++ Plot context plots
     from matplotlib import pyplot as plt
-    x0 = 100
-    opts = dict(x="x", vmin=-2, vmax=2, cmap=plt.cm.RdBu_r)
-    tti.PV_norm.pnplot(**opts)
-    plt.scatter(x0, xiz.yC.item(), color="k", s=100)
+    plt.rcParams['figure.constrained_layout.use'] = True
 
-    xyi.PV_norm.sel(time = slice(None, None, 30)).pnplot(col="time", **opts)
+    x0 = 100
+    title = f"Roₕ = {xyz.Ro_h.item():.2f}, Frₕ = {xyz.Fr_h.item():.2f}"
+
+    PV_opts = dict(vmin=-2, vmax=2, cmap=plt.cm.RdBu_r)
+    tti.PV_norm.pnplot(x="x", **PV_opts)
+    plt.scatter(x0, xiz.yC.item(), color="k", s=100)
+    plt.title(title)
+
+    xyi.PV_norm.sel(time = slice(None, None, 30)).pnplot(col="time", x="x", **PV_opts)
+    plt.suptitle(title)
     for ax in plt.gcf().axes:
         ax.scatter(x0, xiz.yC.item(), color="k", s=100)
     #---
 
-    #+++ Look for waves
-    fig, axes = plt.subplots(nrows=2, figsize=(10, 5), sharex=True)
+    #+++ Look for subinertial waves
+    fig, axes = plt.subplots(nrows=3, figsize=(12, 8), sharex=True)
 
     xiz = xiz.assign_coords(time = xiz.time * xiz.T_advective / xiz.T_inertial)
     xiz.time.attrs = dict(units = "Inertial periods")
 
-    xiz["∂u∂z"].sel(xC=x0, method="nearest").pnplot(ax=axes[0], x="time")
-    xiz["∂v∂z"].sel(xC=x0, method="nearest").pnplot(ax=axes[1], x="time")
+    dudz_opts = dict(x="time", vmin=-2e-3, vmax=2e-3, cmap=plt.cm.RdBu_r)
+    xiz["∂u∂z"].sel(xC=x0, method="nearest").pnplot(ax=axes[0], **dudz_opts)
+    xiz["∂v∂z"].sel(xC=x0, method="nearest").pnplot(ax=axes[1], **dudz_opts)
+    xiz["PV_norm"].sel(xC=x0, method="nearest").pnplot(ax=axes[2], x="time", **PV_opts)
 
-    for ax in fig.axes:
+    fig.suptitle(title)
+    for ax in axes:
+        ax.set_xticks(np.arange(np.ceil(xiz.time[0]), np.round(xiz.time[-1])+1, 2), minor=False)
+        ax.set_xticks(np.arange(np.round(xiz.time[0]), np.round(xiz.time[-1])+1, 1), minor=True)
+        ax.grid(which="both", axis="both")
         ax.set_title("")
     #---
-    pause
