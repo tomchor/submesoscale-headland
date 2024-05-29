@@ -165,7 +165,6 @@ for simname in simnames:
     #+++ Time average
     # Here ū and ⟨u⟩ₜ are interchangeable
     tafields = ttt.mean("time")
-<<<<<<< budget
     tafields = tafields.rename({"uᵢ"       : "ūᵢ",
                                 "∂ⱼuᵢ"     : "∂ⱼūᵢ",
                                 "uⱼuᵢ"     : "⟨uⱼuᵢ⟩ₜ",
@@ -180,16 +179,6 @@ for simname in simnames:
                                 "εₖ"       : "ε̄ₖ",
                                 "εₚ"       : "ε̄ₚ",
                                 "κₑ"       : "κ̄ₑ",
-=======
-    tafields = tafields.rename({"uᵢ"   : "ūᵢ",
-                                "∂ⱼuᵢ" : "∂ⱼūᵢ",
-                                "uⱼuᵢ" : "⟨uⱼuᵢ⟩ₜ",
-                                "b"    : "b̄",
-                                "uᵢbᵢ" : "⟨wb⟩ₜ",
-                                "εₖ"   : "ε̄ₖ",
-                                "εₚ"   : "ε̄ₚ",
-                                "κₑ"   : "κ̄ₑ",
->>>>>>> main
                                 })
     tafields["⟨∂ₜEk⟩ₜ"] = (xyz.Ek.sel(time=(xyz.T_advective_spinup+xyz.T_advective_statistics))
                           -xyz.Ek.sel(time=(xyz.T_advective_spinup))) / (xyz.T_advective_statistics * xyz.T_advective)
