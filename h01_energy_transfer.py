@@ -175,6 +175,7 @@ for simname in simnames:
                                 "uᵢbᵢ"     : "⟨wb⟩ₜ",
                                 "uᵢ∂ⱼτᵢⱼ"  : "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ",
                                 "uᵢ∂ⱼτᵇᵢⱼ" : "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ",
+                                "εₛ"       : "ε̄ₛ",
                                 "Ek"       : "⟨Ek⟩ₜ",
                                 "εₖ"       : "ε̄ₖ",
                                 "εₚ"       : "ε̄ₚ",
@@ -213,7 +214,7 @@ for simname in simnames:
     buffer = 5 # meters
 
     distance_mask = tafields.altitude > buffer
-    for var in ["ε̄ₖ", "ε̄ₚ", "⟨∂ₜEk⟩ₜ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "⟨Ek⟩ₜ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ", "1"]:
+    for var in ["ε̄ₖ", "ε̄ₚ", "⟨∂ₜEk⟩ₜ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "ε̄ₛ", "⟨Ek⟩ₜ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ", "1"]:
         int_all = f"∫∫∫⁰{var}dxdydz"
         int_buf = f"∫∫∫⁵{var}dxdydz"
         tafields[int_all] = integrate(tafields[var])
