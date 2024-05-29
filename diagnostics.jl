@@ -213,6 +213,7 @@ function construct_outputs(simulation;
     #+++ Preamble and common keyword arguments
     k_half = @allowscalar Int(ceil(params.H / minimum_zspacing(grid))) # Approximately half the headland height
     kwargs = (overwrite_existing = overwrite_existing,
+              deflatelevel = 4,
               global_attributes = merge(params, (; buffers)))
     #---
 
@@ -325,7 +326,7 @@ function construct_outputs(simulation;
     if write_ttt
         @info "Setting up ttt writer"
         outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip)
-        outputs_ttt[:uᵢGᵢ] = outputs_budget[:uᵢGᵢ]
+        outputs_ttt[:uᵢbᵢ] = outputs_budget[:uᵢbᵢ]
         outputs_ttt[:uᵢ∂ᵢp] = outputs_budget[:uᵢ∂ᵢp]
         indices = (:, :, :)
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
