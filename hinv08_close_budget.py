@@ -67,11 +67,11 @@ for simname in simnames:
 
         ax = axes[0]
 
-        tafields["uᵢGᵢ²"] = -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz"].sel(buffer=buffer)\
-                            +tafields["∫∫∫ᵇ⟨wb⟩ₜdxdydz"].sel(buffer=buffer)\
-                            +tafields["∫∫∫ᵇε̄ₛdxdydz"].sel(buffer=buffer)\
-                            -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼτᵢⱼ⟩ₜdxdydz"].sel(buffer=buffer)\
-                            -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜdxdydz"].sel(buffer=buffer)\
+        tafields["∫∫∫ᵇuᵢGᵢ²dxdydz"] = -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz"].sel(buffer=buffer)\
+                                      +tafields["∫∫∫ᵇ⟨wb⟩ₜdxdydz"].sel(buffer=buffer)\
+                                      +tafields["∫∫∫ᵇε̄ₛdxdydz"].sel(buffer=buffer)\
+                                      -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼτᵢⱼ⟩ₜdxdydz"].sel(buffer=buffer)\
+                                      -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜdxdydz"].sel(buffer=buffer)\
 
         term_names = ("-∂ₜk²", "-∂ⱼ(uⱼp)", "uᵢGᵢ", "Residual")
         y_pos = np.arange(len(term_names))
