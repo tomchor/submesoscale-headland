@@ -198,6 +198,7 @@ function construct_outputs(simulation;
                            write_iyz = false,
                            write_ttt = false,
                            write_tti = false,
+                           write_aaa = false,
                            write_conditional_aya = false,
                            debug = false,
                            )
@@ -242,6 +243,11 @@ function construct_outputs(simulation;
         @info "Setting up xyi writer"
         indices = (:, :, k_half)
         outputs_xyi = outputs_full
+
+        if write_aaa
+            outputs_budget_integrated = Dict( Symbol(:∫∫∫, k, :dxdydz) => Integral(ScratchedField(v))  for (k, v) in outputs_budget )
+            outputs_xyi = merge(outputs_xyi, outputs_budget_integrated)
+        end
 
         #+++ Write conditional integrals
         laptimer()
