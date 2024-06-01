@@ -61,42 +61,29 @@ for simname in simnames:
     tafields = xr.open_dataset(f"data_post/tafields_{simname}.nc", decode_times=False, chunks="auto")
     #---
 
+    #+++ Calculate auxiliary variables
+    tafields["∫∫∫ᵇuᵢGᵢ²dxdydz"] = -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz"]\
+                                  +tafields["∫∫∫ᵇ⟨wb⟩ₜdxdydz"]\
+                                  +tafields["∫∫∫ᵇε̄ₛdxdydz"]\
+                                  -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼτᵢⱼ⟩ₜdxdydz"]\
+                                  -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜdxdydz"]
+    tafields["∫∫∫ᵇ⟨∂ⱼ(uᵢτᵢⱼ)⟩ₜdxdydz"] = tafields["∫∫∫ᵇ⟨uᵢ∂ⱼτᵢⱼ⟩ₜdxdydz"] - tafields["∫∫∫ᵇε̄ₖdxdydz"]
+    #---
+
     for buffer in [0, 5,]:
         #+++
-        fig, axes = plt.subplots(ncols=2)
+        fig, axes = plt.subplots(ncols=1, figsize=(4, 8))
+        ax = axes
 
-        ax = axes[0]
-
-        tafields["∫∫∫ᵇuᵢGᵢ²dxdydz"] = -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz"].sel(buffer=buffer)\
-                                      +tafields["∫∫∫ᵇ⟨wb⟩ₜdxdydz"].sel(buffer=buffer)\
-                                      +tafields["∫∫∫ᵇε̄ₛdxdydz"].sel(buffer=buffer)\
-                                      -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼτᵢⱼ⟩ₜdxdydz"].sel(buffer=buffer)\
-                                      -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜdxdydz"].sel(buffer=buffer)\
-
-        term_names = ("-∂ₜk²", "-∂ⱼ(uⱼp)", "uᵢGᵢ", "Residual")
-        y_pos = np.arange(len(term_names))
-        term_values = [-tafields["∫∫∫ᵇ⟨∂ₜEk⟩ₜdxdydz"].sel(buffer=buffer),
-                       -tafields["∫∫∫ᵇ⟨uᵢ∂ᵢp⟩ₜdxdydz"].sel(buffer=buffer),
-                       +tafields["∫∫∫ᵇ⟨uᵢGᵢ⟩ₜdxdydz"].sel(buffer=buffer),
-                       ]
-        term_values.append(sum(term_values))
-
-        ax.barh(y_pos, term_values, align="center")
-        ax.set_yticks(y_pos, labels=term_names)
-        ax.invert_yaxis()  # labels read top-to-bottom
-        ax.set_xlabel("Term contribution")
-        ax.set_title("General budget")
-
-        ax = axes[1]
-
-        term_names = ("-∂ₜk²", "-uᵢ∂ⱼ(uⱼuᵢ)", "-∂ⱼ(uⱼp)", "wb", "uᵢFᵢ", "-uᵢ∂ⱼτᵢⱼ", "-uᵢ∂ⱼτᵇᵢⱼ", "Residual")
+        term_names = ("-∂ₜk²", "-uᵢ∂ⱼ(uⱼuᵢ)", "-∂ⱼ(uⱼp)", "wb", "uᵢFᵢ", "-∂ⱼ(uᵢτᵢⱼ)", "-εₖ", "-uᵢ∂ⱼτᵇᵢⱼ", "Residual")
         y_pos = np.arange(len(term_names))
         term_values = [-tafields["∫∫∫ᵇ⟨∂ₜEk⟩ₜdxdydz"].sel(buffer=buffer),
                        -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz"].sel(buffer=buffer),
                        -tafields["∫∫∫ᵇ⟨uᵢ∂ᵢp⟩ₜdxdydz"].sel(buffer=buffer),
                        +tafields["∫∫∫ᵇ⟨wb⟩ₜdxdydz"].sel(buffer=buffer),
                        +tafields["∫∫∫ᵇε̄ₛdxdydz"].sel(buffer=buffer),
-                       -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼτᵢⱼ⟩ₜdxdydz"].sel(buffer=buffer),
+                       -tafields["∫∫∫ᵇ⟨∂ⱼ(uᵢτᵢⱼ)⟩ₜdxdydz"].sel(buffer=buffer),
+                       -tafields["∫∫∫ᵇε̄ₖdxdydz"].sel(buffer=buffer),
                        -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜdxdydz"].sel(buffer=buffer),
                        ]
         term_values.append(sum(term_values))
@@ -109,7 +96,7 @@ for simname in simnames:
         #---
 
         #+++ Prettify and save
-        for ax in axes:
+        for ax in [axes]:
             ax.axvline(x=0, ls="--", color="k")
             ax.grid(True)
         fig.savefig(f"figures_check/budget_{simname}_buffer={buffer}m.png")
