@@ -35,19 +35,16 @@ modifiers = cycler(modifier = ["-f4", "-f2", ""])
 simnames = [ nr["name"] + nr["modifier"] for nr in modifiers * names ]
 #---
 
-fpaths = [ f"data_post/h00_bulk_{simname}.nc" for simname in simnames ]
+fpaths = [ f"data_post/bulkstats_{simname}.nc" for simname in simnames ]
 bulk_stats = xr.open_mfdataset(fpaths, concat_dim="simulation", combine="nested")
-bulk_stats["Δz̃"]  = bulk_stats["Δz_min"] / bulk_stats["Lo"]
-bulk_stats["Δz̃ᵗ"] = bulk_stats["Δz_min"] / bulk_stats["Loᵗ"]
+bulk_stats["Δz̃ᵋ"] = bulk_stats["Δz_min"] / bulk_stats["Loᵋ"]
 
-bulk_stats["Δz̃"].attrs  = dict(long_name="$\Delta z / L_O$", units="")
-bulk_stats["Δz̃ᵗ"].attrs = dict(long_name="$\Delta z / L_O$ᵗ", units="")
+bulk_stats["Δz̃ᵋ"].attrs = dict(long_name="$\Delta z / L_O$ᵋ", units="")
 
 bulk_stats = bulk_stats.rename(Fr_h = "Frₕ")
 
 fig = plt.figure(figsize=(5,4))
-#bulk_stats.plot.scatter(y="Δz̃", x="Δz_min", label="Lo")
-bulk_stats.plot.scatter(y="Δz̃ᵗ", x="Δz_min", facecolors="black", edgecolors="none")
+bulk_stats.plot.scatter(y="Δz̃ᵋ", x="Δz_min", facecolors="black", edgecolors="none")
 
 ax = plt.gca()
 ax.set_xlabel("Δz [m]")

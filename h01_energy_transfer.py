@@ -218,7 +218,7 @@ for simname in simnames:
         tafields[int_buf] = integrate(tafields[var], dV=tafields.ΔxΔz.where(distance_mask), dims=("x", "z"))
         tafields = condense(tafields, [int_all, int_buf], f"∫∫ᵇ{var}dxdz", dimname="buffer", indices=[0, buffer])
 
-    tafields["average_turbulence_mask"] = tafields["ε̄ₖ"] > 1e-11
+    tafields["average_turbulence_mask"] = tafields["ε̄ₖ"] > 1e-10
     for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "⟨wb⟩ₜ", "1"]:
         int_turb = f"∫∫∫ᵋ{var}dxdydz"
         tafields[int_turb] = integrate(tafields[var], dV=tafields.ΔxΔyΔz.where(tafields.average_turbulence_mask))
