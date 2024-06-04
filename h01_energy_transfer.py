@@ -222,10 +222,6 @@ for simname in simnames:
     for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "⟨wb⟩ₜ", "1"]:
         int_turb = f"∫∫∫ᵋ{var}dxdydz"
         tafields[int_turb] = integrate(tafields[var], dV=tafields.ΔxΔyΔz.where(tafields.average_turbulence_mask))
-
-    for var in ["ε̄ₖ", "ε̄ₚ", "1"]:
-        int_turb = f"∫∫ᵋ{var}dxdz"
-        tafields[int_turb] = integrate(tafields[var], dV=tafields.ΔxΔz.where(tafields.average_turbulence_mask), dims=("x", "z"))
     #---
 
     #+++ Get time-avg results at half-depth
