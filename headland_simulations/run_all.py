@@ -51,6 +51,7 @@ pbs_script = \
 #PBS -l {options_string2}
 #PBS -M tchor@umd.edu
 #PBS -m ae
+#PBS -r n
 
 # Clear the environment from any previously loaded modules
 module li

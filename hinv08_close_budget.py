@@ -15,11 +15,11 @@ print("Starting bulk statistics script")
 if basename(__file__) != "h00_runall.py":
     path = f"./headland_simulations/data/"
     simnames = [#"NPN-TEST",
-                #"NPN-R008F008",
-                #"NPN-R02F008",
-                #"NPN-R05F008",
-                #"NPN-R1F008",
-                #"NPN-R008F02",
+                "NPN-R008F008",
+                "NPN-R02F008",
+                "NPN-R05F008",
+                "NPN-R1F008",
+                "NPN-R008F02",
                 "NPN-R02F02",
                 "NPN-R05F02",
                 "NPN-R1F02",
@@ -36,7 +36,7 @@ if basename(__file__) != "h00_runall.py":
     from cycler import cycler
     names = cycler(name=simnames)
     modifiers = cycler(modifier = ["-f4", "-S-f4", "-f2", "-S-f2", "", "-S"])
-    modifiers = cycler(modifier = ["-f4",])
+    modifiers = cycler(modifier = ["-f4", "-f2", ""])
     simnames = [ nr["name"] + nr["modifier"] for nr in modifiers * names ]
 #---
 
@@ -59,6 +59,8 @@ for simname in simnames:
                                     open_dataset_kwargs=dict(chunks=dict(time="auto")),
                                     )
     tafields = xr.open_dataset(f"data_post/tafields_{simname}.nc", decode_times=False, chunks="auto")
+    #a = (xyi["∫∫∫uᵢ∂ⱼuⱼuᵢdxdydz"].mean().values)
+    #b = (tafields["∫∫∫ᵇ⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz"].sel(buffer=0).values)
     #---
 
     #+++ Calculate auxiliary variables
@@ -101,4 +103,4 @@ for simname in simnames:
             ax.grid(True)
         fig.savefig(f"figures_check/budget_{simname}_buffer={buffer}m.png")
         #---
-    pause
+    plt.close()

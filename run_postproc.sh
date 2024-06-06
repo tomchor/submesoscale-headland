@@ -8,6 +8,7 @@
 #PBS -l select=1:ncpus=16:mem=80GB:ngpus=0
 #PBS -M tchor@umd.edu
 #PBS -m abe
+#PBS -r n
 
 # Clear the environment from any previously loaded modules
 module purge
