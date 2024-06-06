@@ -45,6 +45,7 @@ for modifier in modifiers:
     simnames = [ simname_base + modifier for simname_base in simnames_base ]
     exec(open("h01_energy_transfer.py").read())
     exec(open("h02_bulkstats.py").read())
+pause
 
 for modifier in modifiers:
     print("\nStarting h03 post-processing of results using modifier", modifier)
