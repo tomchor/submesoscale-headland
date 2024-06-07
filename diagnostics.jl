@@ -152,6 +152,7 @@ outputs_budget = Dict{Symbol, Any}(:uᵢGᵢ     => KineticEnergyTendency(model)
                                    :uᵢbᵢ     => BuoyancyConversionTerm(model),
                                    :uᵢ∂ⱼτᵢⱼ  => KineticEnergyStressTerm(model),
                                    :uᵢ∂ⱼτᵇᵢⱼ => KineticEnergyImmersedBoundaryTerm(model),
+                                   :εₛ       => εₛ,
                                    :Ek       => TurbulentKineticEnergy(model, u, v, w),)
 #---
 
@@ -176,6 +177,7 @@ function construct_outputs(simulation;
                            write_iyz = false,
                            write_ttt = false,
                            write_tti = false,
+                           write_aaa = false,
                            write_conditional_aya = false,
                            debug = false,
                            )
@@ -219,6 +221,11 @@ function construct_outputs(simulation;
         @info "Setting up xyi writer"
         indices = (:, :, k_half)
         outputs_xyi = outputs_full
+
+        if write_aaa
+            outputs_budget_integrated = Dict( Symbol(:∫∫∫, k, :dxdydz) => Integral(ScratchedField(v))  for (k, v) in outputs_budget )
+            outputs_xyi = merge(outputs_xyi, outputs_budget_integrated)
+        end
 
         #+++ Write conditional integrals
         laptimer()
@@ -303,9 +310,7 @@ function construct_outputs(simulation;
     #+++ ttt (Time averages)
     if write_ttt
         @info "Setting up ttt writer"
-        outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip)
-        outputs_ttt[:uᵢbᵢ] = outputs_budget[:uᵢbᵢ]
-        outputs_ttt[:uᵢ∂ᵢp] = outputs_budget[:uᵢ∂ᵢp]
+        outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip, outputs_budget)
         indices = (:, :, :)
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
                                                                      filename = "$rundir/data/ttt.$(simname).nc",
