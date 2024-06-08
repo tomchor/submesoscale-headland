@@ -56,6 +56,7 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
 label_dict = {"ε̄ₖ"     : r"Time-averaged KE dissipation rate $\bar\varepsilon_k$ [m²/s³]",
               "Ro"     : r"$Ro$ [vertical vorticity / $f_0$]",
               "q̃_norm" : r"Normalized filtered Ertel PV",
+              "v"      : r"$v$-velocity [m/s]",
               }
 #---
 
@@ -232,7 +233,7 @@ for modifier in modifiers:
 
         if "q̃_norm" in varnames:
             if "q̃" not in snaps.variables.keys():
-                snaps = calculate_filtered_PV(snaps, scale_meters = 20, condense_tensors=True, indices = [1,2,3], cleanup=False)
+                snaps = calculate_filtered_PV(snaps, scale_meters = 15, condense_tensors=True, indices = [1,2,3], cleanup=False)
 
             snaps["q̃_norm"] = snaps["q̃"]  / (snaps["N²∞"] * snaps["f₀"])
             snaps["q̃_norm"].attrs = dict(long_name=r"Normalized filtered Ertel PV")
@@ -268,13 +269,13 @@ for modifier in modifiers:
             if "xC" in snaps.coords: # has an x dimension
                 sel = sel | dict(x=slice(-snaps.headland_intrusion_size_max/3, np.inf))
             if "yC" in snaps.coords: # has a y dimension
-                sel = sel | dict(y=slice(-2*snaps.L, np.inf))
+                sel = sel | dict(y=slice(-2*snaps.L, 8*snaps.L))
             if ("zC" in snaps.coords) and (len(snaps.coords["zC"].values.shape)>0): # has a z dimension
                 sel = sel | dict(z=slice(None))
 
         cbar_kwargs = dict(shrink=0.5, fraction=0.012, pad=0.02, aspect=30)
         if ("xC" in snaps.coords) and ("yC" in snaps.coords):
-            figsize = (8, 8)
+            figsize = (8, 10)
             cbar_kwargs = dict(location="right") | cbar_kwargs
         else:
             figsize = (9, 5)

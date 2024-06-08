@@ -58,7 +58,7 @@ for buffer in bulk.buffer.values:
     mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.plot(RoFr, 2.5e-4*RoFr, ls="--", label=r"$Ro_h Fr_h$", color="k", zorder=0)
+    ax.plot(RoFr, 2.5e-4*RoFr, ls="--", label=r"$2.5\times10^{-4}Ro_h Fr_h$", color="k", zorder=0)
     ax.legend(loc="lower right")
 
     print("Plotting axes 1")

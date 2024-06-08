@@ -2,7 +2,6 @@ using Oceananigans.AbstractOperations: @at, ∂x, ∂y, ∂z
 using Oceananigans.Units
 using Oceananigans.Grids: Center, Face
 using Oceananigans.TurbulenceClosures: viscosity, diffusivity
-using Oceananigans: znode
 using Oceananigans.Fields: @compute
 
 using Oceanostics.FlowDiagnostics: strain_rate_tensor_modulus_ccc
@@ -31,26 +30,6 @@ CellCenter = (Center, Center, Center)
 
 #++++ Kernel Function Operations
 using Oceananigans.Operators
-
-#+++ PE
-@inline function zc_ccc(i, j, k, grid, c)
-    return znode(k, grid, Center()) * c[i, j, k]
-end
-#---
-
-#+++ Sorted b (for BPE)
-function flattenedsort(A, dim_order::Union{Tuple, AbstractVector})
-    return reshape(sort(permutedims(A, dim_order)[:]), size(A))
-end
-
-using Statistics: mean
-function sort_b(model; adapt=false, avg_dims=())
-    b = model.tracers.b
-    b_array = adapt ? Array(interior(b)) : interior(b)
-    b_sorted = flattenedsort(b_array, [3,2,1])
-    return dropdims(mean(b_sorted, dims=avg_dims), dims=avg_dims)
-end
-#---
 
 #+++ Write to NCDataset
 import NCDatasets as NCD
@@ -209,7 +188,7 @@ function construct_outputs(simulation;
     #+++ Get prefixes for conditional averages/integrals
     prefixes = (:∫∫⁰, :∫∫⁵, :∫∫¹⁰, :∫∫²⁰)
     buffers = [0, 5,]
-    conditionally_averaged_var_symbols = (:εₖ, :εₚ, :uᵢbᵢ)
+    conditionally_integrated_var_symbols = (:εₖ, :εₚ, :uᵢbᵢ)
     #---
 
     #+++ Preamble and common keyword arguments
@@ -227,7 +206,6 @@ function construct_outputs(simulation;
                                                                      schedule = TimeInterval(interval_3d),
                                                                      array_type = Array{Float64},
                                                                      verbose = debug,
-                                                                     dimensions = Dict("b_sorted" => ("xC", "yC", "zC",),),
                                                                      kwargs...
                                                                      )
         add_grid_metrics_to!(ow)
@@ -257,7 +235,7 @@ function construct_outputs(simulation;
                 @info "Calculating condition_distance"
                 condition_distance = Array(interior(altitude) .> buffer)
                 @info "Calculated, now calculating integral"
-                for s in conditionally_averaged_var_symbols
+                for s in conditionally_integrated_var_symbols
                     output_integrated = Integral(outputs_full[s]; condition=condition_distance, dims=(1,3))
                     outputs_xyi[Symbol(prefix, s, :dxdz)] = output_integrated # Append averaged output to Dict
                 end
