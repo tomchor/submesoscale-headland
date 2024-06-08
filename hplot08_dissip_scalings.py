@@ -23,6 +23,8 @@ bulk["εₖ_ratio_bl_to_rest"] = bulk["⟨ε̄ₖ⟩ᴮᴸ"] / bulk["⟨ε̄ₖ�
 bulk["H"]  = bulk.α * bulk.L
 bulk["ℰₖ"] = bulk["∫∫∫ᵇε̄ₖdxdydz"]     / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["ℰₚ"] = bulk["∫∫∫ᵇε̄ₚdxdydz"]     / (bulk["V∞"]**3 * bulk.L * bulk.H)
+bulk["𝓅"]  = bulk["∫∫∫ᵇ⟨uᵢ∂ᵢp⟩ₜdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
+bulk["𝒜"]  = bulk["∫∫∫ᵇ⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["𝒫"]  = bulk["∫∫∫ᵇΠdxdydz"]      / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["𝒦"]  = bulk["∫∫∫ᵇ⟨Ek′⟩ₜdxdydz"] / (bulk["V∞"]**2 * bulk.L**2 * bulk.H)
 #---
@@ -31,6 +33,8 @@ bulk["𝒦"]  = bulk["∫∫∫ᵇ⟨Ek′⟩ₜdxdydz"] / (bulk["V∞"]**2 * bu
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
 bulk["ℰₖ"].attrs = dict(long_name="Normalized integrated\nKE dissipation rate, $\mathcal{E}_k$")
 bulk["ℰₚ"].attrs = dict(long_name="Normalized integrated\nbuoyancy mixing rate, $\mathcal{E}_p$")
+bulk["𝓅"].attrs = dict(long_name="Normalized integrated\npressure transport contribution, $\mathcal{p}$")
+bulk["𝒜"].attrs = dict(long_name="Normalized integrated\nadvection contribution, $\mathcal{A}$")
 bulk["𝒫"].attrs = dict(long_name="Normalized integrated\nshear production rate, $\mathcal{P}$")
 bulk["𝒦"].attrs = dict(long_name="Normalized integrateed\nTKE, $\mathcal{K}$")
 #---
