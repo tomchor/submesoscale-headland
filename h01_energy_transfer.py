@@ -235,14 +235,23 @@ for simname in simnames:
         tafields[int_buf] = integrate(tafields[var], dV=tafields.ΔxΔz.where(distance_mask), dims=("x", "z"))
         tafields = condense(tafields, [int_all, int_buf], f"∫∫ᵇ{var}dxdz", dimname="buffer", indices=[0, buffer])
 
-    tafields["average_turbulence_mask"] = tafields["ε̄ₖ"] > 1e-11
+    tafields["average_turbulence_mask"] = tafields["ε̄ₖ"] > 1e-10
     for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "⟨wb⟩ₜ", "1"]:
         int_turb = f"∫∫∫ᵋ{var}dxdydz"
         tafields[int_turb] = integrate(tafields[var], dV=tafields.ΔxΔyΔz.where(tafields.average_turbulence_mask))
+    #---
 
-    for var in ["ε̄ₖ", "ε̄ₚ", "1"]:
-        int_turb = f"∫∫ᵋ{var}dxdz"
-        tafields[int_turb] = integrate(tafields[var], dV=tafields.ΔxΔz.where(tafields.average_turbulence_mask), dims=("x", "z"))
+    #+++ Calculate some integral through the divergence theorem
+    Ek_flux_north = integrate(tafields["⟨Ek⟩ₜ"], dV=tafields["ΔxΔz"], dims=("x", "z")).sel(yC=np.inf, method="nearest")
+    Ek_flux_south = tafields.V_inf**3 * tafields.ΔxΔz.sel(yC=-np.inf, method="nearest").sum() / 2
+    tafields["∫∫∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz_approx"] = Ek_flux_north - Ek_flux_south
+    #---
+
+    #+++ Depth-integrate (for debugging only)
+    if ("-f4" in simname) or ("-f2" in simname):
+        for var in ["⟨∂ₜEk⟩ₜ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "ε̄ₛ",]:
+            int_all = f"∫⁰{var}dxdydz"
+            tafields[int_all] = integrate(tafields[var], dims=("z",))
     #---
 
     #+++ Get time-avg results at half-depth
