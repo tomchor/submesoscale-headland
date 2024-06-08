@@ -57,7 +57,7 @@ pbs_script = \
 module li
 module --force purge
 module load ncarenv/23.10
-module load julia/1.9.2 cuda
+module load julia/1.10.2 cuda
 module li
 
 #/glade/u/apps/ch/opt/usr/bin/dumpenv # Dumps environment (for debugging with CISL support)
