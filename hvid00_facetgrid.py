@@ -269,13 +269,13 @@ for modifier in modifiers:
             if "xC" in snaps.coords: # has an x dimension
                 sel = sel | dict(x=slice(-snaps.headland_intrusion_size_max/3, np.inf))
             if "yC" in snaps.coords: # has a y dimension
-                sel = sel | dict(y=slice(-snaps.L, 8*snaps.L))
+                sel = sel | dict(y=slice(-2*snaps.L, 8*snaps.L))
             if ("zC" in snaps.coords) and (len(snaps.coords["zC"].values.shape)>0): # has a z dimension
                 sel = sel | dict(z=slice(None))
 
         cbar_kwargs = dict(shrink=0.5, fraction=0.012, pad=0.02, aspect=30)
         if ("xC" in snaps.coords) and ("yC" in snaps.coords):
-            figsize = (8, 9)
+            figsize = (8, 10)
             cbar_kwargs = dict(location="right") | cbar_kwargs
         else:
             figsize = (9, 5)

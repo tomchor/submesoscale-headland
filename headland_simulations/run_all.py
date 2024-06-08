@@ -47,11 +47,11 @@ pbs_script = \
 #PBS -e logs/{simname_full}.log
 #PBS -l walltime=24:00:00
 #PBS -q casper
-#PBS -r n
 #PBS -l {options_string1}
 #PBS -l {options_string2}
 #PBS -M tchor@umd.edu
 #PBS -m ae
+#PBS -r n
 
 # Clear the environment from any previously loaded modules
 module li
