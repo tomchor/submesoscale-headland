@@ -112,15 +112,16 @@ for simname in simnames:
     #---
 
     #+++ Trimming domain
-    t_slice = slice(ttt.T_advective_spinup+0.01, np.inf)
+    t_slice_inclusive = slice(ttt.T_advective_spinup, np.inf) # For snapshots, we want to include t=T_advective_spinup
+    t_slice_exclusive = slice(ttt.T_advective_spinup+0.01, np.inf) # For time-averaged outputs, we want to exclude t=T_advective_spinup
     x_slice = slice(xyz.xF[0], np.inf)
     y_slice = slice(xyz.yF[0] + xyz.sponge_length_y, np.inf)
-    z_slice = slice(ttt.zF[0], ttt.zC[-1])
+    z_slice = slice(ttt.zF[0], np.inf)
 
-    xyz = xyz.sel(time=t_slice, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice, zC=z_slice, zF=z_slice)
-    xyi = xyi.sel(time=t_slice, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice)
-    ttt = ttt.sel(time=t_slice, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice)
-    tti = tti.sel(time=t_slice, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice)
+    xyz = xyz.sel(time=t_slice_inclusive, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice, zC=z_slice, zF=z_slice)
+    xyi = xyi.sel(time=t_slice_inclusive, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice)
+    ttt = ttt.sel(time=t_slice_exclusive, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice)
+    tti = tti.sel(time=t_slice_exclusive, xC=x_slice, xF=x_slice, yC=y_slice, yF=y_slice)
     #---
 
     #+++ Condense tensors
@@ -164,15 +165,24 @@ for simname in simnames:
     #+++ Time average
     # Here ū and ⟨u⟩ₜ are interchangeable
     tafields = ttt.mean("time")
-    tafields = tafields.rename({"uᵢ"   : "ūᵢ",
-                                "∂ⱼuᵢ" : "∂ⱼūᵢ",
-                                "uⱼuᵢ" : "⟨uⱼuᵢ⟩ₜ",
-                                "b"    : "b̄",
-                                "uᵢbᵢ" : "⟨wb⟩ₜ",
-                                "εₖ"   : "ε̄ₖ",
-                                "εₚ"   : "ε̄ₚ",
-                                "κₑ"   : "κ̄ₑ",
+    tafields = tafields.rename({"uᵢ"       : "ūᵢ",
+                                "∂ⱼuᵢ"     : "∂ⱼūᵢ",
+                                "uⱼuᵢ"     : "⟨uⱼuᵢ⟩ₜ",
+                                "b"        : "b̄",
+                                "uᵢGᵢ"     : "⟨uᵢGᵢ⟩ₜ",
+                                "uᵢ∂ⱼuⱼuᵢ" : "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ",
+                                "uᵢ∂ᵢp"    : "⟨uᵢ∂ᵢp⟩ₜ",
+                                "uᵢbᵢ"     : "⟨wb⟩ₜ",
+                                "uᵢ∂ⱼτᵢⱼ"  : "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ",
+                                "uᵢ∂ⱼτᵇᵢⱼ" : "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ",
+                                "εₛ"       : "ε̄ₛ",
+                                "Ek"       : "⟨Ek⟩ₜ",
+                                "εₖ"       : "ε̄ₖ",
+                                "εₚ"       : "ε̄ₚ",
+                                "κₑ"       : "κ̄ₑ",
                                 })
+    tafields["⟨∂ₜEk⟩ₜ"] = (xyz.Ek.sel(time=(xyz.T_advective_spinup+xyz.T_advective_statistics))
+                          -xyz.Ek.sel(time=(xyz.T_advective_spinup))) / (xyz.T_advective_statistics * xyz.T_advective)
     tafields.attrs = ttt.attrs
     #---
 
@@ -204,7 +214,7 @@ for simname in simnames:
     buffer = 5 # meters
 
     distance_mask = tafields.altitude > buffer
-    for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨wb⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ", "1"]:
+    for var in ["ε̄ₖ", "ε̄ₚ", "⟨∂ₜEk⟩ₜ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "ε̄ₛ", "⟨Ek⟩ₜ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ", "1"]:
         int_all = f"∫∫∫⁰{var}dxdydz"
         int_buf = f"∫∫∫⁵{var}dxdydz"
         tafields[int_all] = integrate(tafields[var])
@@ -222,6 +232,19 @@ for simname in simnames:
     for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "⟨wb⟩ₜ", "1"]:
         int_turb = f"∫∫∫ᵋ{var}dxdydz"
         tafields[int_turb] = integrate(tafields[var], dV=tafields.ΔxΔyΔz.where(tafields.average_turbulence_mask))
+    #---
+
+    #+++ Calculate some integral through the divergence theorem
+    Ek_flux_north = integrate(tafields["⟨Ek⟩ₜ"], dV=tafields["ΔxΔz"], dims=("x", "z")).sel(yC=np.inf, method="nearest")
+    Ek_flux_south = tafields.V_inf**3 * tafields.ΔxΔz.sel(yC=-np.inf, method="nearest").sum() / 2
+    tafields["∫∫∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz_approx"] = Ek_flux_north - Ek_flux_south
+    #---
+
+    #+++ Depth-integrate (for debugging only)
+    if ("-f4" in simname) or ("-f2" in simname):
+        for var in ["⟨∂ₜEk⟩ₜ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "ε̄ₛ",]:
+            int_all = f"∫⁰{var}dxdydz"
+            tafields[int_all] = integrate(tafields[var], dims=("z",))
     #---
 
     #+++ Get time-avg results at half-depth
