@@ -311,6 +311,8 @@ function construct_outputs(simulation;
     if write_ttt
         @info "Setting up ttt writer"
         outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip, outputs_budget)
+        vp = @at CellCenter (v * sum(model.pressures))
+        outputs_ttt = merge(outputs_ttt, Dict(:vp=>vp,))
         indices = (:, :, :)
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
                                                                      filename = "$rundir/data/ttt.$(simname).nc",
