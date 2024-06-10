@@ -176,10 +176,11 @@ for simname in simnames:
                                 "uᵢ∂ⱼτᵢⱼ"  : "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ",
                                 "uᵢ∂ⱼτᵇᵢⱼ" : "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ",
                                 "εₛ"       : "ε̄ₛ",
-                                "Ek"       : "⟨Ek⟩ₜ",
                                 "εₖ"       : "ε̄ₖ",
                                 "εₚ"       : "ε̄ₚ",
                                 "κₑ"       : "κ̄ₑ",
+                                "Ek"       : "⟨Ek⟩ₜ",
+                                "vp"       : "⟨vp⟩ₜ",
                                 })
     tafields["⟨∂ₜEk⟩ₜ"] = (xyz.Ek.sel(time=(xyz.T_advective_spinup+xyz.T_advective_statistics))
                           -xyz.Ek.sel(time=(xyz.T_advective_spinup))) / (xyz.T_advective_statistics * xyz.T_advective)

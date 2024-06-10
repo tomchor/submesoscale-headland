@@ -214,6 +214,7 @@ function construct_outputs(simulation;
         write_to_ds(ow.filepath, "Δz_from_headland", interior(compute!(Field(Δz_from_headland))), coords = ("xC", "yC", "zC"))
         write_to_ds(ow.filepath, "altitude", interior(compute!(Field(altitude))), coords = ("xC", "yC", "zC"))
         write_to_ds(ow.filepath, "ΔxΔz", interior(compute!(Field(ΔxΔz))), coords = ("xC", "yC", "zC"))
+        write_to_ds(ow.filepath, "bottom_height", Array(interior(maximum(compute!(Field(bottom_height)), dims=3)))[:,:,1], coords = ("xC", "yC",))
         @info "Finished writing grid metrics and deltas to xyz"
         laptimer()
     end
@@ -293,6 +294,7 @@ function construct_outputs(simulation;
                                                                      )
         add_grid_metrics_to!(ow, user_indices=indices)
         write_to_ds(ow.filepath, "altitude", interior(compute!(Field(altitude, indices=indices))), coords = ("xC", "yC", "zC"))
+        write_to_ds(ow.filepath, "bottom_height", Array(interior(maximum(compute!(Field(bottom_height)), dims=3)))[:,:,1], coords = ("xC", "yC",))
     end
     #---
 
