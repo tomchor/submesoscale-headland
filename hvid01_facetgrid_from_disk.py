@@ -83,13 +83,12 @@ elif shell is not None:
     plotting_time = 23
     figdir = "figures_check"
 
-    slice_names = ["tafields",]
-    #slice_names = ["xyi",]
+    slice_names = ["xyi",]
     modifiers = ["-f2", "-S-f2", "", "-S"]
-    modifiers = ["",]
+    modifiers = ["-f2",]
 
     varnames = ["q̃_norm", "Ro"]
-    varnames = ["q̄_norm"]
+    varnames = ["Ro"]
     contour_variable_name = None #"water_mask_buffered"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
