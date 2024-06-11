@@ -6,7 +6,6 @@ import numpy as np
 import pynanigans as pn
 import xarray as xr
 from matplotlib import pyplot as plt
-from aux00_utils import simnames, collect_datasets
 from aux01_physfuncs import calculate_filtered_PV
 from aux02_plotting import manual_facetgrid, get_orientation, BuRd, plot_kwargs_by_var, label_dict
 import argparse
@@ -33,7 +32,7 @@ elif shell is not None:
     parallel = False
     animate = False
     test = False
-    time_avg = False
+    time_avg = True
     summarize = True
     zoom = True
     plotting_time = 23
@@ -63,7 +62,7 @@ else:
     parser.add_argument("--figdir", default="figures_check", type=str,)
     parser.add_argument("--modifiers", default=["f2"], type=str, nargs="+", dest="aux_modifiers")
     parser.add_argument("--slice_names", default=["xyi",], type=str, nargs="+")
-    parser.add_argument("--varnames", default=["Ro"], type=str, nargs="+")
+    parser.add_argument("--varnames", default=["PV_norm"], type=str, nargs="+")
     parser.add_argument("--contour_variable_name", default=None, type=str)
 
     args = parser.parse_args()
@@ -109,17 +108,17 @@ else:
     modifiers = [ f"-{modifier}" if (modifier != "f1" and modifier != "") else "" for modifier in aux_modifiers ]
     #---
 
+
 plot_kwargs_by_var = { k : plot_kwargs_by_var[k] for k in plot_kwargs_by_var if k in varnames}
 #---
 
 for modifier in modifiers:
-    simnames_filtered = [ f"{simname}{modifier}" for simname in simnames ]
     for slice_name in slice_names:
 
         #+++ Read and reorganize Dataset
-        if __name__ == "__main__": print(f"\nCollecting {slice_name}{modifier}")
-        snaps = collect_datasets(simnames_filtered, slice_name=slice_name)
-
+        ncname = f"data_post/{slice_name}_snaps{modifier}.nc"
+        if __name__ == "__main__": print(f"\nOpening {ncname}")
+        snaps = xr.open_dataset(ncname)
         if (not animate) and (not time_avg) and ("time" in snaps.coords.keys()):
             snaps = snaps.sel(time=[plotting_time], method="nearest")
 
@@ -330,3 +329,4 @@ for modifier in modifiers:
                     fig.savefig(outname, dpi=200)
                 #---
         #---
+

@@ -1,6 +1,8 @@
 import numpy as np
 from itertools import chain
 from matplotlib import pyplot as plt
+from matplotlib.colors import LogNorm
+from cmocean import cm
 
 #+++ Manual FacetGrid plot
 def manual_facetgrid(da, fig, tt=None,
@@ -112,7 +114,7 @@ def fill_seamount_xy(ax, ds, radius, color="silver"):
     return
 #---
 
-#+++
+#+++ Define mscatter, to plot scatter with a list of markers
 def mscatter(x,y,ax=None, markers=None, **kw):
     """ Plots scatter but marker can be a list """
     import matplotlib.markers as mmarkers
@@ -249,5 +251,48 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
 
 cmap = plt.get_cmap("RdBu_r")
 BuRd = truncate_colormap(cmap, 0.05, 0.95)
+#---
+
+#+++ MASTER DICTIONARY OF OPTIONS
+plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdBu_r),
+                      "w"         : dict(vmin=-0.003, vmax=+0.003, cmap=plt.cm.RdBu_r),
+                      "PV_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
+                      "PVᶻ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
+                      "PVʰ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
+                      "PVᵍ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
+                      "q̃_norm"    : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
+                      "q̃ᶻ_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
+                      "q̃ʰ_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
+                      "q̄_norm"    : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
+                      "q̄"         : dict(vmin=-1e-11, vmax=1e-11, cmap="RdBu_r"),
+                      "Ri"        : dict(vmin=-2, vmax=2, cmap=cm.balance),
+                      "Ro"        : dict(vmin=-3, vmax=3, cmap=BuRd),
+                      "εₖ"        : dict(norm=LogNorm(vmin=1e-10,   vmax=1e-8,   clip=True), cmap="inferno"),
+                      "εₚ"        : dict(norm=LogNorm(vmin=1e-10/5, vmax=1e-8/5, clip=True), cmap="inferno"),
+                      "ε̄ₖ"        : dict(norm=LogNorm(vmin=2e-11,   vmax=2e-9,   clip=True), cmap="inferno"),
+                      "ε̄ₚ"        : dict(norm=LogNorm(vmin=2e-11/5, vmax=2e-9/5, clip=True), cmap="inferno"),
+                      "Lo"        : dict(vmin=0, vmax=2, cmap=cm.balance),
+                      "Δz_norm"   : dict(vmin=0, vmax=2, cmap=cm.balance),
+                      "v"         : dict(vmin=-1.2 * 0.01, vmax=1.2 * 0.01, cmap=cm.balance),
+                      "wb"        : dict(vmin=-3e-8, vmax=+3e-8, cmap=cm.balance),
+                      "uᵢGᵢ"      : dict(vmin=-1e-7, vmax=+1e-7, cmap=cm.balance),
+                      "Kb"        : dict(vmin=-1e-1, vmax=+1e-1, cmap=cm.balance),
+                      "γ"         : dict(vmin=0, vmax=1, cmap="plasma"),
+                      "Π"         : dict(cmap=cm.balance, vmin=-1e-9, vmax=+1e-9),
+                      "Πv"        : dict(cmap=cm.balance, vmin=-1e-9, vmax=+1e-9),
+                      "Πh"        : dict(cmap=cm.balance, vmin=-1e-9, vmax=+1e-9),
+                      "R_Π"       : dict(cmap=cm.balance, robust=True),
+                      "Rᵍ_PVvs"   : dict(cmap=BuRd, vmin=0, vmax=1),
+                      "R_PVvs"    : dict(cmap=BuRd, vmin=0, vmax=1),
+                      "R_SPv"     : dict(cmap=BuRd, vmin=0, vmax=1),
+                      "R_SPv2"    : dict(cmap=cm.balance, vmin=0, vmax=1),
+                      "R_SPh"     : dict(cmap=cm.balance, vmin=0, vmax=1),
+                      }
+
+label_dict = {"ε̄ₖ"     : r"Time-averaged KE dissipation rate $\bar\varepsilon_k$ [m²/s³]",
+              "Ro"     : r"$Ro$ [vertical vorticity / $f_0$]",
+              "q̃_norm" : r"Normalized filtered Ertel PV",
+              "v"      : r"$v$-velocity [m/s]",
+              }
 #---
 
