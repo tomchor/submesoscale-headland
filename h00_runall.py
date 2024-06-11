@@ -46,11 +46,6 @@ for modifier in modifiers:
     exec(open("h01_energy_transfer.py").read())
     exec(open("h02_bulkstats.py").read())
 
-for modifier in modifiers:
-    print("\nStarting h03 post-processing of results using modifier", modifier)
-    simnames = [ simname_base + modifier for simname_base in simnames_base ]
-    exec(open("h03_collect_snapshots.py").read())
-
 print("\nStarting hvid00")
 
 #+++ Options for hvid00
