@@ -244,14 +244,14 @@ for simname in simnames:
     #---
 
     #+++ Calculate some integrals through the divergence theorem
-    Ek_flux_north = integrate(tafields["⟨Ek⟩ₜ"], dV=tafields["ΔxΔz"], dims=("x", "z")).sel(yC=np.inf, method="nearest")
+    Ek_flux_north = tafields.V_inf * integrate(tafields["⟨Ek⟩ₜ"], dV=tafields["ΔxΔz"], dims=("x", "z")).sel(yC=np.inf, method="nearest")
     Ek_flux_south = tafields.V_inf**3 * tafields.ΔxΔz.sel(yC=-np.inf, method="nearest").sum() / 2
     tafields["∫∫∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz_diverg"] = Ek_flux_north - Ek_flux_south
 
     vp_flux_north = integrate(tafields["⟨vp⟩ₜ"], dV=tafields["ΔxΔz"], dims=("x", "z")).sel(yC=+np.inf, method="nearest")
     vp_flux_south = integrate(tafields["⟨vp⟩ₜ"], dV=tafields["ΔxΔz"], dims=("x", "z")).sel(yC=-np.inf, method="nearest")
     tafields["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_diverg"] = vp_flux_north - vp_flux_south
-    #___
+    #---
 
     #+++ Calculate form drag from topography
     dhdy = ttt.bottom_height.differentiate("yC")
