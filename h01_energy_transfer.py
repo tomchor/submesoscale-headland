@@ -45,7 +45,7 @@ indices = [1, 2, 3]
 #---
 
 for simname in simnames:
-    #+++ Open datasets xyz and xyi
+    #+++ Open datasets
     print(f"\nOpening {simname} xyz")
     grid_xyz, xyz = open_simulation(path+f"xyz.{simname}.nc",
                                     use_advective_periods = True,
@@ -181,6 +181,7 @@ for simname in simnames:
                                 "κₑ"       : "κ̄ₑ",
                                 "Ek"       : "⟨Ek⟩ₜ",
                                 "vp"       : "⟨vp⟩ₜ",
+                                "p"        : "p̄",
                                 })
     tafields["⟨∂ₜEk⟩ₜ"] = (xyz.Ek.sel(time=(xyz.T_advective_spinup+xyz.T_advective_statistics))
                           -xyz.Ek.sel(time=(xyz.T_advective_spinup))) / (xyz.T_advective_statistics * xyz.T_advective)
@@ -242,10 +243,24 @@ for simname in simnames:
         tafields[int_turb] = integrate(tafields[var], dV=tafields.ΔxΔyΔz.where(tafields.average_turbulence_mask))
     #---
 
-    #+++ Calculate some integral through the divergence theorem
+    #+++ Calculate some integrals through the divergence theorem
     Ek_flux_north = integrate(tafields["⟨Ek⟩ₜ"], dV=tafields["ΔxΔz"], dims=("x", "z")).sel(yC=np.inf, method="nearest")
     Ek_flux_south = tafields.V_inf**3 * tafields.ΔxΔz.sel(yC=-np.inf, method="nearest").sum() / 2
-    tafields["∫∫∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz_approx"] = Ek_flux_north - Ek_flux_south
+    tafields["∫∫∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz_diverg"] = Ek_flux_north - Ek_flux_south
+
+    vp_flux_north = integrate(tafields["⟨vp⟩ₜ"], dV=tafields["ΔxΔz"], dims=("x", "z")).sel(yC=+np.inf, method="nearest")
+    vp_flux_south = integrate(tafields["⟨vp⟩ₜ"], dV=tafields["ΔxΔz"], dims=("x", "z")).sel(yC=-np.inf, method="nearest")
+    tafields["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_diverg"] = vp_flux_north - vp_flux_south
+    #___
+
+    #+++ Calculate form drag from topography
+    dhdy = ttt.bottom_height.differentiate("yC")
+    p̄_wet = -tafields.p̄.where(tafields.ΔxΔz!=0, other=np.inf) # Minus sign because pressure here is negative for some reason
+    p̄_bottom = p̄_wet.pnmax("z")
+    #p̄_bottom2 = -tafields.p̄.pnsel(z=0, method="nearest") # This may or may not be equivalent to the above depending of how Oceananigans treats pressure inside IB
+
+    ΔxΔy = tafields["Δxᶜᶜᶜ"] * tafields["Δyᶜᶜᶜ"]
+    tafields["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"] = -tafields.V_inf * integrate(p̄_bottom * dhdy, dV=ΔxΔy.pnmax("z"), dims=("x", "y"))
     #---
 
     #+++ Depth-integrate (for debugging only)
@@ -253,6 +268,12 @@ for simname in simnames:
         for var in ["⟨∂ₜEk⟩ₜ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "ε̄ₛ",]:
             int_all = f"∫⁰{var}dxdydz"
             tafields[int_all] = integrate(tafields[var], dims=("z",))
+
+#        from matplotlib import pyplot as plt
+#        plt.figure(); tafields["∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz"].pnplot(x="x", robust=True)
+#        plt.figure(); tafields["∫⁰⟨uᵢ∂ᵢp⟩ₜdxdydz"].pnplot(x="x", robust=True)
+#        print()
+#    continue
     #---
 
     #+++ Get time-avg results at half-depth
@@ -274,7 +295,6 @@ for simname in simnames:
     #+++ Get CSI mask and CSI-integral
     tafields["average_stratification_mask"] = tafields["∂ⱼb̄"].sel(j=3) > 0
     tafields["average_CSI_mask"] = ((tafields.q̄ * tafields.f_0) < 0) & (tafields["∂ⱼb̄"].sel(j=3) > 0)
-    ΔxΔy = tafields["Δxᶜᶜᶜ"] * tafields["Δyᶜᶜᶜ"]
     for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "1"]:
         int_csi = f"∫∫ᶜˢⁱ{var}dxdy"
         tafields[int_csi] = integrate(tafields[var], dV=ΔxΔy.where(tafields.average_CSI_mask), dims=("x", "y"))
