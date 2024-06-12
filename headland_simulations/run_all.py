@@ -30,7 +30,7 @@ simnames = [ nr["name"] + nr["rotation"] + nr["resolution"] for nr in rotations 
 
 #+++ Options
 remove_checkpoints = False
-only_one_job = True
+only_one_job = False
 dry_run = False
 omit_topology = True
 
