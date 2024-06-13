@@ -23,11 +23,24 @@ bulk["εₖ_ratio_bl_to_rest"] = bulk["⟨ε̄ₖ⟩ᴮᴸ"] / bulk["⟨ε̄ₖ�
 bulk["H"]  = bulk.α * bulk.L
 bulk["ℰₖ"] = bulk["∫∫∫ᵇε̄ₖdxdydz"]     / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["ℰₚ"] = bulk["∫∫∫ᵇε̄ₚdxdydz"]     / (bulk["V∞"]**3 * bulk.L * bulk.H)
+
 bulk["𝓅"]  = bulk["∫∫∫ᵇ⟨uᵢ∂ᵢp⟩ₜdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["𝓅2"] = bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_diverg"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["𝓅3"] = bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
+
 bulk["𝒜"]  = bulk["∫∫∫ᵇ⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["𝒜2"]  = bulk["∫∫∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz_diverg"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
+
+bulk["ℬ"] = bulk["∫∫∫ᵇ⟨wb⟩ₜdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
+
+bulk["𝒯"] = (bulk["∫∫∫ᵇ⟨uᵢ∂ⱼτᵢⱼ⟩ₜdxdydz"] - bulk["∫∫∫ᵇε̄ₖdxdydz"]) / (bulk["V∞"]**3 * bulk.L * bulk.H)
+
+bulk["ℱ"] = bulk["∫∫∫ᵇε̄ₛdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
+
+bulk["𝒢"] = - bulk["𝒜"] - bulk["𝓅"] + bulk["ℬ"] + bulk["𝒯"] + bulk["ℱ"]
+bulk["𝒢2"] = - bulk["𝒜"] - bulk["𝓅2"] + bulk["ℬ"] + bulk["𝒯"] + bulk["ℱ"]
+bulk["𝒢3"] = - bulk["𝒜"] - bulk["𝓅3"] + bulk["ℬ"] + bulk["ℱ"]
+
 bulk["𝒫"]  = bulk["∫∫∫ᵇΠdxdydz"]      / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["𝒦"]  = bulk["∫∫∫ᵇ⟨Ek′⟩ₜdxdydz"] / (bulk["V∞"]**2 * bulk.L**2 * bulk.H)
 #---
@@ -36,11 +49,24 @@ bulk["𝒦"]  = bulk["∫∫∫ᵇ⟨Ek′⟩ₜdxdydz"] / (bulk["V∞"]**2 * bu
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
 bulk["ℰₖ"].attrs = dict(long_name="Normalized integrated\nKE dissipation rate, $\mathcal{E}_k$")
 bulk["ℰₚ"].attrs = dict(long_name="Normalized integrated\nbuoyancy mixing rate, $\mathcal{E}_p$")
+
 bulk["𝓅"].attrs = dict(long_name="Normalized integrated\npressure transport contribution, $\mathcal{p}$")
 bulk["𝓅2"].attrs = dict(long_name="Normalized integrated\npressure (divergence), $\mathcal{p}$2")
 bulk["𝓅3"].attrs = dict(long_name="Normalized integrated\npressure (form drag), $\mathcal{p}$3")
+
 bulk["𝒜"].attrs = dict(long_name="Normalized integrated\nadvection contribution, $\mathcal{A}$")
 bulk["𝒜2"].attrs = dict(long_name="Normalized integrated\nadvection (divergence), $\mathcal{A}$2")
+
+bulk["ℬ"].attrs = dict(long_name="Normalized integrated\nbuoyancy flux, $\mathcal{B}$")
+
+bulk["𝒯"].attrs = dict(long_name="Normalized integrated\nstress contribution, $\mathcal{T}$")
+
+bulk["ℱ"].attrs = dict(long_name="Normalized integrated\nforcing contribution, $\mathcal{F}$")
+
+bulk["𝒢"].attrs = dict(long_name="$- \mathcal{A} - \mathcal{p} + \mathcal{B} + \mathcal{F} + \mathcal{T}$")
+bulk["𝒢2"].attrs = dict(long_name="$- \mathcal{A} - \mathcal{p}2 + \mathcal{B} + \mathcal{F} + \mathcal{T}$")
+bulk["𝒢3"].attrs = dict(long_name="$- \mathcal{A} - \mathcal{p}3 + \mathcal{B} + \mathcal{F} + \mathcal{T}$")
+
 bulk["𝒫"].attrs = dict(long_name="Normalized integrated\nshear production rate, $\mathcal{P}$")
 bulk["𝒦"].attrs = dict(long_name="Normalized integrateed\nTKE, $\mathcal{K}$")
 #---
