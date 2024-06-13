@@ -17,14 +17,17 @@ bulk["γᵇ"] = bulk["⟨ε̄ₚ⟩ᵇ"] / (bulk["⟨ε̄ₚ⟩ᵇ"] + bulk["⟨
 bulk["RoFr"] = bulk.Ro_h * bulk.Fr_h
 
 bulk["⟨⟨w′b′⟩ₜ⟩ᵇ + ⟨Π⟩ᵇ"] = bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"] + bulk["⟨Π⟩ᵇ"]
-bulk["𝒦"] = (bulk["Kb′"] - bulk["⟨κ̄ₑ⟩ᵇ"]) / (bulk["V∞"] * bulk.L) # Exclude SGS diffusivity contribution
+
+bulk["H"]  = bulk.α * bulk.L
+bulk["w'b'"] = bulk["∫∫∫ᵇ⟨w′b′⟩ₜdxdydz"] / (bulk.L**2 * bulk.H)
+bulk["𝒦"] = (-bulk["w'b'"] / bulk["N²∞"]) / (bulk["V∞"] * bulk.L)
 #---
 
 #+++ Choose buffers and set some attributes
 bulk.RoFr.attrs = dict(long_name="$Ro_h Fr_h$")
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
 bulk["Kb′"].attrs = dict(long_name=r"$K_b = -\overline{w′b′} / N^2_\infty$ [m²/s]")
-bulk["𝒦"].attrs = dict(long_name=r"$\mathcal{K}_b = -\overline{w′b′} / (N^2_\infty V_\infty L)$")
+bulk["𝒦"].attrs = dict(long_name=r"Normalized buoyancy diffusivity $\mathcal{K}_b$")
 bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"].attrs = dict(long_name=r"$\overline{w'b'}$ [m²/s³]")
 bulk["⟨ε̄ₚ⟩ᵇ"].attrs = dict(long_name=r"$\overline{\varepsilon}_p$ [m²/s³]")
 #---
