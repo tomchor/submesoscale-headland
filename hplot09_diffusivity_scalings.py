@@ -20,7 +20,7 @@ bulk["⟨⟨w′b′⟩ₜ⟩ᵇ + ⟨Π⟩ᵇ"] = bulk["⟨⟨w′b′⟩ₜ⟩
 
 bulk["H"]  = bulk.α * bulk.L
 bulk["w'b'"] = bulk["∫∫∫ᵇ⟨w′b′⟩ₜdxdydz"] / (bulk.L**2 * bulk.H)
-bulk["𝒦"] = (-bulk["w'b'"] / bulk["N²∞"]) / (bulk["V∞"] * bulk.L)
+bulk["𝒦"] = (-bulk["w'b'"] / bulk["N²∞"]) / (bulk["V∞"] * bulk.H)
 #---
 
 #+++ Choose buffers and set some attributes
@@ -61,7 +61,7 @@ for buffer in bulk.buffer.values:
     mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.plot(RoFr, 2.5e-4*RoFr, ls="--", label=r"$2.5\times10^{-4}Ro_h Fr_h$", color="k", zorder=0)
+    ax.plot(RoFr, 1.e-2*RoFr, ls="--", label=r"$2.5\times10^{-4}Ro_h Fr_h$", color="k", zorder=0)
     ax.legend(loc="lower right")
 
     print("Plotting axes 1")
@@ -70,7 +70,7 @@ for buffer in bulk.buffer.values:
     xvarname = "⟨ε̄ₚ⟩ᵇ"
     mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
-    ax.set_xscale("log"); ax.set_yscale("symlog", linthresh=1e-12)
+    ax.set_xscale("log"); ax.set_yscale("symlog", linthresh=1e-13), ax.set_ylim(-3e-11, +3e-11)
     x = np.linspace(bulk_buff[xvarname].min(), bulk_buff[xvarname].max(), 50)
     ax.plot(x, -x, ls="--", color="k", zorder=0, label="1:-1")
     ax.legend(loc="center right")
