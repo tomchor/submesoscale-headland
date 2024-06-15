@@ -37,7 +37,7 @@ if basename(__file__) != "h00_runall.py":
     from cycler import cycler
     names = cycler(name=simnames)
     modifiers = cycler(modifier = ["-f4", "-S-f4", "-f2", "-S-f2", "", "-S"])
-    modifiers = cycler(modifier = ["-f4",])
+    modifiers = cycler(modifier = ["-f4", "-f2"])
     simnames = [ nr["name"] + nr["modifier"] for nr in modifiers * names ]
 #---
 
@@ -97,6 +97,10 @@ for simname in simnames:
         int_var = f"∫∫∫ᵇ{var}dxdydz"
         bulk[int_var] = tafields[int_var]
         bulk[f"⟨{var}⟩ᵇ"] = bulk[int_var] / bulk["∫∫∫ᵇ1dxdydz"]
+
+    bulk["∫∫∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz_diverg"] = tafields["∫∫∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz_diverg"]
+    bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_diverg"] = tafields["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_diverg"]
+    bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"] = tafields["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"]
 
     bulk["∫∫ᵇ1dxdz"] = tafields["∫∫ᵇ1dxdz"]
     for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "⟨Ek′⟩ₜ"]:

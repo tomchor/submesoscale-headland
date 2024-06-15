@@ -49,5 +49,4 @@ using Oceananigans.Grids: xspacing, zspacing
 ΔxΔz = KernelFunctionOperation{Center, Center, Center}(ΔxΔz_kernel, grid_base, Center(), Center(), Center())
 
 @inline headland_z_of_xy(i, j, k, grid, p) = headland_z_of_xy(xnode(i, grid, Center()), ynode(j, grid, Center()), p)
-@inline ξ(i, j, k, grid, p) = ξ(xnode(i, grid, Center()), p)
-@inline W(i, j, k, grid, p) = W(xnode(i, grid, Center()), ynode(j, grid, Center()), p)
+bottom_height = KernelFunctionOperation{Center, Center, Center}(headland_z_of_xy, grid_base, params)

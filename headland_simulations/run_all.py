@@ -30,6 +30,7 @@ simnames = [ nr["name"] + nr["rotation"] + nr["resolution"] for nr in rotations 
 
 #+++ Options
 remove_checkpoints = False
+only_one_job = False
 dry_run = False
 omit_topology = True
 
@@ -103,10 +104,14 @@ for simname in simnames:
     else:
         options1 = options1 | dict(cpu_type = "milan")
         options2 = options2 | dict(gpu_type = "a100")
-        if "F008-S" in simname:
-            cmd1 = f"JID1=`qsub {aux_filename}`; JID2=`qsub -W depend=afterok:$JID1 {aux_filename}`; JID3=`qsub -W depend=afterok:$JID2 {aux_filename}`; qrls $JID1"
+
+        if only_one_job:
+            cmd1 = f"qsub {aux_filename}"
         else:
-            cmd1 = f"JID1=`qsub {aux_filename}`; JID2=`qsub -W depend=afterok:$JID1 {aux_filename}`; qrls $JID1"
+            if "F008" in simname:
+                cmd1 = f"JID1=`qsub {aux_filename}`; JID2=`qsub -W depend=afterok:$JID1 {aux_filename}`; JID3=`qsub -W depend=afterok:$JID2 {aux_filename}`; qrls $JID1"
+            else:
+                cmd1 = f"JID1=`qsub {aux_filename}`; JID2=`qsub -W depend=afterok:$JID1 {aux_filename}`; qrls $JID1"
 
     options_string1 = ":".join([ f"{key}={val}" for key, val in options1.items() ])
     options_string2 = ":".join([ f"{key}={val}" for key, val in options2.items() ])
