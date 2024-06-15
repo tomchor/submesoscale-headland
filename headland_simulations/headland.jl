@@ -326,7 +326,6 @@ checkpointer = construct_outputs(simulation,
                                  write_iyz = true,
                                  write_ttt = true,
                                  write_tti = true,
-                                 write_conditional_aya = true,
                                  debug = false,
                                  )
 tock()

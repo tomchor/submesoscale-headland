@@ -37,6 +37,7 @@ if basename(__file__) != "h00_runall.py":
     names = cycler(name=simnames)
     modifiers = cycler(modifier = ["-f4", "-S-f4", "-f2", "-S-f2", "", "-S"])
     modifiers = cycler(modifier = ["-f4", "-f2", ""])
+    modifiers = cycler(modifier = ["-f2",])
     simnames = [ nr["name"] + nr["modifier"] for nr in modifiers * names ]
 #---
 
@@ -77,14 +78,14 @@ for simname in simnames:
         fig, axes = plt.subplots(ncols=1, figsize=(4, 8))
         ax = axes
 
-        term_names = ("-∂ₜk²", "-uᵢ∂ⱼ(uⱼuᵢ)", "-∂ⱼ(uⱼp)", "wb", "uᵢFᵢ", "-∂ⱼ(uᵢτᵢⱼ)", "-εₖ", "-uᵢ∂ⱼτᵇᵢⱼ", "Residual")
+        term_names = ("-∂ₜk²", "-uᵢ∂ⱼ(uⱼuᵢ)", "-∂ⱼ(uⱼp)", "wb", "uᵢFᵢ", "∂ⱼ(uᵢτᵢⱼ)", "-εₖ", "-uᵢ∂ⱼτᵇᵢⱼ", "Residual")
         y_pos = np.arange(len(term_names))
         term_values = [-tafields["∫∫∫ᵇ⟨∂ₜEk⟩ₜdxdydz"].sel(buffer=buffer),
                        -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz"].sel(buffer=buffer),
                        -tafields["∫∫∫ᵇ⟨uᵢ∂ᵢp⟩ₜdxdydz"].sel(buffer=buffer),
                        +tafields["∫∫∫ᵇ⟨wb⟩ₜdxdydz"].sel(buffer=buffer),
                        +tafields["∫∫∫ᵇε̄ₛdxdydz"].sel(buffer=buffer),
-                       -tafields["∫∫∫ᵇ⟨∂ⱼ(uᵢτᵢⱼ)⟩ₜdxdydz"].sel(buffer=buffer),
+                       +tafields["∫∫∫ᵇ⟨∂ⱼ(uᵢτᵢⱼ)⟩ₜdxdydz"].sel(buffer=buffer),
                        -tafields["∫∫∫ᵇε̄ₖdxdydz"].sel(buffer=buffer),
                        -tafields["∫∫∫ᵇ⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜdxdydz"].sel(buffer=buffer),
                        ]
