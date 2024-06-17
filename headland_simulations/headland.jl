@@ -273,7 +273,8 @@ model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
                             closure = closure,
                             boundary_conditions = bcs,
                             forcing = (u=Fᵤ, v=Fᵥ, w=Fw, b=Fb),
-                           )
+                            hydrostatic_pressure_anomaly = CenterField(grid),
+                            )
 @info "" model
 if has_cuda_gpu() run(`nvidia-smi`) end
 
