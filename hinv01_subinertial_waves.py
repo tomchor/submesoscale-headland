@@ -4,6 +4,7 @@ import xarray as xr
 from aux00_utils import open_simulation
 from aux02_plotting import plot_kwargs_by_var
 from matplotlib.colors import LogNorm
+from matplotlib import pyplot as plt
 π = np.pi
 
 #+++ Define dir and file names
@@ -90,11 +91,10 @@ for simname in simnames:
     tti = tti.mean("time")
 
     xiz["dUdz"] = np.sqrt(xiz["∂u∂z"]**2 + xiz["∂v∂z"]**2)
-    dudz_opts = dict(x="time", vmin=-2e-3, vmax=2e-3, cmap=plt.cm.RdBu_r)
+    dudz_opts = dict(vmin=-2e-3, vmax=2e-3, cmap=plt.cm.RdBu_r)
     #---
 
     #+++ Plot time-avg PV
-    from matplotlib import pyplot as plt
     plt.rcParams["figure.constrained_layout.use"] = True
 
     if (np.round(xyz.Ro_h, decimals=2) == 0.2) and (np.round(xyz.Fr_h, decimals=2) == 0.2):
@@ -114,7 +114,7 @@ for simname in simnames:
 
     #+++ Plot snapshots
     times = np.arange(xyi.time[0], xyi.time[-1]+1, 10)
-    if 1:
+    if 0:
         xyi.PV_norm.sel(time=times, method="nearest").pnplot(col="time", x="x", **PV_opts)
         plt.suptitle(title)
         for ax in plt.gcf().axes:
@@ -128,8 +128,8 @@ for simname in simnames:
         xiz = xiz.assign_coords(time = xiz.time * xiz.T_advective / xiz.T_inertial)
         xiz.time.attrs = dict(units = "Inertial periods")
 
-        xiz["∂u∂z"].sel(xC=x0, method="nearest").pnplot(ax=axes[0], **dudz_opts)
-        xiz["∂v∂z"].sel(xC=x0, method="nearest").pnplot(ax=axes[1], **dudz_opts)
+        xiz["∂u∂z"].sel(xC=x0, method="nearest").pnplot(ax=axes[0], x="time", **dudz_opts)
+        xiz["∂v∂z"].sel(xC=x0, method="nearest").pnplot(ax=axes[1], x="time", **dudz_opts)
         xiz["PV_norm"].sel(xC=x0, method="nearest").pnplot(ax=axes[2], x="time", **PV_opts)
 
         fig.suptitle(title)
@@ -141,14 +141,14 @@ for simname in simnames:
     #---
 
     #+++ Check out vertical snapshots
-    if 0:
+    if 1:
         fig, axes = plt.subplots(nrows=len(times), ncols=2, figsize=(12, 12), sharex=True, sharey=True)
         for i, time in enumerate(times):
             row = axes[i]
             xiz_row = xiz.sel(time=time, method="nearest")
 
-            xiz_row["PV_norm"].pnplot(ax=row[0], x="x", add_colorbar=False, **PV_opts)
-            xiz_row["εₖ"].pnplot(ax=row[1], x="x", **ε_opts)
+            xiz_row["PV_norm"].pnplot(ax=row[0], x="x", **PV_opts)
+            xiz_row["dUdz"].pnplot(ax=row[1], x="x", **dudz_opts)
 
         for ax in axes.flatten():
             ax.set_xlabel("")
