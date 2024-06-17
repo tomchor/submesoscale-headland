@@ -2,7 +2,6 @@ using Oceananigans.AbstractOperations: @at, ∂x, ∂y, ∂z
 using Oceananigans.Units
 using Oceananigans.Grids: Center, Face
 using Oceananigans.TurbulenceClosures: viscosity, diffusivity
-using Oceananigans: znode
 using Oceananigans.Fields: @compute
 
 using Oceanostics.FlowDiagnostics: strain_rate_tensor_modulus_ccc
@@ -31,26 +30,6 @@ CellCenter = (Center, Center, Center)
 
 #++++ Kernel Function Operations
 using Oceananigans.Operators
-
-#+++ PE
-@inline function zc_ccc(i, j, k, grid, c)
-    return znode(k, grid, Center()) * c[i, j, k]
-end
-#---
-
-#+++ Sorted b (for BPE)
-function flattenedsort(A, dim_order::Union{Tuple, AbstractVector})
-    return reshape(sort(permutedims(A, dim_order)[:]), size(A))
-end
-
-using Statistics: mean
-function sort_b(model; adapt=false, avg_dims=())
-    b = model.tracers.b
-    b_array = adapt ? Array(interior(b)) : interior(b)
-    b_sorted = flattenedsort(b_array, [3,2,1])
-    return dropdims(mean(b_sorted, dims=avg_dims), dims=avg_dims)
-end
-#---
 
 #+++ Write to NCDataset
 import NCDatasets as NCD
@@ -199,7 +178,6 @@ function construct_outputs(simulation;
                            write_ttt = false,
                            write_tti = false,
                            write_aaa = false,
-                           write_conditional_aya = false,
                            debug = false,
                            )
     #+++ get outputs
@@ -209,7 +187,7 @@ function construct_outputs(simulation;
     #+++ Get prefixes for conditional averages/integrals
     prefixes = (:∫∫⁰, :∫∫⁵, :∫∫¹⁰, :∫∫²⁰)
     buffers = [0, 5,]
-    conditionally_averaged_var_symbols = (:εₖ, :εₚ, :uᵢbᵢ)
+    conditionally_integrated_var_symbols = (:εₖ, :εₚ, :uᵢbᵢ)
     #---
 
     #+++ Preamble and common keyword arguments
@@ -227,14 +205,18 @@ function construct_outputs(simulation;
                                                                      schedule = TimeInterval(interval_3d),
                                                                      array_type = Array{Float64},
                                                                      verbose = debug,
-                                                                     dimensions = Dict("b_sorted" => ("xC", "yC", "zC",),),
                                                                      kwargs...
                                                                      )
+        @info "Starting to write grid metrics and deltas to xyz"
+        laptimer()
         add_grid_metrics_to!(ow)
         write_to_ds(ow.filepath, "Δx_from_headland", interior(compute!(Field(Δx_from_headland))), coords = ("xC", "yC", "zC"))
         write_to_ds(ow.filepath, "Δz_from_headland", interior(compute!(Field(Δz_from_headland))), coords = ("xC", "yC", "zC"))
         write_to_ds(ow.filepath, "altitude", interior(compute!(Field(altitude))), coords = ("xC", "yC", "zC"))
         write_to_ds(ow.filepath, "ΔxΔz", interior(compute!(Field(ΔxΔz))), coords = ("xC", "yC", "zC"))
+        write_to_ds(ow.filepath, "bottom_height", Array(interior(maximum(compute!(Field(bottom_height)), dims=3)))[:,:,1], coords = ("xC", "yC",))
+        @info "Finished writing grid metrics and deltas to xyz"
+        laptimer()
     end
     #---
 
@@ -249,24 +231,6 @@ function construct_outputs(simulation;
             outputs_xyi = merge(outputs_xyi, outputs_budget_integrated)
         end
 
-        #+++ Write conditional integrals
-        laptimer()
-        if write_conditional_aya
-            for (prefix, buffer) in zip(prefixes, buffers)
-                @info "Writing conditonal integrals for buffer = " * string(buffer)
-                @info "Calculating condition_distance"
-                condition_distance = Array(interior(altitude) .> buffer)
-                @info "Calculated, now calculating integral"
-                for s in conditionally_averaged_var_symbols
-                    output_integrated = Integral(outputs_full[s]; condition=condition_distance, dims=(1,3))
-                    outputs_xyi[Symbol(prefix, s, :dxdz)] = output_integrated # Append averaged output to Dict
-                end
-                laptimer()
-                @info "Calculated"
-            end
-        end
-        #---
-
         simulation.output_writers[:nc_xyi] = ow = NetCDFOutputWriter(model, outputs_xyi;
                                                                      filename = "$rundir/data/xyi.$(simname).nc",
                                                                      schedule = TimeInterval(interval_2d),
@@ -276,23 +240,6 @@ function construct_outputs(simulation;
                                                                      kwargs...
                                                                      )
         add_grid_metrics_to!(ow, user_indices=indices)
-
-        #+++ Add integrated volumes
-        # Add volume over which the integral is being done, for ease of postprocessing
-        if write_conditional_aya
-            ones = CenterField(grid); set!(ones, 1)
-            for (prefix, buffer) in zip(prefixes, buffers)
-                @info "Writing ∫∫dxdz for buffer = " * string(buffer)
-                condition_distance = Array(interior(altitude) .> buffer)
-                ones_2d_integrated = Integral(ones; condition=condition_distance, dims=(1,3))
-                write_to_ds(ow.filepath, string(prefix)*"dxdz", interior(compute!(Field(ones_2d_integrated))), coords = ("yC",))
-
-                ones_3d_integrated = Integral(ones; condition=condition_distance)
-                write_to_ds(ow.filepath, "∫"*string(prefix)*"dxdydz", interior(compute!(Field(ones_3d_integrated))), coords = ())
-            end
-        end
-        #---
-        laptimer()
     end
     #---
 
@@ -333,6 +280,8 @@ function construct_outputs(simulation;
     if write_ttt
         @info "Setting up ttt writer"
         outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip, outputs_budget)
+        vp = @at CellCenter (v * sum(model.pressures))
+        outputs_ttt = merge(outputs_ttt, Dict(:vp => vp, :p => sum(model.pressures)))
         indices = (:, :, :)
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
                                                                      filename = "$rundir/data/ttt.$(simname).nc",
@@ -345,6 +294,7 @@ function construct_outputs(simulation;
                                                                      )
         add_grid_metrics_to!(ow, user_indices=indices)
         write_to_ds(ow.filepath, "altitude", interior(compute!(Field(altitude, indices=indices))), coords = ("xC", "yC", "zC"))
+        write_to_ds(ow.filepath, "bottom_height", Array(interior(maximum(compute!(Field(bottom_height)), dims=3)))[:,:,1], coords = ("xC", "yC",))
     end
     #---
 

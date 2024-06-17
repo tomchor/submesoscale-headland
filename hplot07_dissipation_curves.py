@@ -18,12 +18,8 @@ bulk = bulk.reindex(Ro_h = list(reversed(bulk.Ro_h)))
 bulk["∫∫∫ᵇˡ1dxdydz"] = (bulk["∫∫∫ᵇ1dxdydz"].sel(buffer=0) - bulk["∫∫∫ᵇ1dxdydz"].sel(buffer=5))
 
 bulk["∫∫∫ᵇˡε̄ₖdxdydz"] = (bulk["∫∫∫ᵇε̄ₖdxdydz"].sel(buffer=0) - bulk["∫∫∫ᵇε̄ₖdxdydz"].sel(buffer=5))
-bulk["⟨ε̄ₖ⟩ᵋʷ"] = (bulk["∫∫∫ᵋε̄ₖdxdydz"] - bulk["∫∫∫ᵇˡε̄ₖdxdydz"]) / (bulk["∫∫∫ᵋ1dxdydz"] - bulk["∫∫∫ᵇˡ1dxdydz"])
-bulk["⟨ε̄ₖ⟩ˣᶻ²"] = bulk["⟨ε̄ₖ⟩ᵋʷ"] * tafields["∫∫ᵋ1dxdz"] / bulk["∫∫ᵇ1dxdz"]
 
 bulk["∫∫∫ᵇˡε̄ₚdxdydz"] = (bulk["∫∫∫ᵇε̄ₚdxdydz"].sel(buffer=0) - bulk["∫∫∫ᵇε̄ₚdxdydz"].sel(buffer=5))
-bulk["⟨ε̄ₚ⟩ᵋʷ"] = (bulk["∫∫∫ᵋε̄ₚdxdydz"] - bulk["∫∫∫ᵇˡε̄ₚdxdydz"]) / (bulk["∫∫∫ᵋ1dxdydz"] - bulk["∫∫∫ᵇˡ1dxdydz"])
-bulk["⟨ε̄ₚ⟩ˣᶻ²"] = bulk["⟨ε̄ₚ⟩ᵋʷ"] * tafields["∫∫ᵋ1dxdz"] / bulk["∫∫ᵇ1dxdz"]
 #---
 
 
@@ -31,7 +27,6 @@ variables = ["⟨ε̄ₖ⟩ˣᶻ", "⟨ε̄ₚ⟩ˣᶻ",]
 bulk["⟨ε̄ₖ⟩ˣᶻ"].attrs = dict(units="m²/s³")
 bulk["⟨ε̄ₚ⟩ˣᶻ"].attrs = dict(units="m²/s³")
 bulk["⟨⟨Ek′⟩ₜ⟩ˣᶻ"].attrs = dict(units="m²/s²")
-bulk["⟨ε̄ₖ⟩ˣᶻ²"].attrs = dict(long_name=r"$\langle \bar\varepsilon_k \rangle^\varepsilon R$", units="m²/s³")
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
 bulk.yC.attrs =  dict(long_name=r"$y$", units="m")
 average_CSI_wake_mask = tafields.average_CSI_mask & (tafields.altitude>30)

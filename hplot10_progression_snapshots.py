@@ -11,7 +11,7 @@ modifiers = ["", "-S"]
 variable_xy = "PV_norm"
 variables = ["PV_norm", "εₖ"]
 Fr_h = 0.2
-Ro_h = 0.5
+Ro_h = 1
 
 #+++ Pick downstream distances
 if (Fr_h==0.08) and (Ro_h==1):

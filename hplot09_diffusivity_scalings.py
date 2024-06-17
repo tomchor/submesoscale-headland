@@ -17,16 +17,19 @@ bulk["γᵇ"] = bulk["⟨ε̄ₚ⟩ᵇ"] / (bulk["⟨ε̄ₚ⟩ᵇ"] + bulk["⟨
 bulk["RoFr"] = bulk.Ro_h * bulk.Fr_h
 
 bulk["⟨⟨w′b′⟩ₜ⟩ᵇ + ⟨Π⟩ᵇ"] = bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"] + bulk["⟨Π⟩ᵇ"]
-bulk["𝒦"] = (bulk["Kb′"] - bulk["⟨κ̄ₑ⟩ᵇ"]) / (bulk["V∞"] * bulk.L) # Exclude SGS diffusivity contribution
+
+bulk["H"]  = bulk.α * bulk.L
+bulk["w'b'"] = bulk["∫∫∫ᵇ⟨w′b′⟩ₜdxdydz"] / (bulk.L**2 * bulk.H)
+bulk["𝒦"] = (-bulk["w'b'"] / bulk["N²∞"]) / (bulk["V∞"] * bulk.H)
 #---
 
 #+++ Choose buffers and set some attributes
 bulk.RoFr.attrs = dict(long_name="$Ro_h Fr_h$")
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
 bulk["Kb′"].attrs = dict(long_name=r"$K_b = -\overline{w′b′} / N^2_\infty$ [m²/s]")
-bulk["𝒦"].attrs = dict(long_name=r"$\mathcal{K}_b = -\overline{w′b′} / (N^2_\infty V_\infty L)$")
-bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"].attrs = dict(long_name=r"$\overline{w'b'}$ [m²/s³]")
-bulk["⟨ε̄ₚ⟩ᵇ"].attrs = dict(long_name=r"$\overline{\varepsilon}_p$ [m²/s³]")
+bulk["𝒦"].attrs = dict(long_name=r"Normalized buoyancy diffusivity $\mathcal{K}_b$")
+bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"].attrs = dict(long_name=r"$\langle\overline{w'b'}\rangle$ [m²/s³]")
+bulk["⟨ε̄ₚ⟩ᵇ"].attrs = dict(long_name=r"$\langle\overline{\varepsilon}_p\rangle$ [m²/s³]")
 #---
 
 for buffer in bulk.buffer.values:
@@ -52,25 +55,28 @@ for buffer in bulk.buffer.values:
     #+++ Plot stuff
     print("Plotting axes 0")
     ax = axesf[0]
+    yvarname = "⟨⟨w′b′⟩ₜ⟩ᵇ"
+    xvarname = "⟨ε̄ₚ⟩ᵇ"
+    mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
+    ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
+    ax.set_xscale("log"); ax.set_yscale("symlog", linthresh=1e-13), ax.set_ylim(-3e-11, +3e-11)
+    x = np.linspace(bulk_buff[xvarname].min(), bulk_buff[xvarname].max(), 50)
+    ax.plot(x, -x, ls="--", color="black", zorder=0, label="1:-1")
+    ax.plot(x, +x, ls="--", color="gray", zorder=0, label="1:1")
+    ax.set_yticks([-1e-11, -1e-12, -1e-13, 0, 1e-13, 1e-12, 1e-11])
+    ax.legend(loc="center right")
+
+    print("Plotting axes 1")
+    ax = axesf[1]
     xvarname = "RoFr"
     yvarname = "𝒦"
     ax.set_title(bulk_buff[yvarname].attrs["long_name"])
     mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.plot(RoFr, 2.5e-4*RoFr, ls="--", label=r"$Ro_h Fr_h$", color="k", zorder=0)
+    ax.plot(RoFr, 1.e-2*RoFr, ls="--", label=r"$10^{-2}Ro_h Fr_h$", color="k", zorder=0)
+    #ax.plot(RoFr, 1.e-2*RoFr**2, ls="--", label=r"$2.5\times10^{-4}(Ro_h Fr_h)^2$", color="k", zorder=0)
     ax.legend(loc="lower right")
-
-    print("Plotting axes 1")
-    ax = axesf[1]
-    yvarname = "⟨⟨w′b′⟩ₜ⟩ᵇ"
-    xvarname = "⟨ε̄ₚ⟩ᵇ"
-    mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
-    ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
-    ax.set_xscale("log"); ax.set_yscale("symlog", linthresh=1e-12)
-    x = np.linspace(bulk_buff[xvarname].min(), bulk_buff[xvarname].max(), 50)
-    ax.plot(x, -x, ls="--", color="k", zorder=0, label="1:-1")
-    ax.legend(loc="center right")
     #---
 
     #+++ Prettify and save
