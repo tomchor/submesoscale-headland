@@ -31,7 +31,7 @@ simnames_base = [#"NPN-TEST",
                  "NPN-R05F1",
                  "NPN-R1F1",
                  ]
-modifiers = ["-f4", "-S-f4", "-f2", "-S-f2"]
+modifiers = ["-f4", "-f2", "-S-f4", "-S-f2","-AMD-f4", "-AMD-f2",]
 modifiers = ["-f4", "-f2", ""]
 #---
 

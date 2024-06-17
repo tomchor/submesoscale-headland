@@ -23,9 +23,9 @@ simnames = [#"NPN-TEST",
 from cycler import cycler
 names = cycler(name=simnames)
 resolutions = cycler(resolution = ["-f4", "-f2", ""])
-rotations = cycler(rotation = ["", "-S",])
-rotations = cycler(rotation = ["",])
-simnames = [ nr["name"] + nr["rotation"] + nr["resolution"] for nr in rotations * resolutions * names ]
+modifiers = cycler(rotation = ["", "-S", "-AMD"])
+modifiers = cycler(rotation = ["",])
+simnames = [ nr["name"] + nr["rotation"] + nr["resolution"] for nr in modifiers * resolutions * names ]
 #---
 
 #+++ Options
