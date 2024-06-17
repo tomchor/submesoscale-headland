@@ -31,15 +31,15 @@ rundir = "$(DrWatson.findproject())/headland_simulations"
 #+++ Figure out name, dimensions, modifier, etc
 sep = "-"
 global topology, configname, modifiers... = split(simname, sep)
-global AMD = "AMD" in modifiers ? true : false
-global DNS = "DNS" in modifiers ? true : false
 global f2  = "f2"  in modifiers ? true : false
 global f4  = "f4"  in modifiers ? true : false
 global f8  = "f8"  in modifiers ? true : false
 global f16 = "f16" in modifiers ? true : false
 global f32 = "f32" in modifiers ? true : false
 global f64 = "f64" in modifiers ? true : false
+global AMD = "AMD" in modifiers ? true : false
 global south = "S" in modifiers ? true : false
+global V2  =  "V2" in modifiers ? true : false
 #---
 
 #+++ Modify factor accordingly
@@ -72,6 +72,10 @@ end
 #+++ Get primary simulation parameters
 include("$(@__DIR__)/siminfo.jl")
 params = getproperty(Headland(), Symbol(configname))
+
+if V2
+    params = (; params..., V∞ = 2*params.V∞)
+end
 #---
 
 #+++ Get secondary parameters
@@ -99,9 +103,9 @@ end
 
 params = (; params..., factor)
 
-if AMD # AMD takes up more memory...
-    params = (; params..., N=params.N*0.85)
-end
+#if AMD # AMD takes up more memory...
+#    params = (; params..., N=params.N*0.90)
+#end
 
 NxNyNz = get_sizes(params.N ÷ (factor^3),
                    Lx=params.Lx, Ly=params.Ly, Lz=params.Lz,
