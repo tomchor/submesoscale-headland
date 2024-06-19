@@ -26,7 +26,7 @@ bulk["ℰₚ"] = bulk["∫∫∫ᵇε̄ₚdxdydz"]     / (bulk["V∞"]**3 * bulk
 
 bulk["𝓅"]  = bulk["∫∫∫ᵇ⟨uᵢ∂ᵢp⟩ₜdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["𝓅2"] = bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_diverg"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
-bulk["𝓅3"] = bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
+bulk["𝒟"] = bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
 
 bulk["A"]  = bulk["∫∫∫ᵇ⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["A2"]  = bulk["∫∫∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz_diverg"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
@@ -42,7 +42,7 @@ bulk["𝒫"]  = bulk["∫∫∫ᵇΠdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.
 
 bulk["G"] = - bulk["A"] - bulk["𝓅"] + bulk["B"] + bulk["T"] + bulk["F"]
 bulk["G2"] = - bulk["A"] - bulk["𝓅2"] + bulk["B"] + bulk["T"] + bulk["F"]
-bulk["G3"] = - bulk["A"] - bulk["𝓅3"] + bulk["B"] + bulk["F"]
+bulk["G3"] = - bulk["A"] - bulk["𝒟"] + bulk["B"] + bulk["F"]
 
 bulk["K"]  = bulk["∫∫∫ᵇ⟨Ek′⟩ₜdxdydz"] / (bulk["V∞"]**2 * bulk.L**2 * bulk.H)
 #---
@@ -54,7 +54,7 @@ bulk["ℰₚ"].attrs = dict(long_name="Normalized integrated\nbuoyancy mixing ra
 
 bulk["𝓅"].attrs = dict(long_name="Normalized integrated\npressure transport contribution, $\mathcal{p}$")
 bulk["𝓅2"].attrs = dict(long_name="Normalized integrated\npressure (divergence), $\mathcal{p}$2")
-bulk["𝓅3"].attrs = dict(long_name="Normalized integrated\npressure (form drag), $\mathcal{p}$3")
+bulk["𝒟"].attrs = dict(long_name="Normalized integrated\nform drag work, $\mathcal{D}$")
 
 bulk["A"].attrs = dict(long_name="Normalized integrated\nadvection contribution, $\mathcal{A}$")
 bulk["A2"].attrs = dict(long_name="Normalized integrated\nadvection (divergence), $\mathcal{A}$2")
@@ -117,33 +117,21 @@ for buffer in bulk.buffer.values:
     print("Plotting axes 2")
     ax = axesf[2]
     xvarname = "Slope_Bu"
-    yvarname = "𝓅3"
-    #yvarname = "G3"
-    #yvarname = "G2"
-    #yvarname = "F"
+    yvarname = "𝒟"
     mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("symlog", linthresh=1e-2)
-    ax.set_ylim(1.2e-2, 3.5)
-    ax.plot(S_Bu, rates_curve, ls="--", label=r"0.1 $S_h$", color="k")
+    ax.set_ylim(1e-1, 3.5)
     ax.plot(S_Bu, S_Bu, ls="--", label=r"$S_h$", color="gray")
 
     print("Plotting axes 3")
     ax = axesf[3]
     xvarname = "Slope_Bu"
-    #yvarname = "K"
-    #yvarname = "A2"
-    #yvarname = "A"
-    #yvarname = "G"
-    #yvarname = "T"
-    #yvarname = "F"
-    #yvarname = "B′"
     yvarname = "𝒫"
     mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("symlog", linthresh=1e-2)
-    ax.set_ylim(1.2e-2, 3.5)
-    ax.plot(S_Bu, rates_curve, ls="--", label=r"0.1 $S_h$", color="k")
+    ax.set_ylim(1e-1, 3.5)
     ax.plot(S_Bu, S_Bu, ls="--", label=r"$S_h$", color="gray")
     #---
 
