@@ -275,7 +275,7 @@ model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
                             forcing = (u=Fᵤ, v=Fᵥ, w=Fw, b=Fb),
                            )
 @info "" model
-if has_cuda_gpu() run(`nvidia-smi`) end
+if has_cuda_gpu() run(`nvidia-smi -i $(ENV["CUDA_VISIBLE_DEVICES"])`) end
 
 set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
 #---
@@ -336,7 +336,7 @@ tock()
 #---
 
 #+++ Run simulations and plot video afterwards
-if has_cuda_gpu() run(`nvidia-smi`) end
+if has_cuda_gpu() run(`nvidia-smi -i $(ENV["CUDA_VISIBLE_DEVICES"])`) end
 @info "Starting simulation"
 run!(simulation, pickup=true)
 #---
