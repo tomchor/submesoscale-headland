@@ -5,9 +5,10 @@ from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
 from cmocean import cm
 from aux00_utils import open_simulation
-from aux02_plotting import letterize
+from aux02_plotting import letterize, plot_kwargs_by_var
 
 modifiers = ["", "-S"]
+modifiers = ["-f4",]
 variable_xy = "PV_norm"
 variables = ["PV_norm", "εₖ"]
 Fr_h = 0.2
@@ -41,24 +42,6 @@ for modifier in modifiers:
                                     load=False,
                                     open_dataset_kwargs=dict(chunks=dict(time=1)),
                                     )
-    #---
-
-    #+++ Variables plot_kwargs
-    plot_kwargs_by_var = {"PV_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
-                          "q̃_norm"    : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
-                          "PVz_ratio" : dict(vmin=-10, vmax=10, cmap="RdBu_r"),
-                          "PVh_ratio" : dict(vmin=-10, vmax=10, cmap="RdBu_r"),
-                          "Ri"        : dict(vmin=-2, vmax=2, cmap=cm.balance),
-                          "Ro"        : dict(vmin=-3, vmax=3, cmap="bwr"),
-                          "εₖ"        : dict(norm=LogNorm(vmin=1e-10, vmax=1e-8, clip=True), cmap="inferno"),
-                          "εₚ"        : dict(norm=LogNorm(vmin=1e-10, vmax=1e-8, clip=True), cmap="inferno"),
-                          "Lo"        : dict(vmin=0, vmax=2, cmap=cm.balance),
-                          "Δz_norm"   : dict(vmin=0, vmax=2, cmap=cm.balance),
-                          "v"         : dict(vmin=-1.2*xyz.V_inf, vmax=1.2*xyz.V_inf, cmap=cm.balance),
-                          "wb"        : dict(vmin=-1e-8, vmax=+1e-8, cmap=cm.balance),
-                          "Kb"        : dict(vmin=-1e-1, vmax=+1e-1, cmap=cm.balance),
-                          "ω_y"       : dict(vmin=-3e-3, vmax=+3e-3, cmap=cm.balance),
-                          }
     #---
 
     #+++ Adjust attributes
