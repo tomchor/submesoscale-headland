@@ -34,17 +34,17 @@ elif shell is not None:
     animate = False
     test = False
     time_avg = False
-    summarize = True
+    summarize = False
     zoom = True
     plotting_time = 23
     figdir = "figures_check"
 
-    slice_names = ["xyi",]
+    slice_names = ["tafields", "xyi"]
     modifiers = ["-f2", "-S-f2", "", "-S"]
-    modifiers = ["-f2",]
+    modifiers = ["",]
 
     varnames = ["q̃_norm", "Ro"]
-    varnames = ["Ro"]
+    varnames = ["⟨w′b′⟩ₜ", "w̄b̄", "wb"]
     contour_variable_name = None #"water_mask_buffered"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
@@ -185,6 +185,9 @@ for modifier in modifiers:
             snaps["PVᵍ_norm"] = (1 + snaps.Ro - 1/snaps.Ri)
 
             snaps["Rᵍ_PVvs"] = (-snaps.Ri**(-1) / (1 + snaps.Ro - 1/snaps.Ri))#.where(snaps.CSI_mask)
+
+        if "Ro" in snaps.variables.keys():
+            snaps["R̂o"] = snaps.Ro / snaps.Ro_h
 
         if "q̃_norm" in varnames:
             if "q̃" not in snaps.variables.keys():
