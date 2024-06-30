@@ -8,11 +8,11 @@ from aux00_utils import open_simulation
 from aux02_plotting import letterize, plot_kwargs_by_var
 
 modifiers = ["", "-S"]
-modifiers = ["-f4",]
+modifiers = ["",]
 variable_xy = "PV_norm"
-variables = ["PV_norm", "εₖ"]
-Fr_h = 0.2
-Ro_h = 1
+variables = ["PV_norm", "εₖ", "ω_y"]
+Fr_h = 0.08
+Ro_h = 0.2
 
 #+++ Pick downstream distances
 if (Fr_h==0.08) and (Ro_h==1):
@@ -27,7 +27,10 @@ elif (Fr_h==0.2) and (Ro_h==1):
     downstream_distances = [0, 100, 200,]
 else:
     downstream_distances = [0, 50, 100,]
+downstream_distances = np.linspace(50, 200, 5)
 #---
+
+plot_kwargs_by_var["ω_y"] = dict(vmin=-2e-3, vmax=2e-3, cmap=plt.cm.RdBu_r)
 
 for modifier in modifiers:
     print(f"Opening modifier={modifier}")
@@ -62,13 +65,14 @@ for modifier in modifiers:
     ncols = len(ds_xz.yC)
     nrows = len(variables)
     size = 2.5
-    fig, axes = plt.subplots(nrows=2, ncols=ncols, figsize=(1.5*size*ncols+4, size*nrows),
+    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(1.5*size*ncols+4, size*nrows),
                              sharex=True, sharey=True)
     #---
 
     #+++ Plot stuff
     pcms = []
     for i, yC in enumerate(ds_xz.yC.values):
+        print(f"y = {yC} m")
         for j, variable in enumerate(variables):
             ax = axes[j, i]
             pcm = ds_xz[variable].sel(yC=yC).pnplot(ax=ax, x="x", **plot_kwargs_by_var[variable], add_colorbar=False, rasterized=True)

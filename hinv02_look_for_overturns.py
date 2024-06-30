@@ -57,7 +57,6 @@ def create_animation(ds_xz, fig, tt=None,
 #---
 
 
-
 for modifier in modifiers:
     if __name__ == "__main__": print(f"Opening modifier={modifier}")
 
