@@ -83,14 +83,16 @@ for modifier in modifiers:
     opts_land = dict(cmap="Set2_r", vmin=0, vmax=1, alpha=1.0, zorder=10)
     for i, ax_col in enumerate(axes.T):
         ax_col[0].set_title(f"{ds_xz.yC.values[i]:.2f} m")
-        ax_col[1].set_title(f"")
     
-        ax_col[0].set_xlabel("")
-        ax_col[0].contour(ds_xz.xC, ds_xz.zC, ds_xz.b.pnisel(y=i), levels=15, colors="black", linestyles="--", linewidths=0.3)
-        for ax in ax_col:
+        for j, ax in enumerate(ax_col):
+            ax.contour(ds_xz.xC, ds_xz.zC, ds_xz.b.pnisel(y=i), levels=15, colors="black", linestyles="--", linewidths=0.3)
             ax.pcolormesh(ds_xz.xC, ds_xz.zC, ds_xz.land_mask.pnisel(y=i), rasterized=True, **opts_land)
             if i>0:
                 ax.set_ylabel("")
+            if j>0:
+                ax.set_title(f"")
+            if j<len(variables)-1:
+                ax.set_xlabel("")
     fig.tight_layout(h_pad=0)
     #---
 
