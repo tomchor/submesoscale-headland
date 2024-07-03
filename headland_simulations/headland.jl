@@ -298,7 +298,6 @@ simulation.callbacks[:progress] = Callback(progress, IterationInterval(40))
 
 wizard = TimeStepWizard(max_change=1.05, min_change=0.2, cfl=0.9, min_Δt=1e-4, max_Δt=1/√params.N²∞)
 simulation.callbacks[:wizard] = Callback(wizard, IterationInterval(2))
-simulation.callbacks[:nan_checker] = Callback(Oceananigans.Simulations.NaNChecker((; u=model.velocities.u)), IterationInterval(10))
 
 @info "" simulation
 #---
@@ -323,7 +322,7 @@ checkpointer = construct_outputs(simulation,
                                  overwrite_existing = overwrite_existing,
                                  interval_2d = 0.2*params.T_advective,
                                  interval_3d = 2.0*params.T_advective,
-                                 interval_time_avg = 10*params.T_advective,
+                                 interval_time_avg = 20*params.T_advective,
                                  write_xyz = true,
                                  write_xiz = true,
                                  write_xyi = true,
