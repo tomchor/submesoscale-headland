@@ -268,6 +268,7 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       "Ri"        : dict(vmin=-2, vmax=2, cmap=cm.balance),
                       "Ro"        : dict(vmin=-3, vmax=3, cmap=BuRd),
                       "R̂o"        : dict(vmin=-10, vmax=10, cmap=BuRd),
+                      "ω_y"       : dict(vmin=-2e-3, vmax=2e-3, cmap=plt.cm.RdBu_r),
                       "εₖ"        : dict(norm=LogNorm(vmin=1e-10,   vmax=1e-8,   clip=True), cmap="inferno"),
                       "εₚ"        : dict(norm=LogNorm(vmin=1e-10/5, vmax=1e-8/5, clip=True), cmap="inferno"),
                       "ε̄ₖ"        : dict(norm=LogNorm(vmin=2e-11,   vmax=2e-9,   clip=True), cmap="inferno"),
