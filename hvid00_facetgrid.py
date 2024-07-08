@@ -35,7 +35,7 @@ elif shell is not None:
     test = False
     time_avg = False
     summarize = False
-    zoom = True
+    zoom = False
     plotting_time = 23
     figdir = "figures_check"
 
@@ -44,8 +44,8 @@ elif shell is not None:
     modifiers = ["",]
 
     varnames = ["q̃_norm", "Ro"]
-    varnames = ["⟨w′b′⟩ₜ", "w̄b̄", "wb"]
-    contour_variable_name = None #"water_mask_buffered"
+    varnames = ["Π", "R̂o"]
+    contour_variable_name = "q̄" #"water_mask_buffered"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
 
@@ -203,22 +203,12 @@ for modifier in modifiers:
         if "wb" in snaps.variables.keys():
             snaps["Kb"] = -snaps.wb / snaps["N²∞"]
 
+        if "SPR" in snaps.variables.keys():
+            snaps["Π"] = snaps.SPR.sum("j")
 
         if "Π" in snaps.variables.keys():
             Π_thres = 1e-11
             Π_std = snaps["Π"].where(snaps.water_mask).pnstd(("x", "y"))
-            snaps["Πᵃ"] = snaps["Π"] - snaps["Πᵍ"]
-            snaps["R_Π"]  = (snaps["Πᵃ"] / Π_std)#.where((snaps["Πᵃ"] > 0)          & (snaps["Π"] > Π_thres))
-
-            q̃_vs = snaps["q̃ᵢ"].sel(i=[1,2]).sum("i")
-            snaps["R_PVvs"] = (q̃_vs / snaps["q̃"])
-
-            SP_v = snaps.SP.sel(j=3)
-            snaps["R_SPv"]  = (SP_v / snaps.Π)#.where(snaps.CSI_mask)
-            snaps["R_SPv2"] = (SP_v / snaps.Π)#.where(np.logical_and(snaps.CSI_mask, snaps.Π > 0))
-
-            snaps["Πv"] = snaps.SP.sel(j=3)
-            snaps["Πh"] = snaps.SP.sel(j=[1,2]).sum("j")
         #---
 
         #+++ Begin plotting
