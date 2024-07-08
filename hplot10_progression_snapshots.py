@@ -53,7 +53,7 @@ for modifier in modifiers:
     xyz["land_mask"] = xyz["Δxᶜᶜᶜ"].where(xyz["Δxᶜᶜᶜ"] == 0)
     xyz["PV_norm"] = xyz.PV / (xyz.N2_inf * xyz.f_0)
 
-    xyz = xyz.sel(time=np.inf, method="nearest").sel(xC=slice(-50, None), yC=slice(-200, 850))
+    xyz = xyz.sel(time=np.inf, method="nearest").sel(xC=slice(-200, None), yC=slice(-200, 1000))
     ds_xz = xyz.sel(yC=downstream_distances, method="nearest")
 
     ds_xz.PV_norm.attrs = dict(long_name=r"Ertel PV / $N^2_\infty f_0$")
@@ -104,7 +104,7 @@ for modifier in modifiers:
     if True:
         print("Including horizontal plot to the right")
         fig.subplots_adjust(right=0.8,)
-        ax = fig.add_axes((0.84, 0.1, 0.15, 0.85))
+        ax = fig.add_axes((0.845, 0.1, 0.15, 0.85))
 
         ds_xy = xyz.sel(zC=40, method="nearest")
         ds_xy[variable_xy].pnplot(ax=ax, x="x", add_colorbar=False, rasterized=True, **plot_kwargs_by_var[variable_xy])
