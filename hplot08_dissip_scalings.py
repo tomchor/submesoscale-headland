@@ -79,7 +79,7 @@ for buffer in bulk.buffer.values:
     bulk_buff = bulk.sel(buffer=buffer)
 
     #+++ Create figure
-    nrows = 4
+    nrows = 3
     ncols = 1
     size = 3
     fig, axes = plt.subplots(ncols=ncols, nrows=nrows,
@@ -121,17 +121,7 @@ for buffer in bulk.buffer.values:
     mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
     ax.set_xscale("log"); ax.set_yscale("symlog", linthresh=1e-2)
-    ax.set_ylim(1e-1, 3.5)
-    ax.plot(S_Bu, S_Bu, ls="--", label=r"$S_h$", color="gray")
-
-    print("Plotting axes 3")
-    ax = axesf[3]
-    xvarname = "Slope_Bu"
-    yvarname = "𝒫"
-    mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
-    ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
-    ax.set_xscale("log"); ax.set_yscale("symlog", linthresh=1e-2)
-    ax.set_ylim(1e-1, 3.5)
+    ax.set_ylim(1e-1, 10)
     ax.plot(S_Bu, S_Bu, ls="--", label=r"$S_h$", color="gray")
     #---
 
