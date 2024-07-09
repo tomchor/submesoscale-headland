@@ -296,7 +296,7 @@ progress(simulation) = @info (PercentageProgress(with_prefix=false, with_units=f
                               + "step dur = "*walltime_per_timestep)(simulation)
 simulation.callbacks[:progress] = Callback(progress, IterationInterval(40))
 
-wizard = TimeStepWizard(max_change=1.05, min_change=0.2, cfl=0.9, min_Δt=1e-4, max_Δt=1/√params.N²∞)
+wizard = TimeStepWizard(max_change=1.05, min_change=0.2, cfl=0.95, min_Δt=1e-4, max_Δt=1/√params.N²∞)
 simulation.callbacks[:wizard] = Callback(wizard, IterationInterval(2))
 
 @info "" simulation
