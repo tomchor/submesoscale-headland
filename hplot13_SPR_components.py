@@ -9,7 +9,7 @@ plt.rcParams["font.size"] = 9
 
 modifier = ""
 slice_name = "tafields"
-Fr_h = 0.2
+Fr_h = 0.08
 
 #+++ Read and reindex dataset
 snaps = xr.open_dataset(f"data_post/{slice_name}_snaps{modifier}.nc").chunk(Fr_h=1, Ro_h=1)
@@ -28,7 +28,7 @@ cbar_kwargs = dict(location="right", shrink=0.5, fraction=0.012, pad=0.02, aspec
 figsize = (8, 7)
 
 #plot_kwargs = dict(vmin=-0.005, vmax=0.005, cmap=plt.cm.RdBu_r, rasterized=True)
-plot_kwargs = dict(vmin=-8e-10, vmax=8e-10, cmap=cm.balance, rasterized=True)
+plot_kwargs = dict(vmin=-8e-9, vmax=8e-9, cmap=cm.balance, rasterized=True)
 #---
 
 #+++ Create ageostrophic variables and pick subset of simulations
