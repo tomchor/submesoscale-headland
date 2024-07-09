@@ -34,11 +34,14 @@ plot_kwargs = dict(vmin=-3, vmax=+3, cmap=BuRd, rasterized=True)
 
 #+++ Create ageostrophic variables and pick subset of simulations
 if slice_name == "xyi":
-    snaps["∂u∂z_norm"] = snaps["∂u∂z"] / snaps["∂u∂z"].std(("xC", "yC")) # Normalize
-    snaps["∂Uᵍ∂z_norm"] = snaps["∂Uᵍ∂z"] / snaps["∂Uᵍ∂z"].std(("xC", "yC")) # Normalize
+    norm = snaps["∂u∂z"].std(("xC", "yC"))
+    snaps["∂u∂z_norm"] = snaps["∂u∂z"] / norm # Normalize
+    snaps["∂Uᵍ∂z_norm"] = snaps["∂Uᵍ∂z"] / norm # Normalize
 else:
-    snaps["∂u∂z_norm"] = snaps["∂ⱼūᵢ"].sel(i=1, j=3) / snaps["∂ⱼūᵢ"].sel(i=1, j=3).std(("xC", "yC")) # Normalize
-    snaps["∂Uᵍ∂z_norm"] = snaps["∂ⱼŪᵍᵢ"].sel(i=1, j=3) / snaps["∂ⱼŪᵍᵢ"].sel(i=1, j=3).std(("xC", "yC")) # Normalize
+    component = dict(i=1, j=3)
+    norm = snaps["∂ⱼūᵢ"].sel(**component).std(("xC", "yC"))
+    snaps["∂u∂z_norm"] = snaps["∂ⱼūᵢ"].sel(**component) / norm # Normalize
+    snaps["∂Uᵍ∂z_norm"] = snaps["∂ⱼŪᵍᵢ"].sel(**component) / norm # Normalize
 
 snaps["∂Uᵃ∂z_norm"] = snaps["∂u∂z_norm"] - snaps["∂Uᵍ∂z_norm"]
 
@@ -56,11 +59,13 @@ for j_Ro, Ro_h in enumerate(snaps.Ro_h.values):
 
     ax = axes[0, j_Ro]
     im = snaps["∂u∂z_norm"].sel(Ro_h=Ro_h).pnplot(ax=ax, x="x", add_colorbar=False, **plot_kwargs)
+    ct = snaps["q̄"].sel(Ro_h=Ro_h).pncontour(ax=ax, x="x", add_colorbar=False, levels=[0], zorder=10, linestyles="--", colors="green")
     ax.set_title(f"$Ro_h=$ {Ro_h}, $S_h=$ {Ro_h/Fr_h}")
     ax.set_xlabel("")
 
     ax = axes[1, j_Ro]
     im = snaps["∂Uᵃ∂z_norm"].sel(Ro_h=Ro_h).pnplot(ax=ax, x="x", add_colorbar=False, **plot_kwargs)
+    ct = snaps["q̄"].sel(Ro_h=Ro_h).pncontour(ax=ax, x="x", add_colorbar=False, levels=[0], zorder=10, linestyles="--", colors="green")
     ax.set_title("")
 
     if j_Ro>0:
