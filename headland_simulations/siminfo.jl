@@ -131,7 +131,7 @@ end
             )
     #---
 
-    #+++ Gula: Ro=2
+    #+++ Gula et al. (2016) headland
     R2F02 = (; defaults...,
               Ro_h = 2.0,
               Fr_h = 0.2,
