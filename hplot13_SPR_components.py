@@ -13,7 +13,6 @@ Fr_h = 0.08
 
 #+++ Read and reindex dataset
 snaps = xr.open_dataset(f"data_post/{slice_name}_snaps{modifier}.nc").chunk(Fr_h=1, Ro_h=1)
-#snaps = snaps.reindex(Ro_h = list(reversed(snaps.Ro_h)))
 snaps = snaps.sel(xC = slice(-snaps.headland_intrusion_size_max/3, np.inf),
                   yC = slice(-snaps.L, np.inf), Ro_h = slice(0.2, None))
 
@@ -51,7 +50,7 @@ for j_Ro, Ro_h in enumerate(snaps.Ro_h.values):
 
     for i, variable in enumerate(variables):
         ax = axes[i, j_Ro]
-        ct = snaps["q̄"].sel(Ro_h=Ro_h).pncontour(ax=ax, x="x", add_colorbar=False, levels=[0], zorder=10, linestyles="--", colors="purple")
+        ct = snaps["q̄"].sel(Ro_h=Ro_h).pncontour(ax=ax, x="x", add_colorbar=False, levels=[0], zorder=10, linestyles="--", colors="green")
         im = snaps[variable].sel(Ro_h=Ro_h).pnplot(ax=ax, x="x", add_colorbar=False, **plot_kwargs)
         if i==0:
             ax.set_title(f"$Ro_h=$ {Ro_h}, $S_h=$ {Ro_h/Fr_h}")
