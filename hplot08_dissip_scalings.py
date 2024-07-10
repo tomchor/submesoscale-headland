@@ -101,7 +101,7 @@ for buffer in bulk.buffer.values:
     yvarname = "ℰₖ"
     mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
-    ax.set_xscale("log"); ax.set_yscale("symlog", linthresh=1e-2)
+    ax.set_xscale("log"); ax.set_yscale("log")
     ax.plot(S_Bu, rates_curve, ls="--", label=r"0.1 $S_h$", color="k")
 
     print("Plotting axes 1")
@@ -120,7 +120,7 @@ for buffer in bulk.buffer.values:
     yvarname = "𝒟"
     mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
     ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
-    ax.set_xscale("log"); ax.set_yscale("symlog", linthresh=1e-2)
+    ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_ylim(1e-1, 10)
     ax.plot(S_Bu, S_Bu, ls="--", label=r"$S_h$", color="gray")
     #---
