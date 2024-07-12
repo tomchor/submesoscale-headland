@@ -251,12 +251,6 @@ def down_chunk(ds, max_time=np.inf, **kwargs):
 #---
 
 #+++ Simulation names and filters
-pnames = {"PPN-R1F002A15" : "R1F002A15",
-          "PPN-R01F02A10" : "R01F02A10",
-          "PPN-R02F02A10" : "R02F02A10",
-          "PPN-R02F002A10" : "R02F002A10",
-          }
-
 wake_sims = [#"NPN-TEST-f8",
              "R008F008",
              #"R008F02",

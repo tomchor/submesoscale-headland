@@ -267,6 +267,8 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       "q̄"         : dict(vmin=-1e-11, vmax=1e-11, cmap="RdBu_r"),
                       "Ri"        : dict(vmin=-2, vmax=2, cmap=cm.balance),
                       "Ro"        : dict(vmin=-3, vmax=3, cmap=BuRd),
+                      "R̂o"        : dict(vmin=-10, vmax=10, cmap=BuRd),
+                      "ω_y"       : dict(vmin=-2e-3, vmax=2e-3, cmap=plt.cm.RdBu_r),
                       "εₖ"        : dict(norm=LogNorm(vmin=1e-10,   vmax=1e-8,   clip=True), cmap="inferno"),
                       "εₚ"        : dict(norm=LogNorm(vmin=1e-10/5, vmax=1e-8/5, clip=True), cmap="inferno"),
                       "ε̄ₖ"        : dict(norm=LogNorm(vmin=2e-11,   vmax=2e-9,   clip=True), cmap="inferno"),
@@ -274,7 +276,9 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       "Lo"        : dict(vmin=0, vmax=2, cmap=cm.balance),
                       "Δz_norm"   : dict(vmin=0, vmax=2, cmap=cm.balance),
                       "v"         : dict(vmin=-1.2 * 0.01, vmax=1.2 * 0.01, cmap=cm.balance),
-                      "wb"        : dict(vmin=-3e-8, vmax=+3e-8, cmap=cm.balance),
+                      "wb"        : dict(vmin=-1e-8, vmax=+1e-8, cmap=BuRd),
+                      "w̄b̄"        : dict(vmin=-1e-8, vmax=+1e-8, cmap=BuRd),
+                      "⟨w′b′⟩ₜ"   : dict(vmin=-1e-9, vmax=+1e-9, cmap=BuRd),
                       "uᵢGᵢ"      : dict(vmin=-1e-7, vmax=+1e-7, cmap=cm.balance),
                       "Kb"        : dict(vmin=-1e-1, vmax=+1e-1, cmap=cm.balance),
                       "γ"         : dict(vmin=0, vmax=1, cmap="plasma"),
@@ -290,7 +294,8 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       }
 
 label_dict = {"ε̄ₖ"     : r"Time-averaged KE dissipation rate $\bar\varepsilon_k$ [m²/s³]",
-              "Ro"     : r"$Ro$ [vertical vorticity / $f_0$]",
+              "Ro"     : r"$Ro$ [vertical vorticity / $f$]",
+              "R̂o"     : r"$Ro / Ro_h$ [vertical vorticity / $f\, Ro_h$]",
               "q̃_norm" : r"Normalized filtered Ertel PV",
               "v"      : r"$v$-velocity [m/s]",
               }

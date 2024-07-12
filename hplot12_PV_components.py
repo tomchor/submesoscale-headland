@@ -10,7 +10,7 @@ plt.rcParams["font.size"] = 9
 
 modifier = ""
 slice_name = "xyi"
-Fr_h = 0.2
+Fr_h = 0.08
 
 #+++ Read and reindex dataset
 snaps = xr.open_dataset(f"data_post/{slice_name}_snaps{modifier}.nc").chunk(time="auto", Fr_h=1, Ro_h=1)

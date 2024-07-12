@@ -205,7 +205,6 @@ w_bcs = FieldBoundaryConditions(immersed=τʷ)
 #---
 
 #+++ Buoyancy model and background
-buoyancy = model=BuoyancyTracer()
 
 b∞(x, y, z, t, p) = p.N²∞ * z
 
@@ -226,7 +225,6 @@ mask_y_params = (; params.y_south, params.sponge_length_y, σ = params.sponge_ra
 const y₀ = params.y_south
 const y₁ = y₀ + params.sponge_length_y/2
 const y₂ = y₀ + params.sponge_length_y
-@inline south_mask_cos(x, y, z, p) = ifelse(y₀ <= y <= y₂, 1/2 * (1 - cos( π*(y-y₀)/(y₁-y₀) )), 0.0)
 @inline south_mask_linear(x, y, z, p) = ifelse((y₀ <= y <= y₁),
                                                (y-y₀)/(y₁-y₀),
                                                ifelse((y₁ <= y <= y₂),
@@ -267,7 +265,7 @@ end
 @info "Creating model"
 model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
                             advection = WENO(grid=grid_base, order=5),
-                            buoyancy = buoyancy,
+                            buoyancy = BuoyancyTracer(),
                             coriolis = FPlane(params.f_0),
                             tracers = :b,
                             closure = closure,
@@ -275,7 +273,7 @@ model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
                             forcing = (u=Fᵤ, v=Fᵥ, w=Fw, b=Fb),
                            )
 @info "" model
-if has_cuda_gpu() run(`nvidia-smi`) end
+if has_cuda_gpu() run(`nvidia-smi -i $(ENV["CUDA_VISIBLE_DEVICES"])`) end
 
 set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
 #---
@@ -284,7 +282,7 @@ set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
 params = (; params..., T_advective_max = params.T_advective_spinup + params.T_advective_statistics)
 simulation = Simulation(model, Δt=0.2*minimum_zspacing(grid.underlying_grid)/params.V_inf,
                         stop_time=params.T_advective_max * params.T_advective,
-                        wall_time_limit=23.2hours,
+                        wall_time_limit=23.5hours,
                         )
 
 using Oceanostics.ProgressMessengers
@@ -326,7 +324,7 @@ checkpointer = construct_outputs(simulation,
                                  write_xyz = true,
                                  write_xiz = true,
                                  write_xyi = true,
-                                 write_iyz = true,
+                                 write_iyz = false,
                                  write_ttt = true,
                                  write_tti = true,
                                  debug = false,
@@ -335,7 +333,7 @@ tock()
 #---
 
 #+++ Run simulations and plot video afterwards
-if has_cuda_gpu() run(`nvidia-smi`) end
+if has_cuda_gpu() run(`nvidia-smi -i $(ENV["CUDA_VISIBLE_DEVICES"])`) end
 @info "Starting simulation"
 run!(simulation, pickup=true)
 #---
