@@ -238,7 +238,7 @@ for modifier in modifiers:
                 figsize = (8, 10)
                 cbar_kwargs = dict(location="right") | cbar_kwargs
             else:
-                figsize = (9, 5)
+                figsize = (8, 4.5)
                 cbar_kwargs = dict(location="bottom") | cbar_kwargs
 
             opts_orientation = get_orientation(snaps[var])
