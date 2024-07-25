@@ -178,7 +178,7 @@ function construct_outputs(simulation;
                            overwrite_existing = overwrite_existing,
                            interval_2d = 0.2*params.T_advective,
                            interval_3d = params.T_advective,
-                           interval_time_avg = 10*params.T_advective,
+                           interval_time_avg = 20*params.T_advective,
                            write_xyz = false,
                            write_xiz = true,
                            write_xyi = false,

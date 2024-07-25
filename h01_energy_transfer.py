@@ -268,12 +268,6 @@ for simname in simnames:
         for var in ["⟨∂ₜEk⟩ₜ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "ε̄ₛ",]:
             int_all = f"∫⁰{var}dxdydz"
             tafields[int_all] = integrate(tafields[var], dims=("z",))
-
-#        from matplotlib import pyplot as plt
-#        plt.figure(); tafields["∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz"].pnplot(x="x", robust=True)
-#        plt.figure(); tafields["∫⁰⟨uᵢ∂ᵢp⟩ₜdxdydz"].pnplot(x="x", robust=True)
-#        print()
-#    continue
     #---
 
     #+++ Get time-avg results at half-depth

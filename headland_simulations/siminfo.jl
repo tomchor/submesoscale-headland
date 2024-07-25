@@ -37,8 +37,8 @@ end
                 Rz = 2.5e-3,
                 runway_length_fraction_L = 4, # runway_length / L
                 sponge_fraction_Ly = 0.1,
-                T_advective_spinup = 20, # Should be a multiple of 10
-                T_advective_statistics = 50, # Should be a multiple of 10
+                T_advective_spinup = 20, # Should be a multiple of 20
+                T_advective_statistics = 60, # Should be a multiple of 20
                 )
 
     TEST = (; defaults...,)
@@ -130,6 +130,14 @@ end
             Fr_h = 1.25,
             )
     #---
+
+    #+++ Gula et al. (2016) headland
+    R2F02 = (; defaults...,
+              Ro_h = 2.0,
+              Fr_h = 0.2,
+              α = 0.1,
+             )
+     #---
 
 end
 
