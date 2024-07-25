@@ -20,7 +20,8 @@ bulk["⟨⟨w′b′⟩ₜ⟩ᵇ + ⟨Π⟩ᵇ"] = bulk["⟨⟨w′b′⟩ₜ⟩
 
 bulk["H"]  = bulk.α * bulk.L
 bulk["w'b'"] = bulk["∫∫∫ᵇ⟨w′b′⟩ₜdxdydz"] / (bulk.L**2 * bulk.H)
-bulk["𝒦"] = (-bulk["w'b'"] / bulk["N²∞"]) / (bulk["V∞"] * bulk.H)
+bulk["𝒦ʷᵇ"] = (-bulk["w'b'"] / bulk["N²∞"]) / (bulk["V∞"] * bulk.L**3 * bulk.H)
+bulk["𝒦"] = (bulk["∫∫∫ᵇε̄ₚdxdydz"] / bulk["N²∞"]) / (bulk["V∞"] * bulk.L**3 * bulk.H)
 #---
 
 #+++ Choose buffers and set some attributes
@@ -32,7 +33,7 @@ bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"].attrs = dict(long_name=r"$\langle\overline{w'
 bulk["⟨ε̄ₚ⟩ᵇ"].attrs = dict(long_name=r"$\langle\overline{\varepsilon}_p\rangle$ [m²/s³]")
 #---
 
-for buffer in bulk.buffer.values:
+for buffer in bulk.buffer.values[1:]:
     print(f"Plotting with buffer = {buffer} m")
     bulk_buff = bulk.sel(buffer=buffer)
 
@@ -53,8 +54,20 @@ for buffer in bulk.buffer.values:
     #---
 
     #+++ Plot stuff
-    print("Plotting axes 0")
+    print("Plotting axes 1")
     ax = axesf[0]
+    xvarname = "RoFr"
+    yvarname = "𝒦"
+    ax.set_title(bulk_buff[yvarname].attrs["long_name"])
+    mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
+    ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
+    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.plot(RoFr, 5.e-4*RoFr, ls="--", label=r"$5\times10^{-4}Ro_h Fr_h$", color="k", zorder=0)
+    #ax.plot(RoFr, 1.e-2*RoFr**2, ls="--", label=r"$2.5\times10^{-4}(Ro_h Fr_h)^2$", color="k", zorder=0)
+    ax.legend(loc="lower right")
+
+    print("Plotting axes 0")
+    ax = axesf[1]
     yvarname = "⟨⟨w′b′⟩ₜ⟩ᵇ"
     xvarname = "⟨ε̄ₚ⟩ᵇ"
     mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
@@ -65,18 +78,6 @@ for buffer in bulk.buffer.values:
     ax.plot(x, +x, ls="--", color="gray", zorder=0, label="1:1")
     ax.set_yticks([-1e-11, -1e-12, -1e-13, 0, 1e-13, 1e-12, 1e-11])
     ax.legend(loc="center right")
-
-    print("Plotting axes 1")
-    ax = axesf[1]
-    xvarname = "RoFr"
-    yvarname = "𝒦"
-    ax.set_title(bulk_buff[yvarname].attrs["long_name"])
-    mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
-    ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
-    ax.set_xscale("log"); ax.set_yscale("log")
-    ax.plot(RoFr, 1.e-2*RoFr, ls="--", label=r"$10^{-2}Ro_h Fr_h$", color="k", zorder=0)
-    #ax.plot(RoFr, 1.e-2*RoFr**2, ls="--", label=r"$2.5\times10^{-4}(Ro_h Fr_h)^2$", color="k", zorder=0)
-    ax.legend(loc="lower right")
     #---
 
     #+++ Prettify and save
