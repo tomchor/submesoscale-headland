@@ -164,6 +164,7 @@ for modifier in modifiers:
         #---
 
         #+++ Adjust/create variables
+        snaps["v̂"] = snaps.v / snaps.V_inf
         if "PV_norm" in snaps.variables.keys():
             snaps.PV_norm.attrs = dict(long_name=r"Normalized Ertel PV")
 
@@ -237,7 +238,7 @@ for modifier in modifiers:
                 figsize = (8, 10)
                 cbar_kwargs = dict(location="right") | cbar_kwargs
             else:
-                figsize = (9, 5)
+                figsize = (8, 4.5)
                 cbar_kwargs = dict(location="bottom") | cbar_kwargs
 
             opts_orientation = get_orientation(snaps[var])

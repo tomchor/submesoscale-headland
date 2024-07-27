@@ -46,7 +46,7 @@ pbs_script = \
 #PBS -N {simname_fullshort}
 #PBS -o logs/{simname_full}.log
 #PBS -e logs/{simname_full}.log
-#PBS -l walltime=24:00:00
+#PBS -l walltime=23:59:00
 #PBS -q casper
 #PBS -l {options_string1}
 #PBS -l {options_string2}
