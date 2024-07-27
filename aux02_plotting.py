@@ -295,12 +295,13 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       "R_SPh"     : dict(cmap=cm.balance, vmin=0, vmax=1),
                       }
 
-label_dict = {"ε̄ₖ"     : r"Time-averaged KE dissipation rate $\bar\varepsilon_k$ [m²/s³]",
-              "Ro"     : r"$Ro$ [vertical vorticity / $f$]",
-              "R̂o"     : r"$Ro / Ro_h$ [vertical vorticity / $f\, Ro_h$]",
-              "q̃_norm" : r"Normalized filtered Ertel PV",
-              "v"      : r"$v$-velocity [m/s]",
-              "v̂"      : r"Normalized $v$-velocity ($v/V_\infty$)",
+label_dict = {"ε̄ₖ"      : r"Time-averaged KE dissipation rate $\bar\varepsilon_k$ [m²/s³]",
+              "Ro"      : r"$Ro$ [vertical vorticity / $f$]",
+              "R̂o"      : r"$Ro / Ro_h$ [vertical vorticity / $f\, Ro_h$]",
+              "q̃_norm"  : r"Normalized filtered Ertel PV",
+              "PV_norm" : r"Normalized Ertel PV (PV$/f N^2_\infty$)",
+              "v"       : r"$v$-velocity [m/s]",
+              "v̂"       : r"Normalized $v$-velocity ($v/V_\infty$)",
               }
 #---
 
