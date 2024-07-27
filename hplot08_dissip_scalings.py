@@ -74,12 +74,12 @@ bulk["𝒫"].attrs = dict(long_name="Normalized integrated\nshear production rat
 bulk["K"].attrs = dict(long_name="Normalized integrated\nTKE, $\mathcal{K}$")
 #---
 
-for buffer in bulk.buffer.values:
+for buffer in bulk.buffer.values[1:]:
     print(f"Plotting with buffer = {buffer} m")
     bulk_buff = bulk.sel(buffer=buffer)
 
     #+++ Create figure
-    nrows = 3
+    nrows = 2
     ncols = 1
     size = 3
     fig, axes = plt.subplots(ncols=ncols, nrows=nrows,
@@ -106,16 +106,6 @@ for buffer in bulk.buffer.values:
 
     print("Plotting axes 1")
     ax = axesf[1]
-    xvarname = "Slope_Bu"
-    yvarname = "ℰₚ"
-    mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
-    ax.set_ylabel(bulk_buff[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_buff[xvarname].attrs["long_name"])
-    ax.set_xscale("log"); ax.set_yscale("log")
-    ax.plot(S_Bu, rates_curve, ls="--", label=r"0.1 $S_h$", color="k")
-    ax.plot(S_Bu, 0.02*S_Bu, ls="--", label=r"0.02 $S_h$", color="gray")
-
-    print("Plotting axes 2")
-    ax = axesf[2]
     xvarname = "Slope_Bu"
     yvarname = "𝒟"
     mscatter(x=bulk_buff[xvarname].values.flatten(), y=bulk_buff[yvarname].values.flatten(), color=bulk.color.values.flatten(), markers=bulk.marker.values.flatten(), ax=ax)
