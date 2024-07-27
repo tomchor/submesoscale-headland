@@ -27,7 +27,7 @@ slice_names = ["iyz",]
 modifiers = ["-f2", "",]
 modifiers = ["",]
 
-varnames = ["v"]
+varnames = ["v̂"]
 contour_variable_name = None #"water_mask_buffered"
 contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
 #---

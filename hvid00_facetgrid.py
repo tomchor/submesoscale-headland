@@ -34,18 +34,18 @@ elif shell is not None:
     animate = False
     test = False
     time_avg = False
-    summarize = True
-    zoom = True
+    summarize = False
+    zoom = False
     plotting_time = 23
     figdir = "figures_check"
 
-    slice_names = ["xyi",]
+    slice_names = ["tafields", "xyi"]
     modifiers = ["-f2", "-S-f2", "", "-S"]
-    modifiers = ["-f2",]
+    modifiers = ["",]
 
     varnames = ["q̃_norm", "Ro"]
-    varnames = ["Ro"]
-    contour_variable_name = None #"water_mask_buffered"
+    varnames = ["Π", "R̂o"]
+    contour_variable_name = "q̄" #"water_mask_buffered"
     contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
     #---
 
@@ -164,6 +164,7 @@ for modifier in modifiers:
         #---
 
         #+++ Adjust/create variables
+        snaps["v̂"] = snaps.v / snaps.V_inf
         if "PV_norm" in snaps.variables.keys():
             snaps.PV_norm.attrs = dict(long_name=r"Normalized Ertel PV")
 
@@ -186,6 +187,9 @@ for modifier in modifiers:
 
             snaps["Rᵍ_PVvs"] = (-snaps.Ri**(-1) / (1 + snaps.Ro - 1/snaps.Ri))#.where(snaps.CSI_mask)
 
+        if "Ro" in snaps.variables.keys():
+            snaps["R̂o"] = snaps.Ro / snaps.Ro_h
+
         if "q̃_norm" in varnames:
             if "q̃" not in snaps.variables.keys():
                 snaps = calculate_filtered_PV(snaps, scale_meters = 15, condense_tensors=True, indices = [1,2,3], cleanup=False)
@@ -200,61 +204,55 @@ for modifier in modifiers:
         if "wb" in snaps.variables.keys():
             snaps["Kb"] = -snaps.wb / snaps["N²∞"]
 
+        if "SPR" in snaps.variables.keys():
+            snaps["Π"] = snaps.SPR.sum("j")
 
         if "Π" in snaps.variables.keys():
             Π_thres = 1e-11
             Π_std = snaps["Π"].where(snaps.water_mask).pnstd(("x", "y"))
-            snaps["Πᵃ"] = snaps["Π"] - snaps["Πᵍ"]
-            snaps["R_Π"]  = (snaps["Πᵃ"] / Π_std)#.where((snaps["Πᵃ"] > 0)          & (snaps["Π"] > Π_thres))
-
-            q̃_vs = snaps["q̃ᵢ"].sel(i=[1,2]).sum("i")
-            snaps["R_PVvs"] = (q̃_vs / snaps["q̃"])
-
-            SP_v = snaps.SP.sel(j=3)
-            snaps["R_SPv"]  = (SP_v / snaps.Π)#.where(snaps.CSI_mask)
-            snaps["R_SPv2"] = (SP_v / snaps.Π)#.where(np.logical_and(snaps.CSI_mask, snaps.Π > 0))
-
-            snaps["Πv"] = snaps.SP.sel(j=3)
-            snaps["Πh"] = snaps.SP.sel(j=[1,2]).sum("j")
-        #---
-
-        #+++ Options
-        sel = dict()
-        if zoom:
-            if "xC" in snaps.coords: # has an x dimension
-                sel = sel | dict(x=slice(-snaps.headland_intrusion_size_max/3, np.inf))
-            if "yC" in snaps.coords: # has a y dimension
-                sel = sel | dict(y=slice(-2*snaps.L, 8*snaps.L))
-            if ("zC" in snaps.coords) and (len(snaps.coords["zC"].values.shape)>0): # has a z dimension
-                sel = sel | dict(z=slice(None))
-
-        cbar_kwargs = dict(shrink=0.5, fraction=0.012, pad=0.02, aspect=30)
-        if ("xC" in snaps.coords) and ("yC" in snaps.coords):
-            figsize = (8, 10)
-            cbar_kwargs = dict(location="right") | cbar_kwargs
-        else:
-            figsize = (9, 5)
-            cbar_kwargs = dict(location="bottom") | cbar_kwargs
-
-        opts_orientation = get_orientation(snaps)
         #---
 
         #+++ Begin plotting
         varlist = list(plot_kwargs_by_var.keys())
         for var in varlist:
             if __name__ == '__main__': print(f"Starting variable {var}")
+
+            #+++ Is the variable in the file?
             if var not in snaps.variables.keys():
                 if __name__ == '__main__': print(f"Skipping {slice_name} slices of {var} since they don't seem to be in the file.")
                 continue
+            #---
+
+            #+++ Plotting options
+            sel_opts = dict()
+            if zoom:
+                if "xC" in snaps[var].coords: # has an x dimension
+                    sel_opts = sel_opts | dict(x=slice(-snaps.headland_intrusion_size_max/3, np.inf))
+                if "yC" in snaps[var].coords: # has a y dimension
+                    sel_opts = sel_opts | dict(y=slice(-2*snaps.L, 8*snaps.L))
+                if ("zC" in snaps[var].coords) and (len(snaps.coords["zC"].values.shape)>0): # has a z dimension
+                    sel_opts = sel_opts | dict(z=slice(None))
+
+            cbar_kwargs = dict(shrink=0.5, fraction=0.012, pad=0.02, aspect=30)
+            if ("xC" in snaps.coords) and ("yC" in snaps.coords):
+                figsize = (8, 10)
+                cbar_kwargs = dict(location="right") | cbar_kwargs
+            else:
+                figsize = (8, 4.5)
+                cbar_kwargs = dict(location="bottom") | cbar_kwargs
+
+            opts_orientation = get_orientation(snaps[var])
 
             if var in label_dict.keys():
                 cbar_kwargs["label"] = label_dict[var]
             else:
                 cbar_kwargs["label"] = var
+            #---
 
+            #+++ Put kwargs together
             plot_kwargs = plot_kwargs_by_var[var]
             if contour_variable_name in snaps.variables.keys():
-                contour_variable = snaps[contour_variable_name].pnsel(**sel)
+                contour_variable = snaps[contour_variable_name].pnsel(**sel_opts)
             else:
                 contour_variable = None
             kwargs = dict(plot_kwargs=(plot_kwargs | opts_orientation),
@@ -264,6 +262,7 @@ for modifier in modifiers:
                           add_abc = True,
                           cbar_kwargs = cbar_kwargs,
                           label_Slope_Bu = True,)
+            #---
 
             if animate:
                 #+++ Animate!
@@ -273,7 +272,7 @@ for modifier in modifiers:
                     if __name__ == "__main__": print(f"Skipping {slice_name} slices of {var} for animating since they don't have a time dimension.")
                     continue
 
-                anim_horvort = Movie(snaps[var].pnsel(**sel), plotfunc=manual_facetgrid,
+                anim_horvort = Movie(snaps[var].pnsel(**sel_opts), plotfunc=manual_facetgrid,
                                      pixelwidth  = 1000 if (summarize and slice_name in ["xyi", "tafields"]) else 1800,
                                      pixelheight = 1000 if (summarize and slice_name in ["xyi", "tafields"]) else 1000,
                                      dpi = 200,
@@ -313,7 +312,7 @@ for modifier in modifiers:
             else:
                 #+++ Plot figure
                 fig = plt.figure(figsize=figsize)
-                axes, fig = manual_facetgrid(snaps[var].pnsel(**sel), fig, -1, **kwargs)
+                axes, fig = manual_facetgrid(snaps[var].pnsel(**sel_opts), fig, -1, **kwargs)
 
                 if test:
                     print("Plotting snapshots for testing")

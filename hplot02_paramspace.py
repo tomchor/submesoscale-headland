@@ -70,13 +70,13 @@ for modifier in modifiers:
             ax.scatter(xyi.Fr_h, xyi.Ro_h, label=simname[4:], s=300, edgecolor="red", color=[0,0,0,0], zorder=10, linewidths=3)
 
         if simname.split("-")[1] in threed_sims:
-            p3d = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="^", color="green", zorder=10, label="3D regime")
+            p3d = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="^", color="green", zorder=10, label="Small-scale turb.")
         elif simname.split("-")[1] in bathfo_sims:
             pbf = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="X", color="blue", zorder=10, label="Bath. following")
         elif simname.split("-")[1] in vertco_sims:
-            pvc = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="D", color="orange", zorder=10, label="Vert. coherent")
+            pvc = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="D", color="orange", zorder=10, label="Vert. coupled")
         elif simname.split("-")[1] in vertsh_sims:
-            pvs = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="d", color="orchid", zorder=10, label="Vert. sheared")
+            pvs = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="d", color="orchid", zorder=10, label="Vert. decoupled")
         else:
             ptr = ax.scatter(xyi.Fr_h, xyi.Ro_h, s=120, marker="o", color="black", zorder=10, label="Transition regime")
 
@@ -97,7 +97,7 @@ for modifier in modifiers:
     #+++ Adjust panel
     ax.grid(True, zorder=0)
     ax.legend((p3d, pbf, pvc, pvs, ptr),
-              ("3D turbulence", "Bathymetry-following", "Vertically-coherent eddying", "Vertically-sheared eddying", "Transitional"),
+              ("Small-scale turbulence", "Bathymetry-following", "Vertically-coupled eddying", "Vertically-decoupled eddying", "Transitional"),
               numpoints=1,
               loc="lower center", bbox_to_anchor=(0.5, 1.15))
     ax.set_aspect("equal")
