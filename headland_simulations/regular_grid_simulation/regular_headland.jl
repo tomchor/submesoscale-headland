@@ -31,15 +31,15 @@ rundir = @__DIR__
 #+++ Figure out name, dimensions, modifier, etc
 sep = "-"
 global topology, configname, modifiers... = split(simname, sep)
-global AMD = "AMD" in modifiers ? true : false
-global DNS = "DNS" in modifiers ? true : false
 global f2  = "f2"  in modifiers ? true : false
 global f4  = "f4"  in modifiers ? true : false
 global f8  = "f8"  in modifiers ? true : false
 global f16 = "f16" in modifiers ? true : false
 global f32 = "f32" in modifiers ? true : false
 global f64 = "f64" in modifiers ? true : false
+global AMD = "AMD" in modifiers ? true : false
 global south = "S" in modifiers ? true : false
+global V2  =  "V2" in modifiers ? true : false
 #---
 
 #+++ Modify factor accordingly
@@ -72,6 +72,10 @@ end
 #+++ Get primary simulation parameters
 include("$(@__DIR__)/../siminfo.jl")
 params = getproperty(Headland(), Symbol(configname))
+
+if V2
+    params = (; params..., V∞ = 2*params.V∞)
+end
 #---
 
 #+++ Get secondary parameters
@@ -163,10 +167,8 @@ grid = ImmersedBoundaryGrid(grid_base, GFB)
 
 #+++ Drag (Implemented as in https://doi.org/10.1029/2005WR004685)
 z₀ = params.z_0 # roughness length
-x₁ = minimum_xspacing(grid_base, Center(), Center(), Center())/2
-y₁ = minimum_yspacing(grid_base, Center(), Center(), Center())/2
 z₁ = minimum_zspacing(grid_base, Center(), Center(), Center())/2
-@info "Using x₁ y₁ z₁ =" x₁ y₁ z₁
+@info "Using z₁ =" z₁
 
 const κᵛᵏ = 0.4 # von Karman constant
 params = (; params..., c_dz = (κᵛᵏ / log(z₁/z₀))^2) # quadratic drag coefficient
@@ -186,8 +188,6 @@ w_bcs = FieldBoundaryConditions(immersed=τʷ)
 #---
 
 #+++ Buoyancy model and background
-buoyancy = model=BuoyancyTracer()
-
 b∞(x, y, z, t, p) = p.N²∞ * z
 
 b_bcs = FieldBoundaryConditions()
@@ -207,7 +207,6 @@ mask_y_params = (; params.y_south, params.sponge_length_y, σ = params.sponge_ra
 const y₀ = params.y_south
 const y₁ = y₀ + params.sponge_length_y/2
 const y₂ = y₀ + params.sponge_length_y
-@inline south_mask_cos(x, y, z, p) = ifelse(y₀ <= y <= y₂, 1/2 * (1 - cos( π*(y-y₀)/(y₁-y₀) )), 0.0)
 @inline south_mask_linear(x, y, z, p) = ifelse((y₀ <= y <= y₁),
                                                (y-y₀)/(y₁-y₀),
                                                ifelse((y₁ <= y <= y₂),
@@ -248,7 +247,7 @@ end
 @info "Creating model"
 model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
                             advection = WENO(grid=grid_base, order=5),
-                            buoyancy = buoyancy,
+                            buoyancy = BuoyancyTracer(),
                             coriolis = FPlane(params.f_0),
                             tracers = :b,
                             closure = closure,
@@ -256,7 +255,7 @@ model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
                             forcing = (u=Fᵤ, v=Fᵥ, w=Fw, b=Fb),
                            )
 @info "" model
-if has_cuda_gpu() run(`nvidia-smi`) end
+if has_cuda_gpu() run(`nvidia-smi -i $(ENV["CUDA_VISIBLE_DEVICES"])`) end
 
 set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
 #---
@@ -265,7 +264,7 @@ set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
 params = (; params..., T_advective_max = params.T_advective_spinup + params.T_advective_statistics)
 simulation = Simulation(model, Δt=0.1*minimum_zspacing(grid.underlying_grid)/params.V_inf,
                         stop_time=params.T_advective_max * params.T_advective,
-                        wall_time_limit=23.2hours,
+                        wall_time_limit=23.5hours,
                         )
 
 using Oceanostics.ProgressMessengers
@@ -277,9 +276,8 @@ progress(simulation) = @info (PercentageProgress(with_prefix=false, with_units=f
                               + "step dur = "*walltime_per_timestep)(simulation)
 simulation.callbacks[:progress] = Callback(progress, IterationInterval(40))
 
-wizard = TimeStepWizard(max_change=1.05, min_change=0.2, cfl=0.9, min_Δt=1e-4, max_Δt=1/√params.N²∞)
+wizard = TimeStepWizard(max_change=1.05, min_change=0.2, cfl=0.95, min_Δt=1e-4, max_Δt=1/√params.N²∞)
 simulation.callbacks[:wizard] = Callback(wizard, IterationInterval(2))
-simulation.callbacks[:nan_checker] = Callback(Oceananigans.Simulations.NaNChecker((; u=model.velocities.u)), IterationInterval(10))
 
 @info "" simulation
 #---
@@ -304,21 +302,20 @@ checkpointer = construct_outputs(simulation,
                                  overwrite_existing = overwrite_existing,
                                  interval_2d = 0.2*params.T_advective,
                                  interval_3d = 0.2*params.T_advective,
-                                 interval_time_avg = 10*params.T_advective,
+                                 interval_time_avg = 20*params.T_advective,
                                  write_xyz = true,
                                  write_xiz = false,
                                  write_xyi = false,
                                  write_iyz = false,
                                  write_ttt = false,
                                  write_tti = false,
-                                 write_conditional_aya = false,
                                  debug = false,
                                  )
 tock()
 #---
 
 #+++ Run simulations and plot video afterwards
-if has_cuda_gpu() run(`nvidia-smi`) end
+if has_cuda_gpu() run(`nvidia-smi -i $(ENV["CUDA_VISIBLE_DEVICES"])`) end
 @info "Starting simulation"
 run!(simulation, pickup=true)
 #---

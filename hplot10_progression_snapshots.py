@@ -6,6 +6,7 @@ from matplotlib.colors import LogNorm
 from cmocean import cm
 from aux00_utils import open_simulation
 from aux02_plotting import letterize, plot_kwargs_by_var
+plt.rcParams["font.size"] = 9
 
 modifiers = ["", "-S"]
 variable_xy = "PV_norm"
@@ -117,9 +118,9 @@ for modifier in modifiers:
         for y in ds_xz.yC.values:
             ax.axhline(y=y, ls="--", lw=0.5, color="k")
 
-        for i in range(len(variables)):
-            cax = axes[i,0].inset_axes([210, 5, 180, 5], transform=axes[i,0].transData, zorder=100)
-            c_ax = fig.colorbar(pcms[i], cax=cax, orientation="horizontal", label=ds_xz[variables[i]].attrs["long_name"], location="top")
+    for i in range(len(variables)):
+        cax = axes[i,0].inset_axes([200, 0, 200, 5], transform=axes[i,0].transData, zorder=100)
+        c_ax = fig.colorbar(pcms[i], cax=cax, orientation="horizontal", label=ds_xz[variables[i]].attrs["long_name"], location="top")
     #---
 
     #+++ Save

@@ -255,6 +255,8 @@ BuRd = truncate_colormap(cmap, 0.05, 0.95)
 
 #+++ MASTER DICTIONARY OF OPTIONS
 plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdBu_r),
+                      "v"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdBu_r),
+                      "v̂"         : dict(vmin=-1.2, vmax=+1.2, cmap=cm.balance),
                       "w"         : dict(vmin=-0.003, vmax=+0.003, cmap=plt.cm.RdBu_r),
                       "PV_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "PVᶻ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
@@ -293,11 +295,13 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       "R_SPh"     : dict(cmap=cm.balance, vmin=0, vmax=1),
                       }
 
-label_dict = {"ε̄ₖ"     : r"Time-averaged KE dissipation rate $\bar\varepsilon_k$ [m²/s³]",
-              "Ro"     : r"$Ro$ [vertical vorticity / $f$]",
-              "R̂o"     : r"$Ro / Ro_h$ [vertical vorticity / $f\, Ro_h$]",
-              "q̃_norm" : r"Normalized filtered Ertel PV",
-              "v"      : r"$v$-velocity [m/s]",
+label_dict = {"ε̄ₖ"      : r"Time-averaged KE dissipation rate $\bar\varepsilon_k$ [m²/s³]",
+              "Ro"      : r"$Ro$ [vertical vorticity / $f$]",
+              "R̂o"      : r"$Ro / Ro_h$ [vertical vorticity / $f\, Ro_h$]",
+              "q̃_norm"  : r"Normalized filtered Ertel PV",
+              "PV_norm" : r"Normalized Ertel PV (PV$/f N^2_\infty$)",
+              "v"       : r"$v$-velocity [m/s]",
+              "v̂"       : r"Normalized $v$-velocity ($v/V_\infty$)",
               }
 #---
 
