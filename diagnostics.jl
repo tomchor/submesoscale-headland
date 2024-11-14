@@ -35,7 +35,7 @@ using Oceananigans.Operators
 import NCDatasets as NCD
 function write_to_ds(dsname, varname, data; coords=("xC", "yC", "zC"), dtype=Float64)
     ds = NCD.NCDataset(dsname, "a")
-    if varname ∉ ds
+    if varname ∉ keys(ds)
         newvar = NCD.defVar(ds, varname, dtype, coords)
         if length(size(data)) == 3
             newvar[:,:,:] = Array(data)

@@ -127,7 +127,7 @@ function write_grid_metrics!(ow, metrics; user_indices = (:, :, :), with_halos=f
         @info metric_name
         laptimer()
 
-        if metric_name ∉ ds
+        if metric_name ∉ keys(ds)
             define_timeconstant_variable!(ds, sliced_metric, metric_name, ow.array_type, 0, Dict(), ("xC", "yC", "zC"))
             save_output!(ds, sliced_metric, model, ow, metric_name)
         end
