@@ -347,15 +347,17 @@ version = "1.6.1"
 
 [[deps.DimensionalData]]
 deps = ["Adapt", "ArrayInterface", "ConstructionBase", "DataAPI", "Dates", "Extents", "Interfaces", "IntervalSets", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "PrecompileTools", "Random", "RecipesBase", "SparseArrays", "Statistics", "TableTraits", "Tables"]
-git-tree-sha1 = "5f3bb465f4b06b25e9bbe8f1d9711834ef4697d6"
+git-tree-sha1 = "3b4ddf974521dad46365ce7bb5a34e3e38c23084"
 uuid = "0703355e-b756-11e9-17c0-8b28908087d0"
-version = "0.27.3"
+version = "0.28.5"
 
     [deps.DimensionalData.extensions]
+    DimensionalDataAlgebraOfGraphicsExt = "AlgebraOfGraphics"
     DimensionalDataCategoricalArraysExt = "CategoricalArrays"
     DimensionalDataMakie = "Makie"
 
     [deps.DimensionalData.weakdeps]
+    AlgebraOfGraphics = "cbdf2221-f076-402e-a563-3d30da359d67"
     CategoricalArrays = "324d7699-5711-5eae-9e2f-1d82baa6b597"
     Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 
@@ -632,6 +634,12 @@ deps = ["EarCut_jll", "Extents", "GeoInterface", "IterTools", "LinearAlgebra", "
 git-tree-sha1 = "b62f2b2d76cee0d61a2ef2b3118cd2a3215d3134"
 uuid = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
 version = "0.4.11"
+
+[[deps.GeometryOpsCore]]
+deps = ["DataAPI", "GeoInterface", "Tables"]
+git-tree-sha1 = "ceb72a2280df6d4c27901d57c49f6b17f9280e12"
+uuid = "05efe853-fabf-41c8-927e-7063c8b9f013"
+version = "0.1.1"
 
 [[deps.Gettext_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
@@ -1516,10 +1524,10 @@ uuid = "b3c3ace0-ae52-54e7-9d0b-2c1406fd6b9d"
 version = "0.3.2"
 
 [[deps.Rasters]]
-deps = ["Adapt", "ColorTypes", "CommonDataModel", "ConstructionBase", "Dates", "DimensionalData", "DiskArrays", "Extents", "FillArrays", "Flatten", "GeoFormatTypes", "GeoInterface", "Missings", "Mmap", "OffsetArrays", "ProgressMeter", "RecipesBase", "Reexport", "Setfield"]
-git-tree-sha1 = "b6710b565676502d12993eb7bc80338110743de1"
+deps = ["Adapt", "ColorTypes", "CommonDataModel", "ConstructionBase", "Dates", "DimensionalData", "DiskArrays", "Extents", "FillArrays", "Flatten", "GeoFormatTypes", "GeoInterface", "GeometryOpsCore", "LinearAlgebra", "Missings", "Mmap", "OffsetArrays", "ProgressMeter", "RecipesBase", "Reexport", "Setfield"]
+git-tree-sha1 = "aebf6d522e302af8eb08931e3ee54befcabaf9b0"
 uuid = "a3a2b9e3-a471-40c9-b274-f788e487c689"
-version = "0.11.3"
+version = "0.12.0"
 
     [deps.Rasters.extensions]
     RastersArchGDALExt = "ArchGDAL"
@@ -1527,16 +1535,19 @@ version = "0.11.3"
     RastersGRIBDatasetsExt = "GRIBDatasets"
     RastersMakieExt = "Makie"
     RastersNCDatasetsExt = "NCDatasets"
+    RastersProjExt = "Proj"
     RastersRasterDataSourcesExt = "RasterDataSources"
+    RastersZarrDatasetsExt = "ZarrDatasets"
 
     [deps.Rasters.weakdeps]
     ArchGDAL = "c9ce4bd3-c3d5-55b8-8973-c0e20141b8c3"
     CoordinateTransformations = "150eb455-5306-5404-9cee-2592286d6298"
     GRIBDatasets = "82be9cdb-ee19-4151-bdb3-b400788d9abc"
-    HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
     Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
     NCDatasets = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
+    Proj = "c94c279d-25a6-4763-9509-64d165bea63e"
     RasterDataSources = "3cb90ccd-e1b6-4867-9617-4276c8b2ca36"
+    ZarrDatasets = "519a4cdf-1362-424a-9ea1-b1d782dbb24b"
 
 [[deps.Ratios]]
 deps = ["Requires"]
