@@ -975,11 +975,9 @@ version = "1.4.0"
 
 [[deps.LambertW]]
 deps = ["IrrationalConstants"]
-git-tree-sha1 = "8f880ee078d4db8aafecd35ab720a4cee9610ee3"
-repo-rev = "tc/no-warning"
-repo-url = "https://github.com/tomchor/LambertW.jl.git"
+git-tree-sha1 = "c6cd4fe119e21ebb1ca8adfaf32c989465c8d920"
 uuid = "984bce1d-4616-540c-a9ee-88d1112d94c9"
-version = "0.4.7"
+version = "1.0.0"
 
 [[deps.LazyArtifacts]]
 deps = ["Artifacts", "Pkg"]
