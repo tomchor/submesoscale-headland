@@ -25,7 +25,6 @@ figdir = "figures"
 
 slice_names = ["iyz",]
 modifiers = ["-f2", "",]
-modifiers = ["",]
 
 varnames = ["v̂"]
 contour_variable_name = None #"water_mask_buffered"

@@ -164,7 +164,8 @@ for modifier in modifiers:
         #---
 
         #+++ Adjust/create variables
-        snaps["v̂"] = snaps.v / snaps.V_inf
+        if "v" in snaps.variables.keys():
+            snaps["v̂"] = snaps.v / snaps.V_inf
         if "PV_norm" in snaps.variables.keys():
             snaps.PV_norm.attrs = dict(long_name=r"Normalized Ertel PV")
 
