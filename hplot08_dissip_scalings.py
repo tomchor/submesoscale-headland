@@ -49,29 +49,29 @@ bulk["K"]  = bulk["∫∫∫ᵇ⟨Ek′⟩ₜdxdydz"] / (bulk["V∞"]**2 * bulk.
 
 #+++ Choose buffers and set some attributes
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
-bulk["ℰₖ"].attrs = dict(long_name="Normalized integrated\nKE dissipation rate, $\mathcal{E}_k$")
-bulk["ℰₚ"].attrs = dict(long_name="Normalized integrated\nbuoyancy mixing rate, $\mathcal{E}_p$")
+bulk["ℰₖ"].attrs = dict(long_name="Normalized integrated\nKE dissipation rate, $\\mathcal{E}_k$")
+bulk["ℰₚ"].attrs = dict(long_name="Normalized integrated\nbuoyancy mixing rate, $\\mathcal{E}_p$")
 
-bulk["𝓅"].attrs = dict(long_name="Normalized integrated\npressure transport contribution, $\mathcal{p}$")
-bulk["𝓅2"].attrs = dict(long_name="Normalized integrated\npressure (divergence), $\mathcal{p}$2")
-bulk["𝒟"].attrs = dict(long_name="Normalized integrated\nform drag work, $\mathcal{D}$")
+bulk["𝓅"].attrs = dict(long_name="Normalized integrated\npressure transport contribution, $\\mathcal{p}$")
+bulk["𝓅2"].attrs = dict(long_name="Normalized integrated\npressure (divergence), $\\mathcal{p}$2")
+bulk["𝒟"].attrs = dict(long_name="Normalized integrated\nform drag work, $\\mathcal{D}$")
 
-bulk["A"].attrs = dict(long_name="Normalized integrated\nadvection contribution, $\mathcal{A}$")
-bulk["A2"].attrs = dict(long_name="Normalized integrated\nadvection (divergence), $\mathcal{A}$2")
+bulk["A"].attrs = dict(long_name="Normalized integrated\nadvection contribution, $\\mathcal{A}$")
+bulk["A2"].attrs = dict(long_name="Normalized integrated\nadvection (divergence), $\\mathcal{A}$2")
 
-bulk["B"].attrs = dict(long_name="Normalized integrated\nbuoyancy flux, $\mathcal{B}$")
-bulk["B′"].attrs = dict(long_name="Normalized integrated\nbuoyancy flux, $\mathcal{B}2$")
+bulk["B"].attrs = dict(long_name="Normalized integrated\nbuoyancy flux, $\\mathcal{B}$")
+bulk["B′"].attrs = dict(long_name="Normalized integrated\nbuoyancy flux, $\\mathcal{B}2$")
 
-bulk["T"].attrs = dict(long_name="Normalized integrated\nstress contribution, $\mathcal{T}$")
+bulk["T"].attrs = dict(long_name="Normalized integrated\nstress contribution, $\\mathcal{T}$")
 
-bulk["F"].attrs = dict(long_name="Normalized integrated\nforcing contribution, $\mathcal{F}$")
+bulk["F"].attrs = dict(long_name="Normalized integrated\nforcing contribution, $\\mathcal{F}$")
 
-bulk["G"].attrs = dict(long_name="$- \mathcal{A} - \mathcal{p} + \mathcal{B} + \mathcal{F} + \mathcal{T}$")
-bulk["G2"].attrs = dict(long_name="$- \mathcal{A} - \mathcal{p}2 + \mathcal{B} + \mathcal{F} + \mathcal{T}$")
-bulk["G3"].attrs = dict(long_name="$- \mathcal{A} - \mathcal{p}3 + \mathcal{B} + \mathcal{F} + \mathcal{T}$")
+bulk["G"].attrs = dict(long_name="$- \\mathcal{A} - \\mathcal{p} + \\mathcal{B} + \\mathcal{F} + \\mathcal{T}$")
+bulk["G2"].attrs = dict(long_name="$- \\mathcal{A} - \\mathcal{p}2 + \\mathcal{B} + \\mathcal{F} + \\mathcal{T}$")
+bulk["G3"].attrs = dict(long_name="$- \\mathcal{A} - \\mathcal{p}3 + \\mathcal{B} + \\mathcal{F} + \\mathcal{T}$")
 
-bulk["𝒫"].attrs = dict(long_name="Normalized integrated\nshear production rate, $\mathcal{P}$")
-bulk["K"].attrs = dict(long_name="Normalized integrated\nTKE, $\mathcal{K}$")
+bulk["𝒫"].attrs = dict(long_name="Normalized integrated\nshear production rate, $\\mathcal{P}$")
+bulk["K"].attrs = dict(long_name="Normalized integrated\nTKE, $\\mathcal{K}$")
 #---
 
 for buffer in bulk.buffer.values[1:]:

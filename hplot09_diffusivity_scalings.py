@@ -28,9 +28,9 @@ bulk["𝒦"] = (bulk["∫∫∫ᵇε̄ₚdxdydz"] / bulk["N²∞"]) / (bulk["V�
 #+++ Choose buffers and set some attributes
 bulk.RoFr.attrs = dict(long_name="$Ro_h Fr_h$")
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_h$")
-bulk["ℰₚ"].attrs = dict(long_name="Normalized integrated\nbuoyancy mixing rate, $\mathcal{E}_p$")
-bulk["Kb′"].attrs = dict(long_name=r"$K_b = -\overline{w′b′} / N^2_\infty$ [m²/s]")
-bulk["𝒦"].attrs = dict(long_name=r"Normalized buoyancy diffusivity $\mathcal{K}_b$")
+bulk["ℰₚ"].attrs = dict(long_name="Normalized integrated\nbuoyancy mixing rate, $\\mathcal{E}_p$")
+bulk["Kb′"].attrs = dict(long_name="$K_b = -\overline{w′b′} / N^2_\infty$ [m²/s]")
+bulk["𝒦"].attrs = dict(long_name="Normalized buoyancy diffusivity $\\mathcal{K}_b$")
 bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"].attrs = dict(long_name=r"$\langle\overline{w'b'}\rangle$ [m²/s³]")
 bulk["⟨ε̄ₚ⟩ᵇ"].attrs = dict(long_name=r"$\langle\overline{\varepsilon}_p\rangle$ [m²/s³]")
 #---
