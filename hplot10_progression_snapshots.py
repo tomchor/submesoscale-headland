@@ -12,6 +12,7 @@ modifiers = ["", "-S"]
 variable_xy = "PV_norm"
 variables = ["PV_norm", "εₖ", "ω_y"]
 Fr_h = 0.2
+#Ro_h = 0.2 # For appendix
 Ro_h = 1
 
 #+++ Pick downstream distances
@@ -21,7 +22,7 @@ if (Fr_h==0.08) and (Ro_h==1):
 elif (Fr_h==0.08) and (Ro_h==0.08):
     downstream_distances = np.linspace(0, 200, N)
 elif (Fr_h==0.2) and (Ro_h==0.2):
-    downstream_distances = np.linspace(0, 200, N)
+    downstream_distances = np.linspace(80, 300, N)
 elif (Fr_h==0.2) and (Ro_h==0.5):
     downstream_distances = np.linspace(0, 300, N)
 elif (Fr_h==0.2) and (Ro_h==1):
