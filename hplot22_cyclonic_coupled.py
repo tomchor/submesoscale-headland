@@ -42,6 +42,6 @@ axes[0, 1].set_xlabel("")
 axes[0, 1].set_ylabel("")
 axes[1, 1].set_ylabel("")
 
-letterize(axes.flatten(), x=0.05, y=0.9, fontsize=14)
+letterize(axes.flatten(), x=0.05, y=0.9, fontsize=9)
 
 fig.savefig(f"figures/cyclonic_coupled.pdf")
