@@ -40,6 +40,7 @@ elif shell is not None:
     figdir = "figures_check"
 
     slice_names = ["tafields", "xyi"]
+    slice_names = ["iyz"]
     modifiers = ["-f2", "-S-f2", "", "-S"]
     modifiers = ["",]
 
@@ -118,7 +119,7 @@ for modifier in modifiers:
 
         #+++ Read and reorganize Dataset
         if __name__ == "__main__": print(f"\nCollecting {slice_name}{modifier}")
-        snaps = collect_datasets(simnames_filtered, slice_name=slice_name)
+        snaps = collect_datasets(simnames_filtered, slice_name=slice_name, verbose=False)
 
         if (not animate) and (not time_avg) and ("time" in snaps.coords.keys()):
             snaps = snaps.sel(time=[plotting_time], method="nearest")
