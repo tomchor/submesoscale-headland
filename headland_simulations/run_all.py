@@ -23,13 +23,14 @@ simnames = [#"NPN-TEST",
 from cycler import cycler
 names = cycler(name=simnames)
 resolutions = cycler(resolution = ["-f4", "-f2", ""])
-rotations = cycler(rotation = ["", "-S",])
-rotations = cycler(rotation = ["",])
-simnames = [ nr["name"] + nr["rotation"] + nr["resolution"] for nr in rotations * resolutions * names ]
+modifiers = cycler(rotation = ["", "-S", "-AMD"])
+modifiers = cycler(rotation = ["",])
+simnames = [ nr["name"] + nr["rotation"] + nr["resolution"] for nr in modifiers * resolutions * names ]
 #---
 
 #+++ Options
 remove_checkpoints = False
+only_one_job = False
 dry_run = False
 omit_topology = True
 
@@ -45,12 +46,13 @@ pbs_script = \
 #PBS -N {simname_fullshort}
 #PBS -o logs/{simname_full}.log
 #PBS -e logs/{simname_full}.log
-#PBS -l walltime=24:00:00
+#PBS -l walltime=23:59:00
 #PBS -q casper
 #PBS -l {options_string1}
 #PBS -l {options_string2}
 #PBS -M tchor@umd.edu
 #PBS -m ae
+#PBS -r n
 
 # Clear the environment from any previously loaded modules
 module li
@@ -102,10 +104,14 @@ for simname in simnames:
     else:
         options1 = options1 | dict(cpu_type = "milan")
         options2 = options2 | dict(gpu_type = "a100")
-        if "F008-S" in simname:
-            cmd1 = f"JID1=`qsub {aux_filename}`; JID2=`qsub -W depend=afterok:$JID1 {aux_filename}`; JID3=`qsub -W depend=afterok:$JID2 {aux_filename}`; qrls $JID1"
+
+        if only_one_job:
+            cmd1 = f"qsub {aux_filename}"
         else:
-            cmd1 = f"JID1=`qsub {aux_filename}`; JID2=`qsub -W depend=afterok:$JID1 {aux_filename}`; qrls $JID1"
+            if "F008" in simname:
+                cmd1 = f"JID1=`qsub {aux_filename}`; JID2=`qsub -W depend=afterok:$JID1 {aux_filename}`; JID3=`qsub -W depend=afterok:$JID2 {aux_filename}`; qrls $JID1"
+            else:
+                cmd1 = f"JID1=`qsub {aux_filename}`; JID2=`qsub -W depend=afterok:$JID1 {aux_filename}`; qrls $JID1"
 
     options_string1 = ":".join([ f"{key}={val}" for key, val in options1.items() ])
     options_string2 = ":".join([ f"{key}={val}" for key, val in options2.items() ])

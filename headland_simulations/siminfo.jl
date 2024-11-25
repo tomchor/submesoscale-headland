@@ -37,51 +37,11 @@ end
                 Rz = 2.5e-3,
                 runway_length_fraction_L = 4, # runway_length / L
                 sponge_fraction_Ly = 0.1,
-                T_advective_spinup = 20, # Should be a multiple of 10
-                T_advective_statistics = 50, # Should be a multiple of 10
+                T_advective_spinup = 20, # Should be a multiple of 20
+                T_advective_statistics = 60, # Should be a multiple of 20
                 )
 
     TEST = (; defaults...,)
-
-    #+++ Magaldi Simulations
-    Magaldi4h = (; defaults...,
-                 α = 1,
-                 Ro_h = 0.06,
-                 Fr_h = 0.06 / √(6.48),
-                )
-
-    Magaldi6h = (; defaults...,
-                 α = 0.01,
-                 Ro_h = 0.06,
-                 Fr_h = 0.06 / √(6.48),
-                )
-
-    Magaldi6h_steep = (; defaults...,
-                 α = 0.1,
-                 Ro_h = 0.06,
-                 Fr_h = 0.06 / √(6.48),
-                 )
-    #---
-
-    #+++ Simulations from the proposal (seamount)
-    PropA = (; defaults...,
-             α = 0.1,
-             Ro_h = 1.25,
-             Fr_h = 0.06,
-             )
-
-    PropB = (; defaults...,
-             α = 0.1,
-             Ro_h = 0.2,
-             Fr_h = 0.06,
-             )
-
-    PropD = (; defaults...,
-             α = 0.1,
-             Ro_h = 0.1,
-             Fr_h = 0.2,
-             )
-    #---
 
     #+++ Ro=0.08
     R008F008 = (; defaults...,
@@ -170,6 +130,14 @@ end
             Fr_h = 1.25,
             )
     #---
+
+    #+++ Gula et al. (2016) headland
+    R2F02 = (; defaults...,
+              Ro_h = 2.0,
+              Fr_h = 0.2,
+              α = 0.1,
+             )
+     #---
 
 end
 

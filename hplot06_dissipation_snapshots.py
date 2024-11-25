@@ -23,10 +23,11 @@ zoom = True
 plotting_time = 23
 figdir = "figures"
 
-slice_names = ["iyz",]
+slice_names = ["tafields",]
 modifiers = ["-f2", "",]
+modifiers = ["",]
 
-varnames = ["v̂"]
+varnames = ["ε̄ₖ"]
 contour_variable_name = None #"water_mask_buffered"
 contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
 #---

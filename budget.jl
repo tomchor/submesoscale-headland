@@ -100,3 +100,26 @@ function BuoyancyConversionTerm(model; location = (Center, Center, Center), incl
     return KernelFunctionOperation{Center, Center, Center}(uᵢbᵢᶜᶜᶜ, model.grid, model.velocities, model.buoyancy, model.tracers)
 end
 #---
+
+#+++ Kinetic Energy tendency
+@inline ψζ(i, j, k, grid, ψ, ζ) = @inbounds ψ[i, j, k] * ζ[i, j, k]
+@inline function uᵢG⁻ᵢᶜᶜᶜ(i, j, k, grid, velocities, G⁻)
+        uG⁻ᵘ = ℑxᶜᵃᵃ(i, j, k, grid, ψζ, velocities.u, G⁻.u)
+        vG⁻ᵛ = ℑxᶜᵃᵃ(i, j, k, grid, ψζ, velocities.v, G⁻.v)
+        wG⁻ʷ = ℑxᶜᵃᵃ(i, j, k, grid, ψζ, velocities.w, G⁻.w)
+    return uG⁻ᵘ + vG⁻ᵛ + wG⁻ʷ
+end
+function KineticEnergyTendency_G⁻(model::NonhydrostaticModel; location = (Center, Center, Center))
+    return KernelFunctionOperation{Center, Center, Center}(uᵢG⁻ᵢᶜᶜᶜ, model.grid, model.velocities, model.timestepper.G⁻)
+end
+
+@inline function uᵢGⁿᵢᶜᶜᶜ(i, j, k, grid, velocities, Gⁿ)
+        uGⁿᵘ = ℑxᶜᵃᵃ(i, j, k, grid, ψζ, velocities.u, Gⁿ.u)
+        vGⁿᵛ = ℑxᶜᵃᵃ(i, j, k, grid, ψζ, velocities.v, Gⁿ.v)
+        wGⁿʷ = ℑxᶜᵃᵃ(i, j, k, grid, ψζ, velocities.w, Gⁿ.w)
+    return uGⁿᵘ + vGⁿᵛ + wGⁿʷ
+end
+function KineticEnergyTendency_Gⁿ(model::NonhydrostaticModel; location = (Center, Center, Center))
+    return KernelFunctionOperation{Center, Center, Center}(uᵢGⁿᵢᶜᶜᶜ, model.grid, model.velocities, model.timestepper.Gⁿ)
+end
+#---
