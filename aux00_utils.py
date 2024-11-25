@@ -142,7 +142,7 @@ def check_simulation_completion(simnames, slice_name="ttt", path="./headland_sim
 #---
 
 #+++ Define collect_datasets() function
-def collect_datasets(simnames_filtered, slice_name="xyi", path="./headland_simulations/data/"):
+def collect_datasets(simnames_filtered, slice_name="xyi", path="./headland_simulations/data/", verbose=False):
     dslist = []
     for sim_number, simname in enumerate(simnames_filtered):
         #+++ Open datasets
@@ -224,6 +224,9 @@ def collect_datasets(simnames_filtered, slice_name="xyi", path="./headland_simul
             elif slice_name == "xiz":
                 assert np.allclose(dslist[0].z.values, ds.z.values), "z coordinates don't match in all datasets"
         if "time" in ds.coords.keys():
+            if verbose:
+                for ds in dslist:
+                    print(ds.time)
             assert np.allclose(dslist[0].time.values, ds.time.values), "Time coordinates don't match in all datasets"
 
     print("Starting to concatenate everything into one dataset")
