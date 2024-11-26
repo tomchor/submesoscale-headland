@@ -116,7 +116,7 @@ for modifier in modifiers:
 
         ax.pcolormesh(ds_xy.xC, ds_xy.yC, ds_xy.land_mask, rasterized=True, **opts_land)
         for y in ds_xz.yC.values:
-            ax.axhline(y=y, ls="--", lw=0.5, color="k")
+            ax.axhline(y=y, ls="-", lw=0.5, color="k")
 
     for i in range(len(variables)):
         cax = axes[i,0].inset_axes([200, 0, 200, 5], transform=axes[i,0].transData, zorder=100)
