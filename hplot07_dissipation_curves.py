@@ -11,7 +11,6 @@ from aux00_utils import simnames, collect_datasets
 from aux02_plotting import letterize
 
 modifiers = ["-f2", ""]
-modifiers = ["-f2",]
 
 for modifier in modifiers:
     simnames_filtered = [ f"{simname}{modifier}" for simname in simnames ]
