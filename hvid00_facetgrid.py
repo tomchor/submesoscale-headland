@@ -24,10 +24,11 @@ except NameError:
     shell = None
 #---
 
-if path.basename(__file__).startswith("hplot"):
+if path.basename(__file__).startswith("hplot") or path.basename(__file__).startswith("hinv"):
     #+++ Running hplot03, hplot04, hplot05, or h00
     print("Getting dynamic options from ", path.basename(__file__))
     #---
+
 elif shell is not None:
     #+++ Running from IPython
     parallel = False
