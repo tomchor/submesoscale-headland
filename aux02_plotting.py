@@ -303,6 +303,7 @@ label_dict = {"ε̄ₖ"      : r"Time-averaged KE dissipation rate $\bar\varepsi
               "PV_norm" : r"Normalized Ertel PV (PV$/f N^2_\infty$)",
               "v"       : r"$v$-velocity [m/s]",
               "v̂"       : r"Normalized $v$-velocity ($v/V_\infty$)",
+              "∂u∂z"    : r"$\partial u / \partial z$",
               }
 #---
 
