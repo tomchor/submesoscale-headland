@@ -258,6 +258,7 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       "v"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdBu_r),
                       "v̂"         : dict(vmin=-1.2, vmax=+1.2, cmap=cm.balance),
                       "w"         : dict(vmin=-0.003, vmax=+0.003, cmap=plt.cm.RdBu_r),
+                      "∂u∂z"      : dict(robust=True, cmap=plt.cm.RdBu_r),
                       "PV_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "PVᶻ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "PVʰ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
