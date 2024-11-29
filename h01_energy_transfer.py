@@ -36,7 +36,7 @@ if basename(__file__) != "h00_runall.py":
     from cycler import cycler
     names = cycler(name=simnames)
     modifiers = cycler(modifier = ["-f4", "-S-f4", "-f2", "-S-f2", "", "-S"])
-    modifiers = cycler(modifier = ["-f4",])
+    modifiers = cycler(modifier = ["-f2",])
     simnames = [ nr["name"] + nr["modifier"] for nr in modifiers * names ]
 #---
 
