@@ -8,7 +8,7 @@ from aux02_plotting import BuRd, letterize
 plt.rcParams["figure.constrained_layout.use"] = True
 plt.rcParams["font.size"] = 9
 
-modifier = "-f2"
+modifier = ""
 slice_name = "tafields"
 Fr_h = 0.08
 
