@@ -10,26 +10,9 @@ using Oceanostics: KineticEnergyDissipationRate,
                    TracerVarianceDissipationRate, TurbulentKineticEnergy
 
 #+++ Methods/functions definitions
-keep(nt::NamedTuple{names}, keys) where names = NamedTuple{filter(x -> x ∈ keys, names)}(nt)
-keep(d ::Dict, keys) = get.(Ref(d), keys, missing)
 include("$(@__DIR__)/grid_metrics.jl")
 include("$(@__DIR__)/budget.jl")
-
-import Oceananigans.Fields: condition_operand
-using Oceananigans.AbstractOperations: ConditionalOperation
-using Oceananigans.Fields: AbstractField
-using Oceananigans.Architectures: architecture, arch_array
-using Oceananigans.ImmersedBoundaries: NotImmersed
-@inline function condition_operand(func::Function, operand::AbstractField{<:Any, <:Any, <:Any, <:ImmersedBoundaryGrid}, condition::AbstractArray, mask)
-    condition = NotImmersed(arch_array(architecture(operand.grid), condition))
-    return ConditionalOperation(operand; func, condition, mask) 
-end
 #---
-
-CellCenter = (Center, Center, Center)
-
-#++++ Kernel Function Operations
-using Oceananigans.Operators
 
 #+++ Write to NCDataset
 import NCDatasets as NCD
@@ -50,7 +33,6 @@ function write_to_ds(dsname, varname, data; coords=("xC", "yC", "zC"), dtype=Flo
     NCD.close(ds)
 end
 #---
-#---
 
 #+++ Define Fields
 using Oceananigans.AbstractOperations: AbstractOperation
@@ -63,7 +45,8 @@ ScratchedField(f::Field) = f
 ScratchedField(d::Dict) = Dict( k => ScratchedField(v) for (k, v) in d )
 #---
 
-#++++ Unpack model variables
+#+++ Unpack model variables
+CellCenter = (Center, Center, Center) # Output everything on cell centers to make life easier
 u, v, w = model.velocities
 b = model.tracers.b
 
@@ -73,7 +56,7 @@ outputs_vels = Dict{Any, Any}(:u => (@at CellCenter u),
 outputs_state_vars = merge(outputs_vels, Dict{Any, Any}(:b => b))
 #---
 
-#++++ CREATE SNAPSHOT OUTPUTS
+#+++ CREATE SNAPSHOT OUTPUTS
 #+++ Start calculation of snapshot variables
 @info "Calculating misc diagnostics"
 
@@ -129,8 +112,8 @@ outputs_grads = Dict{Symbol, Any}(:∂u∂x => (@at CellCenter ∂x(u)),
 
 #+++ Define energy budget terms
 @info "Calculating energy budget terms"
-outputs_budget = Dict{Symbol, Any}(:uᵢbᵢ     => BuoyancyConversionTerm(model),
-                                   :Ek       => TurbulentKineticEnergy(model, u, v, w),)
+outputs_budget = Dict{Symbol, Any}(:uᵢbᵢ => BuoyancyConversionTerm(model),
+                                   :Ek   => TurbulentKineticEnergy(model, u, v, w),)
 #---
 
 #+++ Assemble the "full" outputs tuple
@@ -157,21 +140,13 @@ function construct_outputs(simulation;
                            write_aaa = false,
                            debug = false,
                            )
-    #+++ get outputs
     model = simulation.model
-    #---
-
-    #+++ Get prefixes for conditional averages/integrals
-    prefixes = (:∫∫⁰, :∫∫⁵, :∫∫¹⁰, :∫∫²⁰)
-    buffers = [0, 5,]
-    conditionally_integrated_var_symbols = (:εₖ, :εₚ, :uᵢbᵢ)
-    #---
 
     #+++ Preamble and common keyword arguments
     k_half = @allowscalar Int(ceil(params.H / minimum_zspacing(grid))) # Approximately half the headland height
     kwargs = (overwrite_existing = overwrite_existing,
               deflatelevel = 5,
-              global_attributes = merge(params, (; buffers)))
+              global_attributes = params)
     #---
 
     #+++ xyz SNAPSHOTS

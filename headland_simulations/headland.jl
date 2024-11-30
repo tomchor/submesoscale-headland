@@ -107,10 +107,6 @@ end
 
 params = (; params..., factor)
 
-#if AMD # AMD takes up more memory...
-#    params = (; params..., N=params.N*0.90)
-#end
-
 NxNyNz = get_sizes(params.N ÷ (factor^3),
                    Lx=params.Lx, Ly=params.Ly, Lz=params.Lz,
                    aspect_ratio_x=4.2, aspect_ratio_y=3.5)
