@@ -105,7 +105,7 @@ PV = @at CellCenter ErtelPotentialVorticity(model, u, v, w, b, model.coriolis)
 outputs_dissip = Dict(pairs((;εₖ, εₚ, κₑ)))
 
 outputs_misc = Dict(pairs((; dbdx, dbdy, dbdz, ω_y,
-                             εₛ, Re_b,
+                             #εₛ, Re_b,
                              Ri, Ro,
                              PV, PV_x, PV_y, PV_z,)))
 #---
@@ -136,23 +136,19 @@ outputs_grads = Dict{Symbol, Any}(:∂u∂x => (@at CellCenter ∂x(u)),
 Uᵍ = @at CellCenter -∂y(model.pressures.pHY′) / params.f₀
 Vᵍ = @at CellCenter +∂x(model.pressures.pHY′) / params.f₀ + params.V∞
 
-outputs_geo_grads = Dict{Symbol, Any}(:∂Uᵍ∂x => (@at CellCenter ∂x(Uᵍ)),
-                                      :∂Vᵍ∂x => (@at CellCenter ∂x(Vᵍ)),
-                                      :∂Uᵍ∂y => (@at CellCenter ∂y(Uᵍ)),
-                                      :∂Vᵍ∂y => (@at CellCenter ∂y(Vᵍ)),
-                                      :∂Uᵍ∂z => (@at CellCenter ∂z(Uᵍ)),
+outputs_geo_grads = Dict{Symbol, Any}(:∂Uᵍ∂z => (@at CellCenter ∂z(Uᵍ)),
                                       :∂Vᵍ∂z => (@at CellCenter ∂z(Vᵍ)),)
 #---
 
 #+++ Define energy budget terms
 @info "Calculating energy budget terms"
 outputs_budget = Dict{Symbol, Any}(:uᵢGᵢ     => KineticEnergyTendency(model),
-                                   :uᵢ∂ⱼuⱼuᵢ => AdvectionTerm(model),
+                                   #:uᵢ∂ⱼuⱼuᵢ => AdvectionTerm(model),
                                    :uᵢ∂ᵢp    => PressureTransportTerm(model, pressure = sum(model.pressures)),
                                    :uᵢbᵢ     => BuoyancyConversionTerm(model),
-                                   :uᵢ∂ⱼτᵢⱼ  => KineticEnergyStressTerm(model),
-                                   :uᵢ∂ⱼτᵇᵢⱼ => KineticEnergyImmersedBoundaryTerm(model),
-                                   :εₛ       => εₛ,
+                                   #:uᵢ∂ⱼτᵢⱼ  => KineticEnergyStressTerm(model),
+                                   #:uᵢ∂ⱼτᵇᵢⱼ => KineticEnergyImmersedBoundaryTerm(model),
+                                   #:εₛ       => εₛ,
                                    :Ek       => TurbulentKineticEnergy(model, u, v, w),)
 #---
 
@@ -285,7 +281,7 @@ function construct_outputs(simulation;
         indices = (:, :, :)
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
                                                                      filename = "$rundir/data/ttt.$(simname).nc",
-                                                                     schedule = AveragedTimeInterval(interval_time_avg, stride=10),
+                                                                     schedule = AveragedTimeInterval(interval_time_avg, stride=5),
                                                                      array_type = Array{Float64},
                                                                      with_halos = false,
                                                                      indices = indices,
@@ -305,7 +301,7 @@ function construct_outputs(simulation;
         indices = (:, :, k_half)
         simulation.output_writers[:nc_tti] = ow = NetCDFOutputWriter(model, outputs_tti;
                                                                      filename = "$rundir/data/tti.$(simname).nc",
-                                                                     schedule = AveragedTimeInterval(interval_time_avg, stride=10),
+                                                                     schedule = AveragedTimeInterval(interval_time_avg, stride=5),
                                                                      array_type = Array{Float64},
                                                                      with_halos = false,
                                                                      indices = indices,
