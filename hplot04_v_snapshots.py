@@ -26,7 +26,7 @@ figdir = "figures"
 slice_names = ["iyz",]
 modifiers = ["-f2", "",]
 
-varnames = ["v̂"]
+varnames = ["∂u∂z"]
 contour_variable_name = None #"water_mask_buffered"
 contour_kwargs = dict(colors="y", linewidths=0.8, linestyles="--", levels=[0])
 #---

@@ -280,7 +280,7 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       "v"         : dict(vmin=-1.2 * 0.01, vmax=1.2 * 0.01, cmap=cm.balance),
                       "wb"        : dict(vmin=-1e-8, vmax=+1e-8, cmap=BuRd),
                       "w̄b̄"        : dict(vmin=-1e-8, vmax=+1e-8, cmap=BuRd),
-                      "⟨w′b′⟩ₜ"   : dict(vmin=-1e-9, vmax=+1e-9, cmap=BuRd),
+                      "⟨w′b′⟩ₜ"   : dict(vmin=-4e-10, vmax=+4e-10, cmap=BuRd),
                       "uᵢGᵢ"      : dict(vmin=-1e-7, vmax=+1e-7, cmap=cm.balance),
                       "Kb"        : dict(vmin=-1e-1, vmax=+1e-1, cmap=cm.balance),
                       "γ"         : dict(vmin=0, vmax=1, cmap="plasma"),
