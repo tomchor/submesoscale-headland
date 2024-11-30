@@ -99,12 +99,9 @@ PV_z = @at CellCenter DirectionalErtelPotentialVorticity(model, (0, 0, 1))
 
 εₖ = @at CellCenter KineticEnergyDissipationRate(model)
 εₚ = @at CellCenter TracerVarianceDissipationRate(model, :b)/(2params.N2_inf)
-εₛ = @at CellCenter KineticEnergyForcingTerm(model)
 
 κₑ = diffusivity(model.closure, model.diffusivity_fields, Val(:b))
 κₑ = κₑ isa Tuple ? sum(κₑ) : κₑ
-
-Re_b = KernelFunctionOperation{Center, Center, Center}(buoyancy_reynolds_number_ccc, model.grid, u, v, w, params.N²∞)
 
 Ri = @at CellCenter RichardsonNumber(model, u, v, w, b)
 Ro = @at CellCenter RossbyNumber(model)
@@ -113,7 +110,6 @@ PV = @at CellCenter ErtelPotentialVorticity(model, u, v, w, b, model.coriolis)
 outputs_dissip = Dict(pairs((;εₖ, εₚ, κₑ)))
 
 outputs_misc = Dict(pairs((; dbdx, dbdy, dbdz, ω_y,
-                             #εₛ, Re_b,
                              Ri, Ro,
                              PV, PV_x, PV_y, PV_z,)))
 #---
@@ -151,12 +147,8 @@ outputs_geo_grads = Dict{Symbol, Any}(:∂Uᵍ∂z => (@at CellCenter ∂z(Uᵍ)
 #+++ Define energy budget terms
 @info "Calculating energy budget terms"
 outputs_budget = Dict{Symbol, Any}(:uᵢGᵢ     => KineticEnergyTendency(model),
-                                   #:uᵢ∂ⱼuⱼuᵢ => AdvectionTerm(model),
                                    :uᵢ∂ᵢp    => PressureTransportTerm(model, pressure = sum(model.pressures)),
                                    :uᵢbᵢ     => BuoyancyConversionTerm(model),
-                                   #:uᵢ∂ⱼτᵢⱼ  => KineticEnergyStressTerm(model),
-                                   #:uᵢ∂ⱼτᵇᵢⱼ => KineticEnergyImmersedBoundaryTerm(model),
-                                   #:εₛ       => εₛ,
                                    :Ek       => TurbulentKineticEnergy(model, u, v, w),)
 #---
 
