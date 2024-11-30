@@ -110,6 +110,11 @@ else:
     #---
 
 plot_kwargs_by_var = { k : plot_kwargs_by_var[k] for k in plot_kwargs_by_var if k in varnames}
+plot_kwargs_by_var["∂u∂z"] = dict(vmin=-2.5e-3, vmax=2.5e-3, cmap=plt.cm.RdBu_r, xlim=[-250, 1200])
+if not plot_kwargs_by_var:
+    print("None of the variables in `varnames` was found in `plot_kwargs_by_var`. Here's varnames", varnames)
+    raise NameError
+
 #---
 
 for modifier in modifiers:
@@ -215,6 +220,7 @@ for modifier in modifiers:
 
         #+++ Begin plotting
         varlist = list(plot_kwargs_by_var.keys())
+
         for var in varlist:
             if __name__ == '__main__': print(f"Starting variable {var}")
 

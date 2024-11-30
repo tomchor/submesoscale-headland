@@ -1,4 +1,5 @@
 using Oceananigans.Grids: xspacing, yspacing, zspacing, xnode, ynode, znode, boundary_node, inactive_node, destantiate
+using Oceananigans: location
 
 flip_loc(::Center) = Face()
 flip_loc(::Face) = Center()
@@ -36,9 +37,9 @@ using Oceananigans.OutputWriters: fetch_and_convert_output, drop_output_dims,
 using Oceananigans.Fields: AbstractField
 using NCDatasets: defVar
 
-define_timeconstant_variable!(dataset, output::AbstractField, name, array_type, compression, output_attributes, dimensions) =
+define_timeconstant_variable!(dataset, output::AbstractField, name, array_type, deflatelevel, output_attributes, dimensions) =
     defVar(dataset, name, eltype(array_type), netcdf_spatial_dimensions(output),
-           compression=compression, attrib=output_attributes)
+           deflatelevel=deflatelevel, attrib=output_attributes)
 
 function save_output!(ds, output, model, ow, name)
 
@@ -123,8 +124,7 @@ function write_grid_metrics!(ow, metrics; user_indices = (:, :, :), with_halos=f
     for (metric_name, metric_operation) in metrics
         indices = output_indices(metric_operation, metric_operation.grid, user_indices, with_halos)
         sliced_metric = Field(metric_operation, indices=indices)
-
-        if metric_name ∉ ds
+        if metric_name ∉ keys(ds)
             define_timeconstant_variable!(ds, sliced_metric, metric_name, ow.array_type, 0, Dict(), ("xC", "yC", "zC"))
             save_output!(ds, sliced_metric, model, ow, metric_name)
         end
@@ -134,6 +134,7 @@ end
 
 function add_grid_metrics_to!(ow; kwargs...)
     Δξ_list = grid_spacings(grid, ow)
+    @info "Got Δξ_list"
     write_grid_metrics!(ow, Δξ_list; kwargs...)
 end
 

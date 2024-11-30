@@ -99,7 +99,7 @@ for buffer in bulk.buffer.values[1:]:
         ax.grid(True)
         ax.set_title("")
         ax.set_xlabel("$S_h$")
-    
+
     letterize(axesf, x=0.05, y=0.9, fontsize=14)
     fig.savefig(f"figures/dissip_scalings_buffer={buffer}m{modifier}.pdf")
     #---

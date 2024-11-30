@@ -23,8 +23,9 @@ simnames = [#"NPN-TEST",
 from cycler import cycler
 names = cycler(name=simnames)
 resolutions = cycler(resolution = ["-f4", "-f2", ""])
+resolutions = cycler(resolution = ["-f2", ""])
 modifiers = cycler(rotation = ["", "-S", "-AMD"])
-modifiers = cycler(rotation = ["",])
+modifiers = cycler(rotation = ["", "-S"])
 simnames = [ nr["name"] + nr["rotation"] + nr["resolution"] for nr in modifiers * resolutions * names ]
 #---
 
@@ -58,7 +59,7 @@ pbs_script = \
 module li
 module --force purge
 module load ncarenv/23.10
-module load julia/1.9.2 cuda
+module load julia/1.10.2 cuda
 module li
 
 #/glade/u/apps/ch/opt/usr/bin/dumpenv # Dumps environment (for debugging with CISL support)
