@@ -2,34 +2,15 @@ using Oceananigans.AbstractOperations: @at, ∂x, ∂y, ∂z
 using Oceananigans.Units
 using Oceananigans.Grids: Center, Face
 using Oceananigans.TurbulenceClosures: viscosity, diffusivity
-using Oceananigans.Fields: @compute
 
-using Oceanostics.FlowDiagnostics: strain_rate_tensor_modulus_ccc
-using Oceanostics: KineticEnergyTendency, KineticEnergyDissipationRate, KineticEnergyStressTerm,
+using Oceanostics: KineticEnergyDissipationRate,
                    ErtelPotentialVorticity, DirectionalErtelPotentialVorticity, RossbyNumber, RichardsonNumber,
-                   TracerVarianceDissipationRate, KineticEnergyForcingTerm, StrainRateTensorModulus, TurbulentKineticEnergy
+                   TracerVarianceDissipationRate, TurbulentKineticEnergy
 
 #+++ Methods/functions definitions
-keep(nt::NamedTuple{names}, keys) where names = NamedTuple{filter(x -> x ∈ keys, names)}(nt)
-keep(d ::Dict, keys) = get.(Ref(d), keys, missing)
 include("$(@__DIR__)/grid_metrics.jl")
 include("$(@__DIR__)/budget.jl")
-
-import Oceananigans.Fields: condition_operand
-using Oceananigans.AbstractOperations: ConditionalOperation
-using Oceananigans.Fields: AbstractField
-using Oceananigans.Architectures: architecture, arch_array
-using Oceananigans.ImmersedBoundaries: NotImmersed
-@inline function condition_operand(func::Function, operand::AbstractField{<:Any, <:Any, <:Any, <:ImmersedBoundaryGrid}, condition::AbstractArray, mask)
-    condition = NotImmersed(arch_array(architecture(operand.grid), condition))
-    return ConditionalOperation(operand; func, condition, mask) 
-end
 #---
-
-CellCenter = (Center, Center, Center)
-
-#++++ Kernel Function Operations
-using Oceananigans.Operators
 
 #+++ Write to NCDataset
 import NCDatasets as NCD
@@ -51,17 +32,6 @@ function write_to_ds(dsname, varname, data; coords=("xC", "yC", "zC"), dtype=Flo
 end
 #---
 
-#+++ Vector projection
-@inline function vector_projection_aaa(i, j, k, grid, ϕˣ, ϕᶻ, params)
-    return @inbounds ϕˣ[i,j,k]*params.xdirection + ϕᶻ[i,j,k]*params.zdirection
-end
-#---
-
-#+++ Buoyancy Reynolds number
-@inline buoyancy_reynolds_number_ccc(i, j, k, grid, u, v, w, N²) = 2*strain_rate_tensor_modulus_ccc(i, j, k, grid, u, v, w)^2 / N²
-#---
-#---
-
 #+++ Define Fields
 using Oceananigans.AbstractOperations: AbstractOperation
 import Oceananigans.Fields: Field
@@ -73,7 +43,8 @@ ScratchedField(f::Field) = f
 ScratchedField(d::Dict) = Dict( k => ScratchedField(v) for (k, v) in d )
 #---
 
-#++++ Unpack model variables
+#+++ Unpack model variables
+CellCenter = (Center, Center, Center) # Output everything on cell centers to make life easier
 u, v, w = model.velocities
 b = model.tracers.b
 
@@ -83,7 +54,7 @@ outputs_vels = Dict{Any, Any}(:u => (@at CellCenter u),
 outputs_state_vars = merge(outputs_vels, Dict{Any, Any}(:b => b))
 #---
 
-#++++ CREATE SNAPSHOT OUTPUTS
+#+++ CREATE SNAPSHOT OUTPUTS
 #+++ Start calculation of snapshot variables
 @info "Calculating misc diagnostics"
 
@@ -99,12 +70,9 @@ PV_z = @at CellCenter DirectionalErtelPotentialVorticity(model, (0, 0, 1))
 
 εₖ = @at CellCenter KineticEnergyDissipationRate(model)
 εₚ = @at CellCenter TracerVarianceDissipationRate(model, :b)/(2params.N2_inf)
-εₛ = @at CellCenter KineticEnergyForcingTerm(model)
 
 κₑ = diffusivity(model.closure, model.diffusivity_fields, Val(:b))
 κₑ = κₑ isa Tuple ? sum(κₑ) : κₑ
-
-Re_b = KernelFunctionOperation{Center, Center, Center}(buoyancy_reynolds_number_ccc, model.grid, u, v, w, params.N²∞)
 
 Ri = @at CellCenter RichardsonNumber(model, u, v, w, b)
 Ro = @at CellCenter RossbyNumber(model)
@@ -113,7 +81,6 @@ PV = @at CellCenter ErtelPotentialVorticity(model, u, v, w, b, model.coriolis)
 outputs_dissip = Dict(pairs((;εₖ, εₚ, κₑ)))
 
 outputs_misc = Dict(pairs((; dbdx, dbdy, dbdz, ω_y,
-                             εₛ, Re_b,
                              Ri, Ro,
                              PV, PV_x, PV_y, PV_z,)))
 #---
@@ -139,34 +106,17 @@ outputs_grads = Dict{Symbol, Any}(:∂u∂x => (@at CellCenter ∂x(u)),
                                   :∂u∂z => (@at CellCenter ∂z(u)),
                                   :∂v∂z => (@at CellCenter ∂z(v)),
                                   :∂w∂z => (@at CellCenter ∂z(w)),)
-
-@info "Calculating geostrophic velocity gradient tensor"
-Uᵍ = @at CellCenter -∂y(model.pressures.pHY′) / params.f₀
-Vᵍ = @at CellCenter +∂x(model.pressures.pHY′) / params.f₀ + params.V∞
-
-outputs_geo_grads = Dict{Symbol, Any}(:∂Uᵍ∂x => (@at CellCenter ∂x(Uᵍ)),
-                                      :∂Vᵍ∂x => (@at CellCenter ∂x(Vᵍ)),
-                                      :∂Uᵍ∂y => (@at CellCenter ∂y(Uᵍ)),
-                                      :∂Vᵍ∂y => (@at CellCenter ∂y(Vᵍ)),
-                                      :∂Uᵍ∂z => (@at CellCenter ∂z(Uᵍ)),
-                                      :∂Vᵍ∂z => (@at CellCenter ∂z(Vᵍ)),)
 #---
 
 #+++ Define energy budget terms
 @info "Calculating energy budget terms"
-outputs_budget = Dict{Symbol, Any}(:uᵢGᵢ     => KineticEnergyTendency(model),
-                                   :uᵢ∂ⱼuⱼuᵢ => AdvectionTerm(model),
-                                   :uᵢ∂ᵢp    => PressureTransportTerm(model, pressure = sum(model.pressures)),
-                                   :uᵢbᵢ     => BuoyancyConversionTerm(model),
-                                   :uᵢ∂ⱼτᵢⱼ  => KineticEnergyStressTerm(model),
-                                   :uᵢ∂ⱼτᵇᵢⱼ => KineticEnergyImmersedBoundaryTerm(model),
-                                   :εₛ       => εₛ,
-                                   :Ek       => TurbulentKineticEnergy(model, u, v, w),)
+outputs_budget = Dict{Symbol, Any}(:uᵢbᵢ => BuoyancyConversionTerm(model),
+                                   :Ek   => TurbulentKineticEnergy(model, u, v, w),)
 #---
 
 #+++ Assemble the "full" outputs tuple
 @info "Assemble diagnostics quantities"
-outputs_full = merge(outputs_state_vars, outputs_dissip, outputs_misc, outputs_grads, outputs_budget, outputs_geo_grads)
+outputs_full = merge(outputs_state_vars, outputs_dissip, outputs_misc, outputs_grads, outputs_budget,)
 #---
 #---
 
@@ -188,21 +138,13 @@ function construct_outputs(simulation;
                            write_aaa = false,
                            debug = false,
                            )
-    #+++ get outputs
     model = simulation.model
-    #---
-
-    #+++ Get prefixes for conditional averages/integrals
-    prefixes = (:∫∫⁰, :∫∫⁵, :∫∫¹⁰, :∫∫²⁰)
-    buffers = [0, 5,]
-    conditionally_integrated_var_symbols = (:εₖ, :εₚ, :uᵢbᵢ)
-    #---
 
     #+++ Preamble and common keyword arguments
     k_half = @allowscalar Int(ceil(params.H / minimum_zspacing(grid))) # Approximately half the headland height
     kwargs = (overwrite_existing = overwrite_existing,
               deflatelevel = 5,
-              global_attributes = merge(params, (; buffers)))
+              global_attributes = params)
     #---
 
     #+++ xyz SNAPSHOTS
@@ -288,12 +230,11 @@ function construct_outputs(simulation;
     if write_ttt
         @info "Setting up ttt writer"
         outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip, outputs_budget)
-        vp = @at CellCenter (v * sum(model.pressures))
-        outputs_ttt = merge(outputs_ttt, Dict(:vp => vp, :p => sum(model.pressures)))
+        outputs_ttt = merge(outputs_ttt, Dict(:p => sum(model.pressures), ))
         indices = (:, :, :)
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
                                                                      filename = "$rundir/data/ttt.$(simname).nc",
-                                                                     schedule = AveragedTimeInterval(interval_time_avg, stride=10),
+                                                                     schedule = AveragedTimeInterval(interval_time_avg, stride=5),
                                                                      array_type = Array{Float64},
                                                                      with_halos = false,
                                                                      indices = indices,
@@ -313,7 +254,7 @@ function construct_outputs(simulation;
         indices = (:, :, k_half)
         simulation.output_writers[:nc_tti] = ow = NetCDFOutputWriter(model, outputs_tti;
                                                                      filename = "$rundir/data/tti.$(simname).nc",
-                                                                     schedule = AveragedTimeInterval(interval_time_avg, stride=10),
+                                                                     schedule = AveragedTimeInterval(interval_time_avg, stride=5),
                                                                      array_type = Array{Float64},
                                                                      with_halos = false,
                                                                      indices = indices,

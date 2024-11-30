@@ -2,7 +2,7 @@ if ("PBS_JOBID" in keys(ENV))  @info "Job ID" ENV["PBS_JOBID"] end # Print job I
 #using Pkg
 #Pkg.instantiate()
 using InteractiveUtils
-println(versioninfo())
+versioninfo()
 using DrWatson
 using ArgParse
 using Oceananigans
@@ -106,10 +106,6 @@ end
 #---
 
 params = (; params..., factor)
-
-#if AMD # AMD takes up more memory...
-#    params = (; params..., N=params.N*0.90)
-#end
 
 NxNyNz = get_sizes(params.N ÷ (factor^3),
                    Lx=params.Lx, Ly=params.Ly, Lz=params.Lz,
@@ -300,7 +296,7 @@ progress(simulation) = @info (PercentageProgress(with_prefix=false, with_units=f
 simulation.callbacks[:progress] = Callback(progress, IterationInterval(40))
 
 wizard = TimeStepWizard(max_change=1.05, min_change=0.2, cfl=0.95, min_Δt=1e-4, max_Δt=1/√params.N²∞)
-simulation.callbacks[:wizard] = Callback(wizard, IterationInterval(2))
+simulation.callbacks[:wizard] = Callback(wizard, IterationInterval(4))
 
 @info "" simulation
 #---
