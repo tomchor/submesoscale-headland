@@ -5,9 +5,9 @@ using Oceananigans.TurbulenceClosures: viscosity, diffusivity
 using Oceananigans.Fields: @compute
 
 using Oceanostics.FlowDiagnostics: strain_rate_tensor_modulus_ccc
-using Oceanostics: KineticEnergyTendency, KineticEnergyDissipationRate, KineticEnergyStressTerm,
+using Oceanostics: KineticEnergyDissipationRate,
                    ErtelPotentialVorticity, DirectionalErtelPotentialVorticity, RossbyNumber, RichardsonNumber,
-                   TracerVarianceDissipationRate, KineticEnergyForcingTerm, StrainRateTensorModulus, TurbulentKineticEnergy
+                   TracerVarianceDissipationRate, TurbulentKineticEnergy
 
 #+++ Methods/functions definitions
 keep(nt::NamedTuple{names}, keys) where names = NamedTuple{filter(x -> x ∈ keys, names)}(nt)
@@ -49,16 +49,6 @@ function write_to_ds(dsname, varname, data; coords=("xC", "yC", "zC"), dtype=Flo
     end
     NCD.close(ds)
 end
-#---
-
-#+++ Vector projection
-@inline function vector_projection_aaa(i, j, k, grid, ϕˣ, ϕᶻ, params)
-    return @inbounds ϕˣ[i,j,k]*params.xdirection + ϕᶻ[i,j,k]*params.zdirection
-end
-#---
-
-#+++ Buoyancy Reynolds number
-@inline buoyancy_reynolds_number_ccc(i, j, k, grid, u, v, w, N²) = 2*strain_rate_tensor_modulus_ccc(i, j, k, grid, u, v, w)^2 / N²
 #---
 #---
 
@@ -135,26 +125,17 @@ outputs_grads = Dict{Symbol, Any}(:∂u∂x => (@at CellCenter ∂x(u)),
                                   :∂u∂z => (@at CellCenter ∂z(u)),
                                   :∂v∂z => (@at CellCenter ∂z(v)),
                                   :∂w∂z => (@at CellCenter ∂z(w)),)
-
-@info "Calculating geostrophic velocity gradient tensor"
-Uᵍ = @at CellCenter -∂y(model.pressures.pHY′) / params.f₀
-Vᵍ = @at CellCenter +∂x(model.pressures.pHY′) / params.f₀ + params.V∞
-
-outputs_geo_grads = Dict{Symbol, Any}(:∂Uᵍ∂z => (@at CellCenter ∂z(Uᵍ)),
-                                      :∂Vᵍ∂z => (@at CellCenter ∂z(Vᵍ)),)
 #---
 
 #+++ Define energy budget terms
 @info "Calculating energy budget terms"
-outputs_budget = Dict{Symbol, Any}(:uᵢGᵢ     => KineticEnergyTendency(model),
-                                   :uᵢ∂ᵢp    => PressureTransportTerm(model, pressure = sum(model.pressures)),
-                                   :uᵢbᵢ     => BuoyancyConversionTerm(model),
+outputs_budget = Dict{Symbol, Any}(:uᵢbᵢ     => BuoyancyConversionTerm(model),
                                    :Ek       => TurbulentKineticEnergy(model, u, v, w),)
 #---
 
 #+++ Assemble the "full" outputs tuple
 @info "Assemble diagnostics quantities"
-outputs_full = merge(outputs_state_vars, outputs_dissip, outputs_misc, outputs_grads, outputs_budget, outputs_geo_grads)
+outputs_full = merge(outputs_state_vars, outputs_dissip, outputs_misc, outputs_grads, outputs_budget,)
 #---
 #---
 
@@ -276,8 +257,7 @@ function construct_outputs(simulation;
     if write_ttt
         @info "Setting up ttt writer"
         outputs_ttt = merge(outputs_state_vars, outputs_covs, outputs_grads, outputs_dissip, outputs_budget)
-        vp = @at CellCenter (v * sum(model.pressures))
-        outputs_ttt = merge(outputs_ttt, Dict(:vp => vp, :p => sum(model.pressures)))
+        outputs_ttt = merge(outputs_ttt, Dict(:p => sum(model.pressures), ))
         indices = (:, :, :)
         simulation.output_writers[:nc_ttt] = ow = NetCDFOutputWriter(model, outputs_ttt;
                                                                      filename = "$rundir/data/ttt.$(simname).nc",

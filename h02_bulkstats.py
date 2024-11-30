@@ -93,13 +93,10 @@ for simname in simnames:
     #+++ Get means from tafields integrals
     bulk = xr.Dataset()
     bulk["∫∫∫ᵇ1dxdydz"] = tafields["∫∫∫ᵇ1dxdydz"]
-    for var in ["ε̄ₖ", "ε̄ₚ", "⟨∂ₜEk⟩ₜ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨Ek⟩ₜ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ",]:
+    for var in ["ε̄ₖ", "ε̄ₚ", "⟨∂ₜEk⟩ₜ", "⟨wb⟩ₜ", "⟨Ek⟩ₜ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ",]:
         int_var = f"∫∫∫ᵇ{var}dxdydz"
         bulk[int_var] = tafields[int_var]
         bulk[f"⟨{var}⟩ᵇ"] = bulk[int_var] / bulk["∫∫∫ᵇ1dxdydz"]
-
-    bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_diverg"] = tafields["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_diverg"]
-    bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"] = tafields["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"]
 
     bulk["∫∫ᵇ1dxdz"] = tafields["∫∫ᵇ1dxdz"]
     for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "⟨Ek′⟩ₜ"]:
@@ -112,12 +109,6 @@ for simname in simnames:
         int_var = f"∫∫∫ᵋ{var}dxdydz"
         bulk[int_var] = tafields[int_var]
         bulk[f"⟨{var}⟩ᵋ"] = bulk[int_var] / bulk["∫∫∫ᵋ1dxdydz"]
-
-    bulk["∫∫ᶜˢⁱ1dxdy"] = tafields["∫∫ᶜˢⁱ1dxdy"]
-    for var in ["ε̄ₖ", "ε̄ₚ", "SPR"]:
-        int_var = f"∫∫ᶜˢⁱ{var}dxdy"
-        bulk[int_var] = tafields[int_var]
-        bulk[f"⟨{var}⟩ᶜˢⁱ"] = bulk[int_var] / bulk["∫∫ᶜˢⁱ1dxdy"]
 
     bulk["⟨Π⟩ᵇ"] = bulk["⟨SPR⟩ᵇ"].sum("j")
     bulk["⟨Π⟩ˣᶻ"] = bulk["⟨SPR⟩ˣᶻ"].sum("j")

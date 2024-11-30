@@ -25,7 +25,6 @@ bulk["ℰₖ"] = bulk["∫∫∫ᵇε̄ₖdxdydz"]     / (bulk["V∞"]**3 * bulk
 bulk["ℰₚ"] = bulk["∫∫∫ᵇε̄ₚdxdydz"]     / (bulk["V∞"]**3 * bulk.L * bulk.H)
 
 bulk["𝓅"]  = bulk["∫∫∫ᵇ⟨uᵢ∂ᵢp⟩ₜdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
-bulk["𝓅2"] = bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_diverg"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["𝒟"] = bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
 
 bulk["B"] = bulk["∫∫∫ᵇ⟨wb⟩ₜdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
@@ -42,7 +41,6 @@ bulk["ℰₖ"].attrs = dict(long_name="Normalized integrated\nKE dissipation rat
 bulk["ℰₚ"].attrs = dict(long_name="Normalized integrated\nbuoyancy mixing rate, $\\mathcal{E}_p$")
 
 bulk["𝓅"].attrs = dict(long_name="Normalized integrated\npressure transport contribution, $\\mathcal{p}$")
-bulk["𝓅2"].attrs = dict(long_name="Normalized integrated\npressure (divergence), $\\mathcal{p}$2")
 bulk["𝒟"].attrs = dict(long_name="Normalized integrated\nform drag work, $\\mathcal{D}$")
 
 bulk["B"].attrs = dict(long_name="Normalized integrated\nbuoyancy flux, $\\mathcal{B}$")

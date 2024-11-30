@@ -2,7 +2,7 @@ if ("PBS_JOBID" in keys(ENV))  @info "Job ID" ENV["PBS_JOBID"] end # Print job I
 #using Pkg
 #Pkg.instantiate()
 using InteractiveUtils
-println(versioninfo())
+versioninfo()
 using DrWatson
 using ArgParse
 using Oceananigans
