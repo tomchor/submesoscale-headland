@@ -2,9 +2,7 @@ using Oceananigans.AbstractOperations: @at, ∂x, ∂y, ∂z
 using Oceananigans.Units
 using Oceananigans.Grids: Center, Face
 using Oceananigans.TurbulenceClosures: viscosity, diffusivity
-using Oceananigans.Fields: @compute
 
-using Oceanostics.FlowDiagnostics: strain_rate_tensor_modulus_ccc
 using Oceanostics: KineticEnergyDissipationRate,
                    ErtelPotentialVorticity, DirectionalErtelPotentialVorticity, RossbyNumber, RichardsonNumber,
                    TracerVarianceDissipationRate, TurbulentKineticEnergy
