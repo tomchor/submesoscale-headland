@@ -3,8 +3,7 @@ using DrWatson, Test
 println("Starting tests")
 ti = time()
 
-#include(srcdir("../simulations/twake.jl"))
-include(srcdir("../strip_simulations/strip.jl"))
+include(srcdir("../headland_simulations/headland.jl"))
 
 @testset "template tests" begin
     @test 1 == 1
