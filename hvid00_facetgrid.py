@@ -38,7 +38,7 @@ elif shell is not None:
     summarize = False
     zoom = False
     plotting_time = 23
-    figdir = "figures_check"
+    figdir = "figures"
 
     slice_names = ["tafields", "xyi"]
     slice_names = ["iyz"]
@@ -62,7 +62,7 @@ else:
     parser.add_argument("--summarize", action="store_true")
     parser.add_argument("--zoom", default=False, type=bool,)
     parser.add_argument("--plotting_time", default=4, type=float,)
-    parser.add_argument("--figdir", default="figures_check", type=str,)
+    parser.add_argument("--figdir", default="figures", type=str,)
     parser.add_argument("--modifiers", default=["f2"], type=str, nargs="+", dest="aux_modifiers")
     parser.add_argument("--slice_names", default=["xyi",], type=str, nargs="+")
     parser.add_argument("--varnames", default=["Ro"], type=str, nargs="+")

@@ -56,7 +56,7 @@ time_avg = False
 summarize = False
 zoom = False
 plotting_time = 23
-figdir = "figures_check"
+figdir = "figures"
 
 slice_names = ["xyi",]
 
