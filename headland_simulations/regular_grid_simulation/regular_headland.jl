@@ -293,7 +293,7 @@ else
 end
 #---
 
-include("$rundir/../../diagnostics.jl")
+include("$rundir/../diagnostics.jl")
 tick()
 checkpointer = construct_outputs(simulation,
                                  simname = simname,
