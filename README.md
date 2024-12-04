@@ -7,3 +7,4 @@ parameter space, which I modified for the NSF proposal:
 
 ![Parameter space](./notebooks/seamounts_paramspace2.png)
 
+You will need pynanigans installed somewhere for this to work.
