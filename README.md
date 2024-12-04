@@ -6,7 +6,7 @@ anticyclonic submesoscale headland wakes", by Tomas Chor and Jacob Wenegrat.
 
 1. In order to reproduce results, first run the simulations in the directory `headland_simulations`.
 There is a Python script to submit all simulations at once using a PBS scheduler called `run_all.py`.
-   - Modifers `-f2`, `-f4`, etc., coarser the maximum resolution of the simulation by factors of 2
+   - Modifers `-f2`, `-f4`, etc., coarsen the maximum resolution of the simulation by factors of 2
      and 4, respectively.
    - Each simulation is called based on their $Ro_h$ and $Fr_h$. Simulation `R008F008` has
      $Ro_h=Fr_h=0.08$, Simulation `R02F1` $Ro_h=0.2$ and $Fr_h=1.25$, and so on.
@@ -17,12 +17,12 @@ There is a Python script to submit all simulations at once using a PBS scheduler
    - Data will be stored in the `headland_simulations/data` directory.
    - You can also run each simulation individually, for example issuing the command `julia --project
      --pkgimages=no headland.jl --simname=NPN-R1F1` runs simulation with `Ro_h=Fr_h=1.25`.
-2. After the simulations have run (make sure all of them ran until the end, which is 80 advective
+2. After the simulations have run (make sure all of them run until the end, which is 80 advective
    periods) post-processing can be done in the root directory of the repo. It consists on running
    scripts `h01_energy_transfer.py` and `h02_bulkstats.py`, which you can do manually or you can run
    `h00_runall.py`. Even better, you can run `qsub run_postproc.sh` which runs that automatically
    using a PBS scheduler.
-   - You will need pynanigans v1.1.2 installed somewhere for the post-processing in this repo to work.
+   - You will need pynanigans v1.1.2 installed somewhere in your `$PYTHONPATH` for the post-processing in this repo to work.
      (Other versions may work too, but have not been tested.) You can find it
      [here](https://zenodo.org/records/14277985) or
      [here](https://github.com/tomchor/pynanigans/releases/tag/v.1.1.2).
