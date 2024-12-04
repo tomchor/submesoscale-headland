@@ -12,7 +12,6 @@ modifiers = ["", "-S"]
 variable_xy = "PV_norm"
 variables = ["PV_norm", "εₖ", "ω_y"]
 Fr_h = 0.2
-#Ro_h = 0.2 # For appendix
 Ro_h = 1
 
 #+++ Pick downstream distances
@@ -103,21 +102,20 @@ for modifier in modifiers:
     #---
 
     #+++ Include horizontal plot on the right:
-    if True:
-        print("Including horizontal plot to the right")
-        fig.subplots_adjust(right=0.8,)
-        ax = fig.add_axes((0.845, 0.1, 0.15, 0.85))
+    print("Including horizontal plot to the right")
+    fig.subplots_adjust(right=0.8,)
+    ax = fig.add_axes((0.845, 0.1, 0.15, 0.85))
 
-        ds_xy = xyz.sel(zC=40, method="nearest")
-        ds_xy[variable_xy].pnplot(ax=ax, x="x", add_colorbar=False, rasterized=True, **plot_kwargs_by_var[variable_xy])
+    ds_xy = xyz.sel(zC=40, method="nearest")
+    ds_xy[variable_xy].pnplot(ax=ax, x="x", add_colorbar=False, rasterized=True, **plot_kwargs_by_var[variable_xy])
 
-        ax.set_title(f"z = {ds_xy.zC.values:.2f} m")
-        ax.set_xlabel("x [m]")
-        ax.set_ylabel("y [m]")
+    ax.set_title(f"z = {ds_xy.zC.values:.2f} m")
+    ax.set_xlabel("x [m]")
+    ax.set_ylabel("y [m]")
 
-        ax.pcolormesh(ds_xy.xC, ds_xy.yC, ds_xy.land_mask, rasterized=True, **opts_land)
-        for y in ds_xz.yC.values:
-            ax.axhline(y=y, ls="-", lw=0.5, color="k")
+    ax.pcolormesh(ds_xy.xC, ds_xy.yC, ds_xy.land_mask, rasterized=True, **opts_land)
+    for y in ds_xz.yC.values:
+        ax.axhline(y=y, ls="-", lw=0.5, color="k")
 
     for i in range(len(variables)):
         cax = axes[i,0].inset_axes([200, 0, 200, 5], transform=axes[i,0].transData, zorder=100)
