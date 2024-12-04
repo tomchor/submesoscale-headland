@@ -4,7 +4,7 @@ using Oceananigans.Grids: Center, Face
 using Oceananigans.TurbulenceClosures: viscosity, diffusivity
 
 using Oceanostics: KineticEnergyDissipationRate,
-                   ErtelPotentialVorticity, DirectionalErtelPotentialVorticity, RossbyNumber, RichardsonNumber,
+                   ErtelPotentialVorticity, RossbyNumber, RichardsonNumber,
                    TracerVarianceDissipationRate, TurbulentKineticEnergy
 
 #+++ Methods/functions definitions
@@ -62,10 +62,6 @@ dbdx = @at CellCenter ∂x(b)
 dbdy = @at CellCenter ∂y(b)
 dbdz = @at CellCenter ∂z(b)
 
-PV_x = @at CellCenter DirectionalErtelPotentialVorticity(model, (1, 0, 0))
-PV_y = @at CellCenter DirectionalErtelPotentialVorticity(model, (0, 1, 0))
-PV_z = @at CellCenter DirectionalErtelPotentialVorticity(model, (0, 0, 1))
-
 ω_y = @at CellCenter (∂z(u) - ∂x(w))
 
 εₖ = @at CellCenter KineticEnergyDissipationRate(model)
@@ -78,11 +74,10 @@ Ri = @at CellCenter RichardsonNumber(model, u, v, w, b)
 Ro = @at CellCenter RossbyNumber(model)
 PV = @at CellCenter ErtelPotentialVorticity(model, u, v, w, b, model.coriolis)
 
-outputs_dissip = Dict(pairs((;εₖ, εₚ, κₑ)))
+outputs_dissip = Dict(pairs((; εₖ, εₚ, κₑ)))
 
 outputs_misc = Dict(pairs((; dbdx, dbdy, dbdz, ω_y,
-                             Ri, Ro,
-                             PV, PV_x, PV_y, PV_z,)))
+                             Ri, Ro, PV,)))
 #---
 
 #+++ Define covariances

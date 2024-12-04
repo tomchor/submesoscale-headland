@@ -245,7 +245,6 @@ for simname in simnames:
 
     #+++ Get time-avg results at half-depth
     tafields = tafields.sel(zC=tti.zC.item(), method="nearest")
-    tafields["q̄z"] = tti.PV_z.mean("time")
     tafields["q̄"] = tti.PV.mean("time")
 
     tafields["∂ⱼūᵢ"]  = tti["∂ⱼuᵢ"].mean("time")
