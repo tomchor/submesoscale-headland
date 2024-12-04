@@ -13,7 +13,7 @@ from dask.diagnostics import ProgressBar
 print("Starting bulk statistics script")
 
 #+++ Define directory and simulation name
-if basename(__file__) != "h00_runall.py":
+if basename(__file__) != "h00_run_postproc.py":
     path = f"./headland_simulations/data/"
     simnames = [#"NPN-TEST",
                 "NPN-R008F008",
@@ -162,7 +162,7 @@ for simname in simnames:
     #---
 
 #+++ Collect everything
-if basename(__file__) == "h00_runall.py":
+if basename(__file__) == "h00_run_postproc.py":
     dslist = []
     print()
     for sim_number, outname in enumerate(outnames):

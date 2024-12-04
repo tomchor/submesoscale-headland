@@ -19,7 +19,7 @@ bulk["γᵇ"] = bulk["⟨ε̄ₚ⟩ᵇ"] / (bulk["⟨ε̄ₚ⟩ᵇ"] + bulk["⟨
 bulk["RoFr"] = bulk.Ro_h * bulk.Fr_h
 
 bulk["H"]  = bulk.α * bulk.L
-bulk["ℰₚ"] = bulk["∫∫∫ᵇε̄ₚdxdydz"]     / (bulk["V∞"]**3 * bulk.L * bulk.H)
+bulk["ℰₚ"] = bulk["∫∫∫ᵇε̄ₚdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["𝒦"] = (bulk["∫∫∫ᵇε̄ₚdxdydz"] / bulk["N²∞"]) / (bulk["V∞"] * bulk.L**3 * bulk.H)
 #---
 
