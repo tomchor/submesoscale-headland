@@ -153,6 +153,13 @@ def collect_datasets(simnames_filtered, slice_name="xyi", path="./headland_simul
             ds = xr.open_dataset(f"data_post/{fname}", chunks=dict(time="auto", L="auto"))
         #---
 
+        #+++ Deal with volume-integrated output
+        elif slice_name == "bulkstats":
+            fname = f"bulkstats_{simname}.nc"
+            print(f"\nOpening {fname}")
+            ds = xr.open_dataset(f"data_post/{fname}", chunks=dict(time="auto", L="auto"))
+        #---
+
         #+++ Deal with snapshots
         else:
             fname = f"{slice_name}.{simname}.nc"
@@ -194,9 +201,9 @@ def collect_datasets(simnames_filtered, slice_name="xyi", path="./headland_simul
         #---
 
         #+++ Calculate resolutions before they get thrown out
-        ds["Δx_min"] = ds["Δxᶜᶜᶜ"].where(ds["Δxᶜᶜᶜ"] > 0).min().values
-        ds["Δy_min"] = ds["Δyᶜᶜᶜ"].where(ds["Δyᶜᶜᶜ"] > 0).min().values
-        ds["Δz_min"] = ds["Δzᶜᶜᶜ"].where(ds["Δzᶜᶜᶜ"] > 0).min().values
+        if "Δx_min" not in ds.keys(): ds["Δx_min"] = ds["Δxᶜᶜᶜ"].where(ds["Δxᶜᶜᶜ"] > 0).min().values
+        if "Δy_min" not in ds.keys(): ds["Δy_min"] = ds["Δyᶜᶜᶜ"].where(ds["Δyᶜᶜᶜ"] > 0).min().values
+        if "Δz_min" not in ds.keys(): ds["Δz_min"] = ds["Δzᶜᶜᶜ"].where(ds["Δzᶜᶜᶜ"] > 0).min().values
         #---
 
         #+++ Create auxiliary variables and organize them into a Dataset
@@ -230,16 +237,17 @@ def collect_datasets(simnames_filtered, slice_name="xyi", path="./headland_simul
             assert np.allclose(dslist[0].time.values, ds.time.values), "Time coordinates don't match in all datasets"
 
     print("Starting to concatenate everything into one dataset")
-    if slice_name != "tafields":
+    if slice_name != "tafields" and slice_name != "bulkstats":
         for i in range(len(dslist)):
             dslist[i]["time"] = time_values # Prevent double time, e.g. [0, 0.2, 0.2, 0.4, 0.4, 0.6, 0.8] etc. (not sure why this is needed)
     dsout = xr.combine_by_coords(dslist, combine_attrs="drop_conflicts")
 
-    dsout["Δxᶜᶜᶜ"] = dsout["Δxᶜᶜᶜ"].isel(Ro_h=0, Fr_h=0)
-    dsout["Δyᶜᶜᶜ"] = dsout["Δyᶜᶜᶜ"].isel(Ro_h=0, Fr_h=0)
-    dsout["Δzᶜᶜᶜ"] = dsout["Δzᶜᶜᶜ"].isel(Ro_h=0, Fr_h=0)
-    dsout["land_mask"]  = (dsout["Δxᶜᶜᶜ"] == 0)
-    dsout["water_mask"] = np.logical_not(dsout.land_mask)
+    if "Δxᶜᶜᶜ" in ds.keys():
+        dsout["Δxᶜᶜᶜ"] = dsout["Δxᶜᶜᶜ"].isel(Ro_h=0, Fr_h=0)
+        dsout["land_mask"]  = (dsout["Δxᶜᶜᶜ"] == 0)
+        dsout["water_mask"] = np.logical_not(dsout.land_mask)
+    if "Δyᶜᶜᶜ" in ds.keys(): dsout["Δyᶜᶜᶜ"] = dsout["Δyᶜᶜᶜ"].isel(Ro_h=0, Fr_h=0)
+    if "Δzᶜᶜᶜ" in ds.keys(): dsout["Δzᶜᶜᶜ"] = dsout["Δzᶜᶜᶜ"].isel(Ro_h=0, Fr_h=0)
     #---
 
     return dsout

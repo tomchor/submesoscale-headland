@@ -249,8 +249,6 @@ for simname in simnames:
 
     tafields["∂ⱼūᵢ"]  = tti["∂ⱼuᵢ"].mean("time")
     tafields["∂ⱼb̄"]   = tti["∂ⱼb"].mean("time")
-
-    tafields["⟨uᵢ∂ᵢp⟩ₜ"]    = tti["uᵢ∂ᵢp"].mean("time")
     #---
 
     #+++ Get CSI mask and CSI-integral
