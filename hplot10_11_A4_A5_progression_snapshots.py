@@ -12,7 +12,7 @@ modifiers = ["", "-S"]
 variable_xy = "PV_norm"
 variables = ["PV_norm", "εₖ", "ω_y"]
 Fr_h = 0.2
-Ro_h = 1
+Ro_h = 1 # Change this value to 0.2 to reproduce Figures A4 and A5
 
 #+++ Pick downstream distances
 N = 3
