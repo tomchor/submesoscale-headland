@@ -28,8 +28,7 @@ except ValueError:
 cbar_kwargs = dict(location="right", shrink=0.5, fraction=0.012, pad=0.02, aspect=30)
 figsize = (8, 7)
 
-#plot_kwargs = dict(vmin=-0.005, vmax=0.005, cmap=plt.cm.RdBu_r, rasterized=True)
-plot_kwargs = dict(vmin=-8e-9, vmax=8e-9, cmap=cm.balance, rasterized=True)
+plot_kwargs = dict(vmin=-1.2e-9, vmax=1.2e-9, cmap=cm.balance, rasterized=True)
 #---
 
 #+++ Create ageostrophic variables and pick subset of simulations

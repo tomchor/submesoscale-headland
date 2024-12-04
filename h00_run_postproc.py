@@ -4,7 +4,7 @@ import subprocess
 import numpy as np
 import xarray as xr
 import pynanigans as pn
-from aux00_utils import open_simulation, condense, check_simulation_completion
+from aux00_utils import check_simulation_completion
 from aux01_physfuncs import get_topography_masks
 from colorama import Fore, Back, Style
 from dask.diagnostics import ProgressBar
@@ -13,8 +13,7 @@ print("Starting h00 script")
 
 #+++ Define directory and simulation name
 path = f"./headland_simulations/data/"
-simnames_base = [#"NPN-TEST",
-                 "NPN-R008F008",
+simnames_base = ["NPN-R008F008",
                  "NPN-R02F008",
                  "NPN-R05F008",
                  "NPN-R1F008",
@@ -32,7 +31,7 @@ simnames_base = [#"NPN-TEST",
                  "NPN-R1F1",
                  ]
 modifiers = ["-f4", "-f2", "-S-f4", "-S-f2","-AMD-f4", "-AMD-f2",]
-modifiers = ["-f4", "-f2", ""]
+modifiers = ["-f2", "-S-f2", "", "-S"]
 #---
 
 
@@ -56,7 +55,7 @@ time_avg = False
 summarize = False
 zoom = False
 plotting_time = 23
-figdir = "figures_check"
+figdir = "figures"
 
 slice_names = ["xyi",]
 

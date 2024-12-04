@@ -10,7 +10,7 @@ from scipy.optimize import curve_fit
 from aux00_utils import simnames, collect_datasets
 from aux02_plotting import letterize
 
-modifiers = ["-f2", ""]
+modifiers = [""]
 
 for modifier in modifiers:
     simnames_filtered = [ f"{simname}{modifier}" for simname in simnames ]
@@ -33,16 +33,13 @@ for modifier in modifiers:
     bulk["⟨⟨Ek′⟩ₜ⟩ˣᶻ"].attrs = dict(units="m²/s²")
     bulk.Slope_Bu.attrs =  dict(long_name=r"$S_{Bu} = Bu_h^{1/2} = Ro_h / Fr_h$")
     bulk.yC.attrs =  dict(long_name=r"$y$", units="m")
-    average_CSI_wake_mask = tafields.average_CSI_mask & (tafields.altitude>30)
-    #q̂_min = (tafields.q̄.sel(yC=slice(-tafields.L/2, +tafields.L/2)).pnmin(("x", "y")) / (tafields["f₀"] * tafields["N²∞"])) # Close to headland tip
-    q̂_min = (tafields.q̄.where(average_CSI_wake_mask).sel(yC=slice(-tafields.L/2, +tafields.L/2)).pnmin(("x", "y")) / (tafields["f₀"] * tafields["N²∞"])) # Close to headland tip
 
     #+++ Bathymetry intrusion exponential
     def η(z): return bulk.Lx/2 + (0 - bulk.Lx/2) * z / (2*bulk.H) # headland intrusion size
     def headland_x_of_yz(y, z=40): return η(z) * np.exp(-(2*y / η(z))**2)
     #---
 
-    for buffer in bulk.buffer.values:
+    for buffer in [5]:
         print(f"Plotting buffer = {buffer} m")
         bulkb = bulk.sel(buffer=buffer)
         #+++ Create figure
@@ -62,29 +59,11 @@ for modifier in modifiers:
         for Ro_h in bulkb.Ro_h:
             for Fr_h in bulkb.Fr_h:
                 bulk_RF = bulkb.sel(Ro_h=Ro_h, Fr_h=Fr_h)
-                q̂_min_RF = q̂_min.sel(Ro_h=Ro_h, Fr_h=Fr_h)
 
                 S_normalized = (np.log10(bulk_RF.Slope_Bu) - np.log10(bulkb.Slope_Bu).min()) / (2*np.log10(bulkb.Slope_Bu).max())
-                L_C = bulk_RF["V∞"] * np.sqrt(-q̂_min_RF) / bulk_RF["f₀"]
-                bulk1 = bulk_RF.assign_coords(yC=bulk_RF.yC.values / L_C.values)
-                bulk1.yC.attrs = dict(long_name = "$yf_0\sqrt{-\hat{q}_{min}}/V_\infty$", units="")
                 for ax_row, variable in zip(axes, variables):
                     ax=ax_row[0]
                     bulk_RF[variable].pnplot(ax=ax, x="y", color=cmap(S_normalized))
-
-                    if ncols >=2:
-                        if (bulk_RF.Slope_Bu>1):
-                            #print(bulk_RF.Ro_h.values, bulk_RF.Fr_h.values, bulk_RF.Slope_Bu.values)
-                            ax=ax_row[1]
-                            bulk1[variable].pnplot(ax=ax, x="y", color=cmap(S_normalized))
-                            ax.set_xlim(-1, 4)
-
-                        elif (bulk_RF.Slope_Bu<1):
-                            if ncols >= 3:
-                                ax=ax_row[2]
-                                bulk1[variable].pnplot(ax=ax, x="y", color=cmap(S_normalized))
-                                ax.set_xlim(-1, 20)
-
 
         for ax in axes[:,0]:
             norm = LogNorm(vmin=bulkb.Slope_Bu.min().values, vmax=bulkb.Slope_Bu.max().values)

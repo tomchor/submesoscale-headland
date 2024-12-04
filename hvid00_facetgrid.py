@@ -24,10 +24,11 @@ except NameError:
     shell = None
 #---
 
-if path.basename(__file__).startswith("hplot"):
+if path.basename(__file__).startswith("hplot") or path.basename(__file__).startswith("hinv"):
     #+++ Running hplot03, hplot04, hplot05, or h00
     print("Getting dynamic options from ", path.basename(__file__))
     #---
+
 elif shell is not None:
     #+++ Running from IPython
     parallel = False
@@ -37,9 +38,10 @@ elif shell is not None:
     summarize = False
     zoom = False
     plotting_time = 23
-    figdir = "figures_check"
+    figdir = "figures"
 
     slice_names = ["tafields", "xyi"]
+    slice_names = ["iyz"]
     modifiers = ["-f2", "-S-f2", "", "-S"]
     modifiers = ["",]
 
@@ -60,7 +62,7 @@ else:
     parser.add_argument("--summarize", action="store_true")
     parser.add_argument("--zoom", default=False, type=bool,)
     parser.add_argument("--plotting_time", default=4, type=float,)
-    parser.add_argument("--figdir", default="figures_check", type=str,)
+    parser.add_argument("--figdir", default="figures", type=str,)
     parser.add_argument("--modifiers", default=["f2"], type=str, nargs="+", dest="aux_modifiers")
     parser.add_argument("--slice_names", default=["xyi",], type=str, nargs="+")
     parser.add_argument("--varnames", default=["Ro"], type=str, nargs="+")
@@ -110,6 +112,11 @@ else:
     #---
 
 plot_kwargs_by_var = { k : plot_kwargs_by_var[k] for k in plot_kwargs_by_var if k in varnames}
+plot_kwargs_by_var["∂u∂z"] = dict(vmin=-2.5e-3, vmax=2.5e-3, cmap=plt.cm.RdBu_r, xlim=[-250, 1200])
+if not plot_kwargs_by_var:
+    print("None of the variables in `varnames` was found in `plot_kwargs_by_var`. Here's varnames", varnames)
+    raise NameError
+
 #---
 
 for modifier in modifiers:
@@ -118,7 +125,7 @@ for modifier in modifiers:
 
         #+++ Read and reorganize Dataset
         if __name__ == "__main__": print(f"\nCollecting {slice_name}{modifier}")
-        snaps = collect_datasets(simnames_filtered, slice_name=slice_name)
+        snaps = collect_datasets(simnames_filtered, slice_name=slice_name, verbose=False)
 
         if (not animate) and (not time_avg) and ("time" in snaps.coords.keys()):
             snaps = snaps.sel(time=[plotting_time], method="nearest")
@@ -215,6 +222,7 @@ for modifier in modifiers:
 
         #+++ Begin plotting
         varlist = list(plot_kwargs_by_var.keys())
+
         for var in varlist:
             if __name__ == '__main__': print(f"Starting variable {var}")
 

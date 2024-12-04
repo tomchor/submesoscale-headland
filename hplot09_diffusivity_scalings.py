@@ -4,11 +4,13 @@ import numpy as np
 import pynanigans as pn
 import xarray as xr
 from matplotlib import pyplot as plt
+from aux00_utils import simnames, collect_datasets
 from aux02_plotting import letterize, create_mc, mscatter
 
 modifier = ""
 
-bulk = xr.open_dataset(f"data_post/bulkstats_snaps{modifier}.nc", chunks={})
+simnames_filtered = [ f"{simname}{modifier}" for simname in simnames ]
+bulk = collect_datasets(simnames_filtered, slice_name="bulkstats")
 bulk = bulk.reindex(Ro_h = list(reversed(bulk.Ro_h))).mean("yC")
 bulk = create_mc(bulk)
 
@@ -16,12 +18,8 @@ bulk = create_mc(bulk)
 bulk["γᵇ"] = bulk["⟨ε̄ₚ⟩ᵇ"] / (bulk["⟨ε̄ₚ⟩ᵇ"] + bulk["⟨ε̄ₖ⟩ᵇ"])
 bulk["RoFr"] = bulk.Ro_h * bulk.Fr_h
 
-bulk["⟨⟨w′b′⟩ₜ⟩ᵇ + ⟨Π⟩ᵇ"] = bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"] + bulk["⟨Π⟩ᵇ"]
-
 bulk["H"]  = bulk.α * bulk.L
-bulk["ℰₚ"] = bulk["∫∫∫ᵇε̄ₚdxdydz"]     / (bulk["V∞"]**3 * bulk.L * bulk.H)
-bulk["w'b'"] = bulk["∫∫∫ᵇ⟨w′b′⟩ₜdxdydz"] / (bulk.L**2 * bulk.H)
-bulk["𝒦ʷᵇ"] = (-bulk["w'b'"] / bulk["N²∞"]) / (bulk["V∞"] * bulk.L**3 * bulk.H)
+bulk["ℰₚ"] = bulk["∫∫∫ᵇε̄ₚdxdydz"] / (bulk["V∞"]**3 * bulk.L * bulk.H)
 bulk["𝒦"] = (bulk["∫∫∫ᵇε̄ₚdxdydz"] / bulk["N²∞"]) / (bulk["V∞"] * bulk.L**3 * bulk.H)
 #---
 
@@ -29,10 +27,7 @@ bulk["𝒦"] = (bulk["∫∫∫ᵇε̄ₚdxdydz"] / bulk["N²∞"]) / (bulk["V�
 bulk.RoFr.attrs = dict(long_name="$Ro_h Fr_h$")
 bulk.Slope_Bu.attrs =  dict(long_name=r"$S_h$")
 bulk["ℰₚ"].attrs = dict(long_name="Normalized integrated\nbuoyancy mixing rate, $\\mathcal{E}_p$")
-bulk["Kb′"].attrs = dict(long_name="$K_b = -\overline{w′b′} / N^2_\infty$ [m²/s]")
 bulk["𝒦"].attrs = dict(long_name="Normalized buoyancy diffusivity $\\mathcal{K}_b$")
-bulk["⟨⟨w′b′⟩ₜ⟩ᵇ"].attrs = dict(long_name=r"$\langle\overline{w'b'}\rangle$ [m²/s³]")
-bulk["⟨ε̄ₚ⟩ᵇ"].attrs = dict(long_name=r"$\langle\overline{\varepsilon}_p\rangle$ [m²/s³]")
 #---
 
 for buffer in bulk.buffer.values[1:]:

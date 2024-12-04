@@ -12,7 +12,7 @@ xr.set_options(display_width=140, display_max_rows=30)
 print("Starting energy transfer script")
 
 #+++ Define directory and simulation name
-if basename(__file__) != "h00_runall.py":
+if basename(__file__) != "h00_run_postproc.py":
     path = f"./headland_simulations/data/"
     simnames = [#"NPN-TEST",
                 "NPN-R008F008",
@@ -36,7 +36,7 @@ if basename(__file__) != "h00_runall.py":
     from cycler import cycler
     names = cycler(name=simnames)
     modifiers = cycler(modifier = ["-f4", "-S-f4", "-f2", "-S-f2", "", "-S"])
-    modifiers = cycler(modifier = ["-f4",])
+    modifiers = cycler(modifier = ["-f2",])
     simnames = [ nr["name"] + nr["modifier"] for nr in modifiers * names ]
 #---
 
@@ -135,14 +135,6 @@ for simname in simnames:
         ds = condense(ds, ["∂₁uᵢ", "∂₂uᵢ", "∂₃uᵢ"], "∂ⱼuᵢ", dimname="j", indices=indices)
         return ds
 
-    def condense_geostrophic_velocity_gradient_tensor(ds):
-        ds = condense(ds, ["∂Uᵍ∂x", "∂Vᵍ∂x",], "∂₁Uᵍᵢ", dimname="i", indices=[1, 2])
-        ds = condense(ds, ["∂Uᵍ∂y", "∂Vᵍ∂y",], "∂₂Uᵍᵢ", dimname="i", indices=[1, 2])
-        ds = condense(ds, ["∂Uᵍ∂z", "∂Vᵍ∂z",], "∂₃Uᵍᵢ", dimname="i", indices=[1, 2])
-        ds = condense(ds, ["∂₁Uᵍᵢ", "∂₂Uᵍᵢ", "∂₃Uᵍᵢ"], "∂ⱼUᵍᵢ", dimname="j", indices=indices)
-        ds["∂ⱼUᵍᵢ"].loc[dict(i=3)] = 0 # Geostrophic w velocities are zero!
-        return ds
-
     def condense_reynolds_stress_tensor(ds):
         ds["vu"] = ds.uv
         ds["wv"] = ds.vw
@@ -158,7 +150,6 @@ for simname in simnames:
     ttt = condense_reynolds_stress_tensor(ttt)
     tti = condense_velocities(tti)
     tti = condense_velocity_gradient_tensor(tti)
-    tti = condense_geostrophic_velocity_gradient_tensor(tti)
     tti = condense(tti, ["dbdx", "dbdy", "dbdz"], "∂ⱼb", dimname="j", indices=indices)
     #---
 
@@ -169,18 +160,11 @@ for simname in simnames:
                                 "∂ⱼuᵢ"     : "∂ⱼūᵢ",
                                 "uⱼuᵢ"     : "⟨uⱼuᵢ⟩ₜ",
                                 "b"        : "b̄",
-                                "uᵢGᵢ"     : "⟨uᵢGᵢ⟩ₜ",
-                                "uᵢ∂ⱼuⱼuᵢ" : "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ",
-                                "uᵢ∂ᵢp"    : "⟨uᵢ∂ᵢp⟩ₜ",
                                 "uᵢbᵢ"     : "⟨wb⟩ₜ",
-                                "uᵢ∂ⱼτᵢⱼ"  : "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ",
-                                "uᵢ∂ⱼτᵇᵢⱼ" : "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ",
-                                "εₛ"       : "ε̄ₛ",
                                 "εₖ"       : "ε̄ₖ",
                                 "εₚ"       : "ε̄ₚ",
                                 "κₑ"       : "κ̄ₑ",
                                 "Ek"       : "⟨Ek⟩ₜ",
-                                "vp"       : "⟨vp⟩ₜ",
                                 "p"        : "p̄",
                                 })
     tafields["⟨∂ₜEk⟩ₜ"] = (xyz.Ek.sel(time=(xyz.T_advective_spinup+xyz.T_advective_statistics))
@@ -216,7 +200,7 @@ for simname in simnames:
     buffer = 5 # meters
 
     distance_mask = tafields.altitude > buffer
-    for var in ["ε̄ₖ", "ε̄ₚ", "⟨∂ₜEk⟩ₜ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "ε̄ₛ", "⟨Ek⟩ₜ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ", "1"]:
+    for var in ["ε̄ₖ", "ε̄ₚ", "⟨∂ₜEk⟩ₜ", "⟨wb⟩ₜ", "⟨Ek⟩ₜ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ", "1"]:
         int_all = f"∫∫∫⁰{var}dxdydz"
         int_buf = f"∫∫∫⁵{var}dxdydz"
         tafields[int_all] = integrate(tafields[var])
@@ -225,7 +209,7 @@ for simname in simnames:
 
     #+++ For debugging only
     if ("-f4" in simname) or ("-f2" in simname):
-        for var in ["⟨∂ₜEk⟩ₜ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "ε̄ₛ",]:
+        for var in ["⟨∂ₜEk⟩ₜ", "⟨wb⟩ₜ", ]:
             int_all = f"∫⁰{var}dxdydz"
             tafields[int_all] = integrate(tafields[var], dims=("z",))
     #---
@@ -243,21 +227,10 @@ for simname in simnames:
         tafields[int_turb] = integrate(tafields[var], dV=tafields.ΔxΔyΔz.where(tafields.average_turbulence_mask))
     #---
 
-    #+++ Calculate some integrals through the divergence theorem
-    Ek_flux_north = tafields.V_inf * integrate(tafields["⟨Ek⟩ₜ"], dV=tafields["ΔxΔz"], dims=("x", "z")).sel(yC=np.inf, method="nearest")
-    Ek_flux_south = tafields.V_inf**3 * tafields.ΔxΔz.sel(yC=-np.inf, method="nearest").sum() / 2
-    tafields["∫∫∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz_diverg"] = Ek_flux_north - Ek_flux_south
-
-    vp_flux_north = integrate(tafields["⟨vp⟩ₜ"], dV=tafields["ΔxΔz"], dims=("x", "z")).sel(yC=+np.inf, method="nearest")
-    vp_flux_south = integrate(tafields["⟨vp⟩ₜ"], dV=tafields["ΔxΔz"], dims=("x", "z")).sel(yC=-np.inf, method="nearest")
-    tafields["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_diverg"] = vp_flux_north - vp_flux_south
-    #---
-
     #+++ Calculate form drag from topography
     dhdy = ttt.bottom_height.differentiate("yC")
     p̄_wet = -tafields.p̄.where(tafields.ΔxΔz!=0, other=np.inf) # Minus sign because pressure here is negative for some reason
     p̄_bottom = p̄_wet.pnmax("z")
-    #p̄_bottom2 = -tafields.p̄.pnsel(z=0, method="nearest") # This may or may not be equivalent to the above depending of how Oceananigans treats pressure inside IB
 
     ΔxΔy = tafields["Δxᶜᶜᶜ"] * tafields["Δyᶜᶜᶜ"]
     tafields["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"] = -tafields.V_inf * integrate(p̄_bottom * dhdy, dV=ΔxΔy.pnmax("z"), dims=("x", "y"))
@@ -265,33 +238,22 @@ for simname in simnames:
 
     #+++ Depth-integrate (for debugging only)
     if ("-f4" in simname) or ("-f2" in simname):
-        for var in ["⟨∂ₜEk⟩ₜ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "ε̄ₛ",]:
+        for var in ["⟨∂ₜEk⟩ₜ", "⟨wb⟩ₜ", ]:
             int_all = f"∫⁰{var}dxdydz"
             tafields[int_all] = integrate(tafields[var], dims=("z",))
     #---
 
     #+++ Get time-avg results at half-depth
     tafields = tafields.sel(zC=tti.zC.item(), method="nearest")
-    tafields["q̄z"] = tti.PV_z.mean("time")
     tafields["q̄"] = tti.PV.mean("time")
 
     tafields["∂ⱼūᵢ"]  = tti["∂ⱼuᵢ"].mean("time")
-    tafields["∂ⱼŪᵍᵢ"] = tti["∂ⱼUᵍᵢ"].mean("time")
     tafields["∂ⱼb̄"]   = tti["∂ⱼb"].mean("time")
-    tafields["R̄e_b"]  = tti["Re_b"].mean("time")
-
-    tafields["⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ"] = tti["uᵢ∂ⱼuⱼuᵢ"].mean("time")
-    tafields["⟨uᵢ∂ᵢp⟩ₜ"]    = tti["uᵢ∂ᵢp"].mean("time")
-    tafields["⟨uᵢ∂ⱼτᵢⱼ⟩ₜ"]  = tti["uᵢ∂ⱼτᵢⱼ"].mean("time")
-    tafields["⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ"] = tti["uᵢ∂ⱼτᵇᵢⱼ"].mean("time")
     #---
 
     #+++ Get CSI mask and CSI-integral
     tafields["average_stratification_mask"] = tafields["∂ⱼb̄"].sel(j=3) > 0
     tafields["average_CSI_mask"] = ((tafields.q̄ * tafields.f_0) < 0) & (tafields["∂ⱼb̄"].sel(j=3) > 0)
-    for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "1"]:
-        int_csi = f"∫∫ᶜˢⁱ{var}dxdy"
-        tafields[int_csi] = integrate(tafields[var], dV=ΔxΔy.where(tafields.average_CSI_mask), dims=("x", "y"))
     #---
 
     #+++ Drop unnecessary vars

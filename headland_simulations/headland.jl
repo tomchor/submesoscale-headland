@@ -1,4 +1,8 @@
 if ("PBS_JOBID" in keys(ENV))  @info "Job ID" ENV["PBS_JOBID"] end # Print job ID if this is a PBS simulation
+#using Pkg
+#Pkg.instantiate()
+using InteractiveUtils
+versioninfo()
 using DrWatson
 using ArgParse
 using Oceananigans
@@ -102,10 +106,6 @@ end
 #---
 
 params = (; params..., factor)
-
-#if AMD # AMD takes up more memory...
-#    params = (; params..., N=params.N*0.90)
-#end
 
 NxNyNz = get_sizes(params.N ÷ (factor^3),
                    Lx=params.Lx, Ly=params.Ly, Lz=params.Lz,
@@ -271,7 +271,8 @@ model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
                             closure = closure,
                             boundary_conditions = bcs,
                             forcing = (u=Fᵤ, v=Fᵥ, w=Fw, b=Fb),
-                           )
+                            hydrostatic_pressure_anomaly = CenterField(grid),
+                            )
 @info "" model
 if has_cuda_gpu() run(`nvidia-smi -i $(ENV["CUDA_VISIBLE_DEVICES"])`) end
 
@@ -282,7 +283,7 @@ set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
 params = (; params..., T_advective_max = params.T_advective_spinup + params.T_advective_statistics)
 simulation = Simulation(model, Δt=0.2*minimum_zspacing(grid.underlying_grid)/params.V_inf,
                         stop_time=params.T_advective_max * params.T_advective,
-                        wall_time_limit=23.5hours,
+                        wall_time_limit=23hours,
                         )
 
 using Oceanostics.ProgressMessengers
@@ -290,12 +291,12 @@ walltime_per_timestep = StepDuration(with_prefix=false) # This needs to instanti
 walltime = Walltime()
 progress(simulation) = @info (PercentageProgress(with_prefix=false, with_units=false)
                               + "$(round(time(simulation)/params.T_advective; digits=2)) adv periods" + walltime
-                              + TimeStep() + MaxVelocities() + "CFL = "*AdvectiveCFLNumber(with_prefix=false)
+                              + TimeStep() + "CFL = "*AdvectiveCFLNumber(with_prefix=false)
                               + "step dur = "*walltime_per_timestep)(simulation)
 simulation.callbacks[:progress] = Callback(progress, IterationInterval(40))
 
 wizard = TimeStepWizard(max_change=1.05, min_change=0.2, cfl=0.95, min_Δt=1e-4, max_Δt=1/√params.N²∞)
-simulation.callbacks[:wizard] = Callback(wizard, IterationInterval(2))
+simulation.callbacks[:wizard] = Callback(wizard, IterationInterval(4))
 
 @info "" simulation
 #---
@@ -311,7 +312,7 @@ else
 end
 #---
 
-include("$rundir/../diagnostics.jl")
+include("$rundir/diagnostics.jl")
 tick()
 checkpointer = construct_outputs(simulation,
                                  simname = simname,
@@ -322,9 +323,9 @@ checkpointer = construct_outputs(simulation,
                                  interval_3d = 2.0*params.T_advective,
                                  interval_time_avg = 20*params.T_advective,
                                  write_xyz = true,
-                                 write_xiz = true,
+                                 write_xiz = false,
                                  write_xyi = true,
-                                 write_iyz = false,
+                                 write_iyz = true,
                                  write_ttt = true,
                                  write_tti = true,
                                  debug = false,
