@@ -6,17 +6,17 @@ anticyclonic submesoscale headland wakes", by Tomas Chor and Jacob Wenegrat.
 
 1. In order to reproduce results, first run the simulations in the directory `headland_simulations`.
 There is a Python script to submit all simulations at once using a PBS scheduler called `run_all.py`.
-  - Modifers `-f2`, `-f4`, etc., coarser the maximum resolution of the simulation by factors of 2
-    and 4, respectively.
-  - Each simulation is called based on their $Ro_h$ and $Fr_h$. Simulation `R008F008` has
-    $Ro_h=Fr_h=0.08$, Simulation `R02F1` $Ro_h=0.2$ and $Fr_h=1.25$, and so on.
-  - Simulations are run with Julia (1.10) + Oceananigans, and the exact versions of packages used to run
-    everything is contained in the files `Project.toml` and `Manifest.toml`. In order to use them,
-    all you need to do is to start Julia with `julia --project` and issue `] instantiate` to
-   download the packages. (More information: https://pkgdocs.julialang.org/v1/environments/)
-  - Data will be stored in the `headland_simulations/data` directory.
-  - You can also run each simulation individually, for example issuing the command `julia --project
-    --pkgimages=no headland.jl --simname=NPN-R1F1` runs simulation with `Ro_h=Fr_h=1.25`.
+   - Modifers `-f2`, `-f4`, etc., coarser the maximum resolution of the simulation by factors of 2
+     and 4, respectively.
+   - Each simulation is called based on their $Ro_h$ and $Fr_h$. Simulation `R008F008` has
+     $Ro_h=Fr_h=0.08$, Simulation `R02F1` $Ro_h=0.2$ and $Fr_h=1.25$, and so on.
+   - Simulations are run with Julia (1.10) + Oceananigans, and the exact versions of packages used to run
+     everything is contained in the files `Project.toml` and `Manifest.toml`. In order to use them,
+     all you need to do is to start Julia with `julia --project` and issue `] instantiate` to
+    download the packages. (More information: https://pkgdocs.julialang.org/v1/environments/)
+   - Data will be stored in the `headland_simulations/data` directory.
+   - You can also run each simulation individually, for example issuing the command `julia --project
+     --pkgimages=no headland.jl --simname=NPN-R1F1` runs simulation with `Ro_h=Fr_h=1.25`.
 2. After the simulations have run (make sure all of them ran until the end, which is 80 advective
    periods) post-processing can be done in the root directory of the repo. It consists on running
    scripts `h01_energy_transfer.py` and `h02_bulkstats.py`, which you can do manually or you can run
