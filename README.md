@@ -22,18 +22,18 @@ There is a Python script to submit all simulations at once using a PBS scheduler
    scripts `h01_energy_transfer.py` and `h02_bulkstats.py`, which you can do manually or you can run
    `h00_runall.py`. Even better, you can run `qsub run_postproc.sh` which runs that automatically
    using a PBS scheduler.
-  - You will need pynanigans v1.1.2 installed somewhere for the post-processing in this repo to work.
-    (Other versions may work too, but have not been tested.) You can find it
-    [here](https://zenodo.org/records/14277985) or
-    [here](https://github.com/tomchor/pynanigans/releases/tag/v.1.1.2).
-  - In order to make sure things run correctly, it's also advised to install the version of the
-    Python packages these scripts were tested with. These versions are listed in
-    `conda-packages.txt`. You can install them automatically with conde by using the command `conda
-    create -n submesoscale_headlands --file conda-packages.txt python=3.12`, which will install them
-    in an environment called `submesoscale_headlands`.
-  - This step will create post-processed NetCDF datasets in the directory `data_post`
+   - You will need pynanigans v1.1.2 installed somewhere for the post-processing in this repo to work.
+     (Other versions may work too, but have not been tested.) You can find it
+     [here](https://zenodo.org/records/14277985) or
+     [here](https://github.com/tomchor/pynanigans/releases/tag/v.1.1.2).
+   - In order to make sure things run correctly, it's also advised to install the version of the
+     Python packages these scripts were tested with. These versions are listed in
+     `conda-packages.txt`. You can install them automatically with conde by using the command `conda
+     create -n submesoscale_headlands --file conda-packages.txt python=3.12`, which will install them
+     in an environment called `submesoscale_headlands`.
+   - This step will create post-processed NetCDF datasets in the directory `data_post`
 3. After post-processing is done, the paper figures can be plotted using the script that start with
    `hplot`. `hplot02_paramspace.py` will create Figure 2 of the paper,
    `hplot06_dissipation_snapshots.py` will create Figure 6, `hplotA2_cyclonic_comparison.py` will
    create Figure A2 and so on.
-  - Figures will be created in the directory `figures`.
+   - Figures will be created in the directory `figures`.
