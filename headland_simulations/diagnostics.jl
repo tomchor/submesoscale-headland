@@ -105,7 +105,7 @@ outputs_grads = Dict{Symbol, Any}(:∂u∂x => (@at CellCenter ∂x(u)),
 
 #+++ Define energy budget terms
 @info "Calculating energy budget terms"
-outputs_budget = Dict{Symbol, Any}(:uᵢbᵢ => BuoyancyConversionTerm(model),
+outputs_budget = Dict{Symbol, Any}(:uᵢbᵢ => (@at CellCenter w * b),
                                    :Ek   => TurbulentKineticEnergy(model, u, v, w),)
 #---
 
