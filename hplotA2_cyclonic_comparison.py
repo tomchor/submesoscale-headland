@@ -39,7 +39,7 @@ bulk_ac["ℰₖ"].attrs = dict(long_name="Normalized integrated\nKE dissipation 
 bulk_ac["ℰₚ"].attrs = dict(long_name="Normalized integrated\nbuoyancy mixing rate, $\mathcal{E}_p$")
 #---
 
-for buffer in bulk_ac.buffer.values:
+for buffer in [5]:
     print(f"Plotting with buffer = {buffer} m")
     bulk_buff_ac = bulk_ac.sel(buffer=buffer)
     bulk_buff_cy = bulk_cy.sel(buffer=buffer)
