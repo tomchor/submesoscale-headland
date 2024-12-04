@@ -13,7 +13,7 @@ from dask.diagnostics import ProgressBar
 print("Starting bulk statistics script")
 
 #+++ Define directory and simulation name
-if basename(__file__) != "h00_runall.py":
+if basename(__file__) != "h00_run_postproc.py":
     path = f"./headland_simulations/data/"
     simnames = [#"NPN-TEST",
                 "NPN-R008F008",
@@ -97,6 +97,7 @@ for simname in simnames:
         int_var = f"∫∫∫ᵇ{var}dxdydz"
         bulk[int_var] = tafields[int_var]
         bulk[f"⟨{var}⟩ᵇ"] = bulk[int_var] / bulk["∫∫∫ᵇ1dxdydz"]
+    bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"] = tafields["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"]
 
     bulk["∫∫ᵇ1dxdz"] = tafields["∫∫ᵇ1dxdz"]
     for var in ["ε̄ₖ", "ε̄ₚ", "SPR", "⟨Ek′⟩ₜ"]:
@@ -161,7 +162,7 @@ for simname in simnames:
     #---
 
 #+++ Collect everything
-if basename(__file__) == "h00_runall.py":
+if basename(__file__) == "h00_run_postproc.py":
     dslist = []
     print()
     for sim_number, outname in enumerate(outnames):

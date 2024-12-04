@@ -12,7 +12,7 @@ xr.set_options(display_width=140, display_max_rows=30)
 print("Starting energy transfer script")
 
 #+++ Define directory and simulation name
-if basename(__file__) != "h00_runall.py":
+if basename(__file__) != "h00_run_postproc.py":
     path = f"./headland_simulations/data/"
     simnames = [#"NPN-TEST",
                 "NPN-R008F008",
@@ -245,13 +245,10 @@ for simname in simnames:
 
     #+++ Get time-avg results at half-depth
     tafields = tafields.sel(zC=tti.zC.item(), method="nearest")
-    tafields["q̄z"] = tti.PV_z.mean("time")
     tafields["q̄"] = tti.PV.mean("time")
 
     tafields["∂ⱼūᵢ"]  = tti["∂ⱼuᵢ"].mean("time")
     tafields["∂ⱼb̄"]   = tti["∂ⱼb"].mean("time")
-
-    tafields["⟨uᵢ∂ᵢp⟩ₜ"]    = tti["uᵢ∂ᵢp"].mean("time")
     #---
 
     #+++ Get CSI mask and CSI-integral

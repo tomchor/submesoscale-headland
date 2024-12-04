@@ -24,7 +24,6 @@ plotting_time = 23
 figdir = "figures"
 
 slice_names = ["tafields",]
-modifiers = ["-f2", "",]
 modifiers = ["",]
 
 varnames = ["ε̄ₖ"]

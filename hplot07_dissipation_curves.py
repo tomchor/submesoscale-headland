@@ -10,7 +10,7 @@ from scipy.optimize import curve_fit
 from aux00_utils import simnames, collect_datasets
 from aux02_plotting import letterize
 
-modifiers = ["-f2", ""]
+modifiers = [""]
 
 for modifier in modifiers:
     simnames_filtered = [ f"{simname}{modifier}" for simname in simnames ]
@@ -39,7 +39,7 @@ for modifier in modifiers:
     def headland_x_of_yz(y, z=40): return η(z) * np.exp(-(2*y / η(z))**2)
     #---
 
-    for buffer in bulk.buffer.values:
+    for buffer in [5]:
         print(f"Plotting buffer = {buffer} m")
         bulkb = bulk.sel(buffer=buffer)
         #+++ Create figure
