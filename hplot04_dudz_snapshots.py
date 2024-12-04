@@ -24,7 +24,7 @@ plotting_time = 23
 figdir = "figures"
 
 slice_names = ["iyz",]
-modifiers = ["-f2", "",]
+modifiers = ["",]
 
 varnames = ["∂u∂z"]
 contour_variable_name = None #"water_mask_buffered"
