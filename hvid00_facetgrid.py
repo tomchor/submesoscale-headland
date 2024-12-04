@@ -24,10 +24,11 @@ except NameError:
     shell = None
 #---
 
-if path.basename(__file__).startswith("hplot"):
+if path.basename(__file__).startswith("hplot") or path.basename(__file__).startswith("hinv"):
     #+++ Running hplot03, hplot04, hplot05, or h00
     print("Getting dynamic options from ", path.basename(__file__))
     #---
+
 elif shell is not None:
     #+++ Running from IPython
     parallel = False
@@ -40,6 +41,7 @@ elif shell is not None:
     figdir = "figures"
 
     slice_names = ["tafields", "xyi"]
+    slice_names = ["iyz"]
     modifiers = ["-f2", "-S-f2", "", "-S"]
     modifiers = ["",]
 
@@ -123,7 +125,7 @@ for modifier in modifiers:
 
         #+++ Read and reorganize Dataset
         if __name__ == "__main__": print(f"\nCollecting {slice_name}{modifier}")
-        snaps = collect_datasets(simnames_filtered, slice_name=slice_name)
+        snaps = collect_datasets(simnames_filtered, slice_name=slice_name, verbose=False)
 
         if (not animate) and (not time_avg) and ("time" in snaps.coords.keys()):
             snaps = snaps.sel(time=[plotting_time], method="nearest")
