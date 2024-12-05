@@ -10,7 +10,8 @@ from aux02_plotting import letterize, create_mc, mscatter
 
 #+++ Open datasets
 modifier = ""
-bulk_ac = xr.open_dataset(f"data_post/bulkstats_snaps{modifier}.nc", chunks={})
+simnames_filtered = [ f"{simname}{modifier}" for simname in simnames ]
+bulk_ac = collect_datasets(simnames_filtered, slice_name="bulkstats")
 bulk_ac = bulk_ac.reindex(Ro_h = list(reversed(bulk_ac.Ro_h))).mean("yC")
 bulk_ac = create_mc(bulk_ac)
 
@@ -42,7 +43,7 @@ bulk_cy["ℰₚ"].attrs = dict(long_name="Normalized integrated\nbuoyancy mixing
 #---
 
 bulk_ac = bulk_ac.sel(buffer=5)
-bulk_cy = bulk_ce.sel(buffer=5)
+bulk_cy = bulk_cy.sel(buffer=5)
 
 #+++ Create figure
 nrows = 1
@@ -66,20 +67,22 @@ ax = axesf[0]
 xvarname = "Slope_Bu"
 yvarname = "ℰₖ"
 mscatter(x=bulk_ac[xvarname].values.flatten(), y=bulk_ac[yvarname].values.flatten(), color=bulk_ac.color.values.flatten(), markers=bulk_ac.marker.values.flatten(), ax=ax)
+ax.scatter(x=bulk_cy[xvarname].values.flatten(), y=bulk_cy[yvarname].values.flatten(), color="red", marker="X", alpha=0.4, label="Cyclonic config", zorder=0)
 ax.set_ylabel(bulk_ac[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_ac[xvarname].attrs["long_name"])
 ax.set_xscale("log"); ax.set_yscale("log")
-ax.set_ylim(2e-4, 1)
 ax.plot(S_Bu, rates_curve, ls="--", label=r"0.1 $S_h$", color="k")
+ax.plot(S_Bu, 0.02*S_Bu**(1/2), ls="--", label=r"0.02 $S_h^{1/2}$", color="red", alpha=0.4)
 
 print("Plotting axes 1")
 ax = axesf[1]
 xvarname = "Slope_Bu"
 yvarname = "ℰₚ"
 mscatter(x=bulk_ac[xvarname].values.flatten(), y=bulk_ac[yvarname].values.flatten(), color=bulk_ac.color.values.flatten(), markers=bulk_ac.marker.values.flatten(), ax=ax)
+ax.scatter(x=bulk_cy[xvarname].values.flatten(), y=bulk_cy[yvarname].values.flatten(), color="red", marker="X", alpha=0.4, label="Cyclonic config", zorder=0)
 ax.set_ylabel(bulk_ac[yvarname].attrs["long_name"]); ax.set_xlabel(bulk_ac[xvarname].attrs["long_name"])
 ax.set_xscale("log"); ax.set_yscale("log")
-ax.set_ylim(2e-4, 1)
 ax.plot(S_Bu, 0.02*S_Bu, ls="--", label=r"0.02 $S_h$", color="k")
+ax.plot(S_Bu, 0.007*S_Bu**(1/2), ls="--", label=r"0.007 $S_h^{1/2}$", color="red", alpha=0.4)
 #---
 
 #+++ Prettify and save
@@ -87,7 +90,7 @@ for ax in axesf:
     ax.legend(loc="lower right")
     ax.grid(True)
     ax.set_title("")
-    ax.set_xlabel("$S_h$")
+    ax.set_xlabel("Slope Burger number ($S_h = Ro_h / Fr_h$)")
 
 fig.savefig(f"figures/poster_scalings_buffer=5m{modifier}.pdf")
 #---
