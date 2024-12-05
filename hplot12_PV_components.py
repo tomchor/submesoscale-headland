@@ -3,6 +3,7 @@ import pynanigans as pn
 import xarray as xr
 from matplotlib import pyplot as plt
 from cmocean import cm
+from aux00_utils import simnames, collect_datasets
 from aux01_physfuncs import calculate_filtered_PV
 from aux02_plotting import BuRd, letterize
 plt.rcParams["figure.constrained_layout.use"] = True
@@ -13,8 +14,8 @@ slice_name = "xyi"
 Fr_h = 0.08
 
 #+++ Read and reindex dataset
-snaps = xr.open_dataset(f"data_post/{slice_name}_snaps{modifier}.nc").chunk(time="auto", Fr_h=1, Ro_h=1)
-#snaps = snaps.reindex(Ro_h = list(reversed(snaps.Ro_h)))
+simnames_filtered = [ f"{simname}{modifier}" for simname in simnames ]
+snaps = collect_datasets(simnames_filtered, slice_name=slice_name)
 snaps = snaps.sel(xC = slice(-snaps.headland_intrusion_size_max/3, np.inf),
                   yC = slice(-snaps.L, np.inf), Ro_h = slice(0.2, None))
 
@@ -30,7 +31,6 @@ except ValueError:
 cbar_kwargs = dict(location="right", shrink=0.5, fraction=0.012, pad=0.02, aspect=30)
 figsize = (8, 7)
 
-#plot_kwargs = dict(vmin=-0.005, vmax=0.005, cmap=plt.cm.RdBu_r, rasterized=True)
 plot_kwargs = dict(vmin=-3, vmax=+3, cmap=BuRd, rasterized=True)
 #---
 
@@ -42,7 +42,6 @@ snaps["q̃ᶻ_norm"] = snaps["q̃ᵢ"].sel(i=3) / (snaps["N²∞"] * snaps["f₀
 snaps["1+Ro"] = 1 + snaps["Ro"]
 
 labels = [r"Filtered normalized Ertel PV",
-          #r"$\tilde\omega^{tot}_z \partial_z \tilde b / f_0 N^2_\infty$",
           r"$1 + Ro$"]
 
 snaps = snaps.sel(Fr_h=Fr_h)

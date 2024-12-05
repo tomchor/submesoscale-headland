@@ -17,6 +17,6 @@ module li
 
 #/glade/u/apps/ch/opt/usr/bin/dumpenv # Dumps environment (for debugging with CISL support)
 
-time ~/miniconda3/envs/py310/bin/python h00_runall.py 2>&1 | tee logs/postproc.out
+time ~/miniconda3/envs/py310/bin/python h00_run_postproc.py 2>&1 | tee logs/postproc.out
 
 qstat -f $PBS_JOBID >> logs/postproc.out

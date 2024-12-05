@@ -13,7 +13,7 @@ from dask.diagnostics import ProgressBar
 print("Starting bulk statistics script")
 
 #+++ Define directory and simulation name
-if basename(__file__) != "h00_runall.py":
+if basename(__file__) != "h00_run_postproc.py":
     path = f"./headland_simulations/data/"
     simnames = [#"NPN-TEST",
                 "NPN-R008F008",
@@ -37,7 +37,7 @@ if basename(__file__) != "h00_runall.py":
     from cycler import cycler
     names = cycler(name=simnames)
     modifiers = cycler(modifier = ["-f4", "-S-f4", "-f2", "-S-f2", "", "-S"])
-    modifiers = cycler(modifier = ["-f4", "-f2"])
+    modifiers = cycler(modifier = ["-f2"])
     simnames = [ nr["name"] + nr["modifier"] for nr in modifiers * names ]
 #---
 
@@ -93,13 +93,10 @@ for simname in simnames:
     #+++ Get means from tafields integrals
     bulk = xr.Dataset()
     bulk["∫∫∫ᵇ1dxdydz"] = tafields["∫∫∫ᵇ1dxdydz"]
-    for var in ["ε̄ₖ", "ε̄ₚ", "⟨∂ₜEk⟩ₜ", "⟨uᵢGᵢ⟩ₜ", "⟨uᵢ∂ⱼuⱼuᵢ⟩ₜ", "⟨uᵢ∂ᵢp⟩ₜ", "⟨wb⟩ₜ", "⟨uᵢ∂ⱼτᵢⱼ⟩ₜ", "⟨uᵢ∂ⱼτᵇᵢⱼ⟩ₜ", "ε̄ₛ", "⟨Ek⟩ₜ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ",]:
+    for var in ["ε̄ₖ", "ε̄ₚ", "⟨∂ₜEk⟩ₜ", "⟨wb⟩ₜ", "⟨Ek⟩ₜ", "SPR", "w̄b̄", "⟨w′b′⟩ₜ", "⟨Ek′⟩ₜ", "κ̄ₑ",]:
         int_var = f"∫∫∫ᵇ{var}dxdydz"
         bulk[int_var] = tafields[int_var]
         bulk[f"⟨{var}⟩ᵇ"] = bulk[int_var] / bulk["∫∫∫ᵇ1dxdydz"]
-
-    bulk["∫∫∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz_diverg"] = tafields["∫∫∫⁰⟨uᵢ∂ⱼuⱼuᵢ⟩ₜdxdydz_diverg"]
-    bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_diverg"] = tafields["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_diverg"]
     bulk["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"] = tafields["∫∫∫⁰⟨∂ᵢ(uᵢp)⟩ₜdxdydz_formdrag"]
 
     bulk["∫∫ᵇ1dxdz"] = tafields["∫∫ᵇ1dxdz"]
@@ -113,12 +110,6 @@ for simname in simnames:
         int_var = f"∫∫∫ᵋ{var}dxdydz"
         bulk[int_var] = tafields[int_var]
         bulk[f"⟨{var}⟩ᵋ"] = bulk[int_var] / bulk["∫∫∫ᵋ1dxdydz"]
-
-    bulk["∫∫ᶜˢⁱ1dxdy"] = tafields["∫∫ᶜˢⁱ1dxdy"]
-    for var in ["ε̄ₖ", "ε̄ₚ", "SPR"]:
-        int_var = f"∫∫ᶜˢⁱ{var}dxdy"
-        bulk[int_var] = tafields[int_var]
-        bulk[f"⟨{var}⟩ᶜˢⁱ"] = bulk[int_var] / bulk["∫∫ᶜˢⁱ1dxdy"]
 
     bulk["⟨Π⟩ᵇ"] = bulk["⟨SPR⟩ᵇ"].sum("j")
     bulk["⟨Π⟩ˣᶻ"] = bulk["⟨SPR⟩ˣᶻ"].sum("j")
@@ -171,7 +162,7 @@ for simname in simnames:
     #---
 
 #+++ Collect everything
-if basename(__file__) == "h00_runall.py":
+if basename(__file__) == "h00_run_postproc.py":
     dslist = []
     print()
     for sim_number, outname in enumerate(outnames):

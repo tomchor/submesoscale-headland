@@ -24,7 +24,6 @@ plotting_time = 23
 figdir = "figures"
 
 slice_names = ["xyi",]
-modifiers = ["-f2", "",]
 modifiers = ["",]
 
 varnames = ["q̃_norm"]

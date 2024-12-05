@@ -258,6 +258,7 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       "v"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdBu_r),
                       "v̂"         : dict(vmin=-1.2, vmax=+1.2, cmap=cm.balance),
                       "w"         : dict(vmin=-0.003, vmax=+0.003, cmap=plt.cm.RdBu_r),
+                      "∂u∂z"      : dict(robust=True, cmap=plt.cm.RdBu_r),
                       "PV_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "PVᶻ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "PVʰ_norm"  : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
@@ -280,7 +281,7 @@ plot_kwargs_by_var = {"u"         : dict(vmin=-0.01, vmax=+0.01, cmap=plt.cm.RdB
                       "v"         : dict(vmin=-1.2 * 0.01, vmax=1.2 * 0.01, cmap=cm.balance),
                       "wb"        : dict(vmin=-1e-8, vmax=+1e-8, cmap=BuRd),
                       "w̄b̄"        : dict(vmin=-1e-8, vmax=+1e-8, cmap=BuRd),
-                      "⟨w′b′⟩ₜ"   : dict(vmin=-1e-9, vmax=+1e-9, cmap=BuRd),
+                      "⟨w′b′⟩ₜ"   : dict(vmin=-4e-10, vmax=+4e-10, cmap=BuRd),
                       "uᵢGᵢ"      : dict(vmin=-1e-7, vmax=+1e-7, cmap=cm.balance),
                       "Kb"        : dict(vmin=-1e-1, vmax=+1e-1, cmap=cm.balance),
                       "γ"         : dict(vmin=0, vmax=1, cmap="plasma"),
@@ -302,6 +303,7 @@ label_dict = {"ε̄ₖ"      : r"Time-averaged KE dissipation rate $\bar\varepsi
               "PV_norm" : r"Normalized Ertel PV (PV$/f N^2_\infty$)",
               "v"       : r"$v$-velocity [m/s]",
               "v̂"       : r"Normalized $v$-velocity ($v/V_\infty$)",
+              "∂u∂z"    : r"$\partial u / \partial z$ [1/s]",
               }
 #---
 

@@ -8,11 +8,7 @@ from matplotlib.colors import LinearSegmentedColormap
 
 #+++ Define directory and simulation name
 path = f"./headland_simulations/data/"
-simnames = [#"NPN-TEST",
-            #"NPN-PropA",
-            #"NPN-PropB",
-            #"NPN-PropD",
-            "NPN-R008F008",
+simnames = ["NPN-R008F008",
             "NPN-R008F02",
             "NPN-R008F05",
             "NPN-R008F1",
@@ -32,7 +28,6 @@ simnames = [#"NPN-TEST",
 
 from cycler import cycler
 names = cycler(name=simnames)
-modifiers = cycler(modifier = ["-f4", "-f2", ""])
 modifiers = cycler(modifier = ["-f2", ""])
 simnames = [ nr["name"] + nr["modifier"] for nr in modifiers * names ]
 #---
