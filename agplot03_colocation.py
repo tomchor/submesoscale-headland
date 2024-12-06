@@ -7,10 +7,10 @@ from cmocean import cm
 from aux00_utils import open_simulation
 from aux01_physfuncs import calculate_filtered_PV
 from aux02_plotting import letterize
-
 plt.rcParams['figure.constrained_layout.use'] = True
+plt.rcParams["font.size"] = 11
 
-modifier = "-f4"
+modifier = ""
 Fr_h = 0.2
 Ro_h = 1
 
@@ -62,7 +62,7 @@ ds_xz.q̃_norm.attrs = dict(long_name=r"Filtered Ertel PV / $N^2_\infty f_0$")
 ds_xz["εₖ"].attrs = dict(long_name=r"KE dissipation rate [m²/s³]")
 ds_xz["ω_y"].attrs = dict(long_name=r"Streamwise vorticity [1/s]")
 
-size = 2.5
+size = 2
 nrows=2; ncols=len(ds_xz.yC)
 fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(3*size*ncols, size*nrows),
                          squeeze=False,
@@ -83,7 +83,7 @@ for i, yC in enumerate(ds_xz.yC.values):
     ax.pcolormesh(ds_xz.xC, ds_xz.zC, ds_xz.land_mask.pnisel(y=i), rasterized=True, **opts_land)
     ax.set_xlabel("")
     ax.set_ylabel("z [m]")
-    ax.set_title(f"y = {yC:.2f}")
+    ax.set_title(f"y = {yC:.2f} m")
 
     ax = axes[1,i]
     ds_xz.sel(yC=yC)["ω_y"].pnplot(ax=ax, x="x", rasterized=True, cbar_kwargs=cbar_kwargs, add_colorbar=add_colorbar, **plot_kwargs_by_var["ω_y"])
