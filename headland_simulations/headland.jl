@@ -135,7 +135,7 @@ grid_base = RectilinearGrid(arch, topology = topo,
                             x = x_extent,
                             y = (-params.y_offset, params.Ly-params.y_offset),
                             z = (0, params.Lz),
-                            halo = (4,4,4),
+                            halo = (5,5,5),
                             )
 @info grid_base
 params = (; params..., Δz_min = minimum_zspacing(grid_base))
@@ -264,7 +264,7 @@ end
 #+++ Model and ICs
 @info "Creating model"
 model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
-                            advection = WENO(grid=grid_base, order=5),
+                            advection = WENO(grid=grid_base, order=9),
                             buoyancy = BuoyancyTracer(),
                             coriolis = FPlane(params.f_0),
                             tracers = :b,
