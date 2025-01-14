@@ -284,6 +284,7 @@ params = (; params..., T_advective_max = params.T_advective_spinup + params.T_ad
 simulation = Simulation(model, Δt=0.2*minimum_zspacing(grid.underlying_grid)/params.V_inf,
                         stop_time=params.T_advective_max * params.T_advective,
                         wall_time_limit=23hours,
+                        minimum_relative_step = 1e-10,
                         )
 
 using Oceanostics.ProgressMessengers
