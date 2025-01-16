@@ -1,4 +1,7 @@
 import Oceananigans.BoundaryConditions: _fill_north_halo!
+using Oceananigans.BoundaryConditions: Open, PerturbationAdvection
+
+const PAOBC = BoundaryCondition{<:Open{<:PerturbationAdvection}}
 
 @inline function _fill_east_halo!(j, k, grid, u, bc::PAOBC, ::Tuple{Face, Any, Any}, clock, model_fields)
     i = grid.Nx + 1
