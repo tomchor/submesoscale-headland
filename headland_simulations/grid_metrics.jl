@@ -1,4 +1,5 @@
-using Oceananigans.Grids: xspacing, yspacing, zspacing, xnode, ynode, znode, boundary_node, inactive_node, destantiate
+using Oceananigans.Operators: xspacing, yspacing, zspacing
+using Oceananigans.Grids: xnode, ynode, znode, boundary_node, inactive_node, destantiate
 using Oceananigans: location
 
 flip_loc(::Center) = Face()
