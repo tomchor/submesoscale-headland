@@ -99,7 +99,7 @@ pprintln(params)
 #+++ Base grid
 #+++ Figure out topology and domain
 if topology == "NPN"
-    topo = (Bounded, Periodic, Bounded)
+    topo = (Bounded, Bounded, Bounded)
 else
     throw(AssertionError("Topology must be NPN"))
 end
@@ -198,23 +198,35 @@ params = (; params..., c_dz = (κᵛᵏ / log(z₁/z₀))^2) # quadratic drag co
 τᵘ = FluxBoundaryCondition(τᵘ_drag, field_dependencies = (:u, :v, :w), parameters=(; Cᴰ = params.c_dz,))
 τᵛ = FluxBoundaryCondition(τᵛ_drag, field_dependencies = (:u, :v, :w), parameters=(; Cᴰ = params.c_dz,))
 τʷ = FluxBoundaryCondition(τʷ_drag, field_dependencies = (:u, :v, :w), parameters=(; Cᴰ = params.c_dz,))
-
-u_bcs = FieldBoundaryConditions(immersed=τᵘ)
-v_bcs = FieldBoundaryConditions(immersed=τᵛ)
-w_bcs = FieldBoundaryConditions(immersed=τʷ)
 #---
 
-#+++ Buoyancy model and background
+#+++ Open boundary conditions for velocitities
+using Oceananigans.BoundaryConditions: PerturbationAdvectionOpenBoundaryCondition
+include("obc_y.jl")
 
+u_south = u_north = ValueBoundaryCondition(0)
+
+v_south = OpenBoundaryCondition(params.V∞)
+v_north = PerturbationAdvectionOpenBoundaryCondition(params.V∞; inflow_timescale = 2minutes, outflow_timescale = 2minutes,)
+
+w_south = w_north = ValueBoundaryCondition(0)
+#---
+
+
+#+++ Boundary conditions for buoyancy
 b∞(x, y, z, t, p) = p.N²∞ * z
+b∞(x, z, t, p) = b∞(x, 0, z, t, p)
 
-b_bcs = FieldBoundaryConditions()
+b_south = b_north = ValueBoundaryCondition(b∞, parameters = (; params.N²∞))
+#---
 
-bcs = (u=u_bcs,
-       v=v_bcs,
-       w=w_bcs,
-       b=b_bcs,
-       )
+#+++ Assemble BCs
+u_bcs = FieldBoundaryConditions(south=u_south, north=u_north, immersed=τᵘ)
+v_bcs = FieldBoundaryConditions(south=v_south, north=v_north, immersed=τᵛ)
+w_bcs = FieldBoundaryConditions(south=w_south, north=w_north, immersed=τʷ)
+b_bcs = FieldBoundaryConditions(south=b_south, north=b_north)
+
+bcs = (u=u_bcs, v=v_bcs, w=w_bcs, b=b_bcs)
 #---
 
 #+++ Sponge layer definition
