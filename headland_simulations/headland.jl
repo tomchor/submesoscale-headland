@@ -1,6 +1,5 @@
 if ("PBS_JOBID" in keys(ENV))  @info "Job ID" ENV["PBS_JOBID"] end # Print job ID if this is a PBS simulation
-#using Pkg
-#Pkg.instantiate()
+#using Pkg; Pkg.instantiate()
 using InteractiveUtils
 versioninfo()
 using DrWatson
@@ -248,21 +247,9 @@ const y₂ = y₀ + params.sponge_length_y
 @inline sponge_w(x, y, z, t, w, p) = -(south_mask_linear(x, y, z, p)) * p.σ * w
 @inline sponge_b(x, y, z, t, b, p) = -(south_mask_linear(x, y, z, p)) * p.σ * (b - b∞(0, 0, z, 0, p))
 
-@inline geostrophy(x, y, z, p) = -p.f₀ * p.V∞
+@inline geostrophy(x, y, z, t, p) = -p.f₀ * p.V∞
 
-forc_u(x, y, z, t, u, p) = sponge_u(x, y, z, t, u, p) + geostrophy(x, y, z, p)
-forc_v(x, y, z, t, v, p) = sponge_v(x, y, z, t, v, p)
-forc_w(x, y, z, t, w, p) = sponge_w(x, y, z, t, w, p)
-forc_b(x, y, z, t, b, p) = sponge_b(x, y, z, t, b, p)
-
-
-f_params = (; params.H, params.L, params.sponge_length_y,
-            params.V∞, params.f₀, params.N²∞,)
-
-Fᵤ = Forcing(forc_u, field_dependencies = :u, parameters = merge(mask_y_params, (; f₀ = params.f_0, V∞ = params.V_inf)))
-Fᵥ = Forcing(forc_v, field_dependencies = :v, parameters = merge(mask_y_params, f_params))
-Fw = Forcing(forc_w, field_dependencies = :w, parameters = mask_y_params)
-Fb = Forcing(forc_b, field_dependencies = :b, parameters = merge(mask_y_params, f_params))
+Fᵤ = Forcing(geostrophy, parameters = merge(mask_y_params, (; params.f₀, params.V∞)))
 #---
 
 #+++ Turbulence closure
@@ -282,12 +269,13 @@ model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
                             tracers = :b,
                             closure = closure,
                             boundary_conditions = bcs,
-                            forcing = (u=Fᵤ, v=Fᵥ, w=Fw, b=Fb),
+                            forcing = (; u=Fᵤ),
                             hydrostatic_pressure_anomaly = CenterField(grid),
                             )
 @info "" model
 if has_cuda_gpu() run(`nvidia-smi -i $(ENV["CUDA_VISIBLE_DEVICES"])`) end
 
+f_params = (; params.H, params.L, params.sponge_length_y, params.V∞, params.f₀, params.N²∞,)
 set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
 #---
 
