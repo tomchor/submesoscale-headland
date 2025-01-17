@@ -228,28 +228,10 @@ b_bcs = FieldBoundaryConditions(south=b_south, north=b_north)
 bcs = (u=u_bcs, v=v_bcs, w=w_bcs, b=b_bcs)
 #---
 
-#+++ Sponge layer definition
-@info "Defining sponge layer"
 params = (; params..., y_south = ynode(1, grid, Face()))
-mask_y_params = (; params.y_south, params.sponge_length_y, σ = params.sponge_rate)
-
-const y₀ = params.y_south
-const y₁ = y₀ + params.sponge_length_y/2
-const y₂ = y₀ + params.sponge_length_y
-@inline south_mask_linear(x, y, z, p) = ifelse((y₀ <= y <= y₁),
-                                               (y-y₀)/(y₁-y₀),
-                                               ifelse((y₁ <= y <= y₂),
-                                                      (y-y₂)/(y₁-y₂), 0.0
-                                                      ))
-
-@inline sponge_u(x, y, z, t, u, p) = -(south_mask_linear(x, y, z, p)) * p.σ * u
-@inline sponge_v(x, y, z, t, v, p) = -(south_mask_linear(x, y, z, p)) * p.σ * (v - p.V∞)
-@inline sponge_w(x, y, z, t, w, p) = -(south_mask_linear(x, y, z, p)) * p.σ * w
-@inline sponge_b(x, y, z, t, b, p) = -(south_mask_linear(x, y, z, p)) * p.σ * (b - b∞(0, 0, z, 0, p))
-
+#+++ Define geostrophic forcing
 @inline geostrophy(x, y, z, t, p) = -p.f₀ * p.V∞
-
-Fᵤ = Forcing(geostrophy, parameters = merge(mask_y_params, (; params.f₀, params.V∞)))
+Fᵤ = Forcing(geostrophy, parameters = (; params.f₀, params.V∞))
 #---
 
 #+++ Turbulence closure
@@ -275,7 +257,7 @@ model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
 @info "" model
 if has_cuda_gpu() run(`nvidia-smi -i $(ENV["CUDA_VISIBLE_DEVICES"])`) end
 
-f_params = (; params.H, params.L, params.sponge_length_y, params.V∞, params.f₀, params.N²∞,)
+f_params = (; params.H, params.L, params.V∞, params.f₀, params.N²∞,)
 set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
 #---
 
