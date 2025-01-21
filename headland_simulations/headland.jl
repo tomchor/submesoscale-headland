@@ -201,7 +201,6 @@ params = (; params..., c_dz = (κᵛᵏ / log(z₁/z₀))^2) # quadratic drag co
 
 #+++ Open boundary conditions for velocitities
 using Oceananigans.BoundaryConditions: PerturbationAdvectionOpenBoundaryCondition
-include("obc_y.jl")
 
 u_south = u_north = ValueBoundaryCondition(0)
 
