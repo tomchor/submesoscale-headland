@@ -9,20 +9,20 @@ simnames = [#"NPN-TEST",
             #"NPN-R008F02",
             "NPN-R02F02",
             #"NPN-R05F02",
-            "NPN-R1F02",
+            #"NPN-R1F02",
             #"NPN-R008F05",
             #"NPN-R02F05",
             #"NPN-R05F05",
             #"NPN-R1F05",
             #"NPN-R008F1",
-            "NPN-R02F1",
+            #"NPN-R02F1",
             #"NPN-R05F1",
-            "NPN-R1F1",
+            #"NPN-R1F1",
             ]
 
 from cycler import cycler
 names = cycler(name=simnames)
-resolutions = cycler(resolution = ["-f2"])
+resolutions = cycler(resolution = ["-f4"])
 rotations = cycler(rotation = ["", "-S",])
 rotations = cycler(rotation = ["",])
 simnames = [ nr["name"] + nr["rotation"] + nr["resolution"] for nr in rotations * resolutions * names ]
@@ -30,6 +30,7 @@ simnames = [ nr["name"] + nr["rotation"] + nr["resolution"] for nr in rotations 
 
 #+++ Options
 remove_checkpoints = False
+only_one_job = False
 dry_run = False
 omit_topology = True
 
@@ -51,12 +52,13 @@ pbs_script = \
 #PBS -l {options_string2}
 #PBS -M email@univ.edu
 #PBS -m ae
+#PBS -r n
 
 # Clear the environment from any previously loaded modules
 module li
 module --force purge
 module load ncarenv/23.10
-module load julia/1.9.2 cuda
+module load julia/1.10.2 cuda
 module li
 
 #/glade/u/apps/ch/opt/usr/bin/dumpenv # Dumps environment (for debugging with CISL support)
