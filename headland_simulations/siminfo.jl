@@ -35,8 +35,7 @@ end
                 Ly_ratio = 15, # Ly / headland_width
 
                 Rz = 2.5e-3,
-                runway_length_fraction_L = 4, # runway_length / L
-                sponge_fraction_Ly = 0.1,
+                runway_length_fraction_L = 4, # y_offset / L (how far from the inflow is the headland)
                 T_advective_spinup = 20, # Should be a multiple of 20
                 T_advective_statistics = 60, # Should be a multiple of 20
                 )
@@ -161,9 +160,7 @@ function expand_headland_parameters(params)
     Lx = params.Lx_ratio * headland_intrusion_size_max
     Ly = params.Ly_ratio * L
 
-    sponge_length_y = params.sponge_fraction_Ly * Ly
-    runway_length = params.runway_length_fraction_L * L
-    y_offset = sponge_length_y + runway_length
+    y_offset = params.runway_length_fraction_L * L
     #---
 
     #+++ Dynamically-relevant secondary parameters
@@ -171,7 +168,6 @@ function expand_headland_parameters(params)
     N²∞ = N2_inf = (V∞ / (Fr_h * params.H))^2
     R1 = √N²∞ * params.H / f₀
     z₀ = z_0 = params.Rz * params.H
-    sponge_rate = 40 * V∞ / sponge_length_y
     #---
 
     #+++ Diagnostic parameters
