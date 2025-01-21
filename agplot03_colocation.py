@@ -34,7 +34,7 @@ plot_kwargs_by_var = {"PV_norm"   : dict(vmin=-5, vmax=5, cmap="RdBu_r"),
                       "PVh_ratio" : dict(vmin=-10, vmax=10, cmap="RdBu_r"),
                       "Ri"        : dict(vmin=-2, vmax=2, cmap=cm.balance),
                       "Ro"        : dict(vmin=-3, vmax=3, cmap="bwr"),
-                      "εₖ"        : dict(norm=LogNorm(vmin=1e-10, vmax=1e-8, clip=True), cmap="inferno"),
+                      "εₖ"        : dict(norm=LogNorm(vmin=4e-11, vmax=4e-9, clip=True), cmap="inferno"),
                       "εₚ"        : dict(norm=LogNorm(vmin=1e-10, vmax=1e-8, clip=True), cmap="inferno"),
                       "Lo"        : dict(vmin=0, vmax=2, cmap=cm.balance),
                       "Δz_norm"   : dict(vmin=0, vmax=2, cmap=cm.balance),
@@ -79,14 +79,14 @@ for i, yC in enumerate(ds_xz.yC.values):
         add_colorbar = False
         cbar_kwargs = None
     ax = axes[0,i]
-    ds_xz.sel(yC=yC)["q̃_norm"].pnplot(ax=ax, x="x", rasterized=True, cbar_kwargs=cbar_kwargs, add_colorbar=add_colorbar, **plot_kwargs_by_var["PV_norm"])
+    ds_xz.sel(yC=yC)["q̃_norm"].pnplot(ax=ax, x="x", rasterized=True, cbar_kwargs=cbar_kwargs, add_colorbar=add_colorbar, **plot_kwargs_by_var["q̃_norm"])
     ax.pcolormesh(ds_xz.xC, ds_xz.zC, ds_xz.land_mask.pnisel(y=i), rasterized=True, **opts_land)
     ax.set_xlabel("")
     ax.set_ylabel("z [m]")
     ax.set_title(f"y = {yC:.2f} m")
 
     ax = axes[1,i]
-    ds_xz.sel(yC=yC)["ω_y"].pnplot(ax=ax, x="x", rasterized=True, cbar_kwargs=cbar_kwargs, add_colorbar=add_colorbar, **plot_kwargs_by_var["ω_y"])
+    ds_xz.sel(yC=yC)["εₖ"].pnplot(ax=ax, x="x", rasterized=True, cbar_kwargs=cbar_kwargs, add_colorbar=add_colorbar, **plot_kwargs_by_var["εₖ"])
     ax.pcolormesh(ds_xz.xC, ds_xz.zC, ds_xz.land_mask.pnisel(y=i), rasterized=True, **opts_land)
     ax.set_xlabel("x [m]")
     ax.set_ylabel("z [m]")
