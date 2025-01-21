@@ -2,10 +2,10 @@ using Rasters
 import NCDatasets
 
 if !(@isdefined simname) || (typeof(simname) !== String)
-    simname = "NPN-R02F02-f4"
+    simname = "NPN-R1F008-f4"
 end
 
-@info "Reading NetCDF"
+@show "Reading NetCDF"
 xyz = RasterStack("data/xyz.$simname.nc", name=(:PV,), lazy=true)
 
 md = metadata(xyz)
@@ -20,7 +20,7 @@ params = (; (Symbol(k) => v for (k, v) in md)...)
 #---
 
 @show "Slicing xyz"
-xyz = xyz[yC=Between(-md["y_offset"], Inf), xC=Between(dims(xyz, :xC)[3], Inf)]
+xyz = xyz[yC=Between(-md["runway_length"], Inf), xC=Between(dims(xyz, :xC)[3], Inf)]
 xC = Array(dims(xyz, :xC))
 yC = Array(dims(xyz, :yC))
 zC = Array(dims(xyz, :zC))
@@ -45,7 +45,7 @@ settings_axis3 = (aspect = (md["Lx"], md["Ly"], 4*md["Lz"]), azimuth = -0.80π, 
                   perspectiveness=0.8, viewmode=:fitzoom, xlabel="x [m]", ylabel="y [m]", zlabel="z [m]")
 
 ax = Axis3(fig[2, 1]; settings_axis3...)
-volume!(ax, xC, yC, zC, H, algorithm = :absorption, absorption=50f0, colormap = [RGBAf(0,0,0,0), :papayawhip], colorrange=(0, 1)) # turn on anti-aliasing
+volume!(ax, xC, yC, zC, H, algorithm = :absorption, absorption=50f0, colormap = [:papayawhip, RGBAf(0,0,0,0), :papayawhip], colorrange=(-1, 1)) # turn on anti-aliasing
 
 vol = volume!(ax, xC, yC, zC, PVₙ, algorithm = :absorption, absorption=20f0, colormap=colormap, colorrange=PV_lims)
 Colorbar(fig, vol, bbox=ax.scene.px_area,
@@ -55,7 +55,7 @@ Colorbar(fig, vol, bbox=ax.scene.px_area,
 
 #+++ Inset axis
 inset_ax = Axis3(fig[2, 1]; width=Relative(0.4), height=Relative(0.4), halign=1, valign=1.1, zticks=[0, 40, 80], settings_axis3...)
-volume!(inset_ax, xC, yC, zC, H, algorithm = :absorption, absorption=50f0, colormap = [RGBAf(0,0,0,0), :papayawhip], colorrange=(0, 1)) # turn on anti-aliasing
+contour!(inset_ax, xC, yC, zC, bathymetry, levels = [0], specular = Vec3f(0), diffuse = Vec3f(1), colormap = [:gray50], fxaa = true,) # turn on anti-aliasing
 
 ps = [Point3f(0, -400, 40)]
 ns = [Vec3f(0, params.Ly/2, 0)]
@@ -84,7 +84,7 @@ fig[1, 1] = Label(fig, title, fontsize=18, tellwidth=false, height=8)
 #+++ Record animation
 n[] = 1
 frames = 1:length(dims(PV, :Ti))
-GLMakie.record(fig, string(@__DIR__) * "/../../anims/bathymetry_3d_PV_$simname.mp4", frames, framerate=20) do frame
+GLMakie.record(fig, string(@__DIR__) * "/../../anims/bathymetry_3d_PV_$simname.mp4", frames, framerate=14) do frame
     @info "Plotting time step $frame"
     n[] = frame
 end

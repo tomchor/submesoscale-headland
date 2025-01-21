@@ -1,5 +1,6 @@
 if ("PBS_JOBID" in keys(ENV))  @info "Job ID" ENV["PBS_JOBID"] end # Print job ID if this is a PBS simulation
-#using Pkg; Pkg.instantiate()
+#using Pkg
+#Pkg.instantiate()
 using InteractiveUtils
 versioninfo()
 using DrWatson
@@ -98,7 +99,7 @@ pprintln(params)
 #+++ Base grid
 #+++ Figure out topology and domain
 if topology == "NPN"
-    topo = (Bounded, Bounded, Bounded)
+    topo = (Bounded, Periodic, Bounded)
 else
     throw(AssertionError("Topology must be NPN"))
 end
@@ -197,41 +198,59 @@ params = (; params..., c_dz = (κᵛᵏ / log(z₁/z₀))^2) # quadratic drag co
 τᵘ = FluxBoundaryCondition(τᵘ_drag, field_dependencies = (:u, :v, :w), parameters=(; Cᴰ = params.c_dz,))
 τᵛ = FluxBoundaryCondition(τᵛ_drag, field_dependencies = (:u, :v, :w), parameters=(; Cᴰ = params.c_dz,))
 τʷ = FluxBoundaryCondition(τʷ_drag, field_dependencies = (:u, :v, :w), parameters=(; Cᴰ = params.c_dz,))
+
+u_bcs = FieldBoundaryConditions(immersed=τᵘ)
+v_bcs = FieldBoundaryConditions(immersed=τᵛ)
+w_bcs = FieldBoundaryConditions(immersed=τʷ)
 #---
 
-#+++ Open boundary conditions for velocitities
-using Oceananigans.BoundaryConditions: PerturbationAdvectionOpenBoundaryCondition
-include("obc_y.jl")
+#+++ Buoyancy model and background
 
-u_south = u_north = ValueBoundaryCondition(0)
-
-v_south = OpenBoundaryCondition(params.V∞)
-v_north = PerturbationAdvectionOpenBoundaryCondition(params.V∞; inflow_timescale = 2minutes, outflow_timescale = 2minutes,)
-
-w_south = w_north = ValueBoundaryCondition(0)
-#---
-
-
-#+++ Boundary conditions for buoyancy
 b∞(x, y, z, t, p) = p.N²∞ * z
-b∞(x, z, t, p) = b∞(x, 0, z, t, p)
 
-b_south = b_north = ValueBoundaryCondition(b∞, parameters = (; params.N²∞))
+b_bcs = FieldBoundaryConditions()
+
+bcs = (u=u_bcs,
+       v=v_bcs,
+       w=w_bcs,
+       b=b_bcs,
+       )
 #---
 
-#+++ Assemble BCs
-u_bcs = FieldBoundaryConditions(south=u_south, north=u_north, immersed=τᵘ)
-v_bcs = FieldBoundaryConditions(south=v_south, north=v_north, immersed=τᵛ)
-w_bcs = FieldBoundaryConditions(south=w_south, north=w_north, immersed=τʷ)
-b_bcs = FieldBoundaryConditions(south=b_south, north=b_north)
-
-bcs = (u=u_bcs, v=v_bcs, w=w_bcs, b=b_bcs)
-#---
-
+#+++ Sponge layer definition
+@info "Defining sponge layer"
 params = (; params..., y_south = ynode(1, grid, Face()))
-#+++ Define geostrophic forcing
-@inline geostrophy(x, y, z, t, p) = -p.f₀ * p.V∞
-Fᵤ = Forcing(geostrophy, parameters = (; params.f₀, params.V∞))
+mask_y_params = (; params.y_south, params.sponge_length_y, σ = params.sponge_rate)
+
+const y₀ = params.y_south
+const y₁ = y₀ + params.sponge_length_y/2
+const y₂ = y₀ + params.sponge_length_y
+@inline south_mask_linear(x, y, z, p) = ifelse((y₀ <= y <= y₁),
+                                               (y-y₀)/(y₁-y₀),
+                                               ifelse((y₁ <= y <= y₂),
+                                                      (y-y₂)/(y₁-y₂), 0.0
+                                                      ))
+
+@inline sponge_u(x, y, z, t, u, p) = -(south_mask_linear(x, y, z, p)) * p.σ * u
+@inline sponge_v(x, y, z, t, v, p) = -(south_mask_linear(x, y, z, p)) * p.σ * (v - p.V∞)
+@inline sponge_w(x, y, z, t, w, p) = -(south_mask_linear(x, y, z, p)) * p.σ * w
+@inline sponge_b(x, y, z, t, b, p) = -(south_mask_linear(x, y, z, p)) * p.σ * (b - b∞(0, 0, z, 0, p))
+
+@inline geostrophy(x, y, z, p) = -p.f₀ * p.V∞
+
+forc_u(x, y, z, t, u, p) = sponge_u(x, y, z, t, u, p) + geostrophy(x, y, z, p)
+forc_v(x, y, z, t, v, p) = sponge_v(x, y, z, t, v, p)
+forc_w(x, y, z, t, w, p) = sponge_w(x, y, z, t, w, p)
+forc_b(x, y, z, t, b, p) = sponge_b(x, y, z, t, b, p)
+
+
+f_params = (; params.H, params.L, params.sponge_length_y,
+            params.V∞, params.f₀, params.N²∞,)
+
+Fᵤ = Forcing(forc_u, field_dependencies = :u, parameters = merge(mask_y_params, (; f₀ = params.f_0, V∞ = params.V_inf)))
+Fᵥ = Forcing(forc_v, field_dependencies = :v, parameters = merge(mask_y_params, f_params))
+Fw = Forcing(forc_w, field_dependencies = :w, parameters = mask_y_params)
+Fb = Forcing(forc_b, field_dependencies = :b, parameters = merge(mask_y_params, f_params))
 #---
 
 #+++ Turbulence closure
@@ -251,22 +270,20 @@ model = NonhydrostaticModel(grid = grid, timestepper = :RungeKutta3,
                             tracers = :b,
                             closure = closure,
                             boundary_conditions = bcs,
-                            forcing = (; u=Fᵤ),
+                            forcing = (u=Fᵤ, v=Fᵥ, w=Fw, b=Fb),
                             hydrostatic_pressure_anomaly = CenterField(grid),
                             )
 @info "" model
 if has_cuda_gpu() run(`nvidia-smi -i $(ENV["CUDA_VISIBLE_DEVICES"])`) end
 
-f_params = (; params.H, params.L, params.V∞, params.f₀, params.N²∞,)
 set!(model, b=(x, y, z) -> b∞(x, y, z, 0, f_params), v=params.V_inf)
 #---
 
 #+++ Create simulation
 params = (; params..., T_advective_max = params.T_advective_spinup + params.T_advective_statistics)
-simulation = Simulation(model, Δt = 0.2*minimum_zspacing(grid.underlying_grid)/params.V_inf,
-                        stop_time = params.T_advective_max * params.T_advective,
-                        wall_time_limit = 23hours,
-                        minimum_relative_step = 1e-10,
+simulation = Simulation(model, Δt=0.2*minimum_zspacing(grid.underlying_grid)/params.V_inf,
+                        stop_time=params.T_advective_max * params.T_advective,
+                        wall_time_limit=23hours,
                         )
 
 using Oceanostics.ProgressMessengers
@@ -305,12 +322,12 @@ checkpointer = construct_outputs(simulation,
                                  interval_2d = 0.2*params.T_advective,
                                  interval_3d = 2.0*params.T_advective,
                                  interval_time_avg = 20*params.T_advective,
-                                 write_xyz = false,
+                                 write_xyz = true,
                                  write_xiz = false,
                                  write_xyi = true,
                                  write_iyz = true,
                                  write_ttt = true,
-                                 write_tti = false,
+                                 write_tti = true,
                                  debug = false,
                                  )
 tock()

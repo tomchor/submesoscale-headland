@@ -161,6 +161,10 @@ for (i, variable) in enumerate(variables)
         global hm = heatmap!(vₙ; kwargs[variable]...)
 
         #+++ Plot vlines when appropriate
+        if slice == "yz"
+            vlines!(ax, params.y_south + params.sponge_length_y, color=:black, linestyle=:dash)
+        end
+
         for (other_slice, dim, dim_value) in slicelist
             if dim == string(first(string(dimnames[1])))
                 vlines!(ax, dim_value, color=:white, linestyle=:dash)

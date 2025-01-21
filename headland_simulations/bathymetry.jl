@@ -44,7 +44,7 @@ xC = KernelFunctionOperation{Center, Center, Center}(xnode, grid_base, Center(),
 yC = KernelFunctionOperation{Center, Center, Center}(ynode, grid_base, Center(), Center(), Center())
 zC = KernelFunctionOperation{Center, Center, Center}(znode, grid_base, Center(), Center(), Center())
 
-using Oceananigans.Operators: xspacing, zspacing
+using Oceananigans.Grids: xspacing, zspacing
 ΔxΔz_kernel(i, j, k, grid, ℓx, ℓy, ℓz) = xspacing(i, j, k, grid, ℓx, ℓy, ℓz) * zspacing(i, j, k, grid, ℓx, ℓy, ℓz)
 ΔxΔz = KernelFunctionOperation{Center, Center, Center}(ΔxΔz_kernel, grid_base, Center(), Center(), Center())
 
