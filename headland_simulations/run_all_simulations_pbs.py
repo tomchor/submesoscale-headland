@@ -42,7 +42,7 @@ julia_file = "headland.jl"
 
 pbs_script = \
 """#!/bin/bash -l
-#PBS -A UMCP0028
+#PBS -A PROJECTCODE
 #PBS -N {simname_fullshort}
 #PBS -o logs/{simname_full}.log
 #PBS -e logs/{simname_full}.log
@@ -50,7 +50,7 @@ pbs_script = \
 #PBS -q casper
 #PBS -l {options_string1}
 #PBS -l {options_string2}
-#PBS -M tchor@umd.edu
+#PBS -M email@univ.edu
 #PBS -m ae
 #PBS -r n
 

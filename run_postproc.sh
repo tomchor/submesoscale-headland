@@ -1,12 +1,12 @@
 #!/bin/bash -l
-#PBS -A UMCP0020
+#PBS -A PROJECTCODE
 #PBS -N postproc
 #PBS -o logs/postproc.log
 #PBS -e logs/postproc.log
 #PBS -l walltime=24:00:00
 #PBS -q casper
 #PBS -l select=1:ncpus=16:mem=80GB:ngpus=0
-#PBS -M tchor@umd.edu
+#PBS -M email@univ.edu
 #PBS -m abe
 #PBS -r n
 

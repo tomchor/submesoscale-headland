@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/756984469.svg)](https://doi.org/10.5281/zenodo.14276676)
+
 # The turbulent dynamics of anticyclonic submesoscale headland wakes
 
 ![PV in R1F008](./figures/PV_bathymetry_R1F008.png)
